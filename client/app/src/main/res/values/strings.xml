@@ -1,3 +1,25 @@
 <resources>
     <string name="app_name">client</string>
+    <string name="base_url">http://10.0.2.2:8000/</string>
+    <string name="credential_emailAddress">Email Address</string>
+    <string name="credential_password">Password</string>
+    <string name="credential_loginButton">Proceed to My Wellness</string>
+    <string name="credential_fingerprintLogin">Use Biometric to Login</string>
+    <string name="credential_fingerprintDialer">Fingerprint Dialer</string>
+    <string name="credential_valid">Login Successful!!!</string>"
+    <string name="credential_invalid">Invalid Credentials</string>
+    <string name="credential_networkError">Network Error</string>
+    <string name="auth_error">Authentication Error</string>
+    <string name="auth_success">Authentication Successful!!!</string>
+    <string name="auth_failed">Authentication Failed</string>
+    <string name="logout_success">Logout Successful</string>
+    <string name="biometric_title">Biometric Authentication</string>
+    <string name="biometric_subtitle">Log in Using your Biometric Credential</string>
+    <string name="biometric_negativeButtonText">Cancel</string>
+    <string name="biometric_error_no_hardware">No Biometric Features Available on this Device</string>
+    <string name="biometric_error_hw_unavailable">Biometric Features are Currently Unavailable</string>
+    <string name="biometric_error_none_enrolled">No Biometric Credentials are Enrolled</string>
+    <string name="biometric_error_security_update_required">Security Update Required</string>
+    <string name="biometric_error_unsupported">Biometric Features are Not Supported</string>
+    <string name="biometric_status_unknown">Biometric Status is Unknown</string>
 </resources>
