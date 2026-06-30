@@ -1,0 +1,2983 @@
+{
+  "dish_name": "Pad Thai",
+  "portion_size": "1 plate (approx. 380g)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 490,
+      "max": 520
+    },
+    "protein_g": {
+      "min": 22,
+      "max": 26
+    },
+    "carbohydrates_g": {
+      "min": 58,
+      "max": 64
+    },
+    "sugars_g": {
+      "min": 8,
+      "max": 11
+    },
+    "total_fat_g": {
+      "min": 18,
+      "max": 22
+    },
+    "saturated_fat_g": {
+      "min": 3.5,
+      "max": 5
+    },
+    "dietary_fiber_g": {
+      "min": 2,
+      "max": 3
+    },
+    "sodium_mg": {
+      "min": 1100,
+      "max": 1400
+    },
+    "cholesterol_mg": {
+      "min": 160,
+      "max": 200
+    },
+    "micronutrients": {
+      "iron_mg": {
+        "min": 2.5,
+        "max": 3.5,
+        "percent_daily_value": "15–20%"
+      },
+      "calcium_mg": {
+        "min": 80,
+        "max": 120,
+        "percent_daily_value": "8–12%"
+      },
+      "vitamin_a_iu": {
+        "min": 250,
+        "max": 350,
+        "percent_daily_value": "5–8%"
+      },
+      "vitamin_c_mg": {
+        "min": 8,
+        "max": 14,
+        "percent_daily_value": "10–15%"
+      },
+      "potassium_mg": {
+        "min": 320,
+        "max": 420,
+        "percent_daily_value": "7–9%"
+      },
+      "phosphorus_mg": {
+        "min": 200,
+        "max": 260,
+        "percent_daily_value": "20–25%"
+      },
+      "magnesium_mg": {
+        "min": 35,
+        "max": 50,
+        "percent_daily_value": "9–12%"
+      },
+      "zinc_mg": {
+        "min": 1.5,
+        "max": 2.5,
+        "percent_daily_value": "14–20%"
+      }
+    }
+  },
+  "ingredients_notes": "Rice noodles stir-fried in a wok with tamarind paste, fish sauce, and palm sugar sauce. Typically includes eggs, firm tofu and/or shrimp or chicken, bean sprouts, green onions, and dried shrimp. Finished with crushed peanuts, lime wedge, and chilli flakes. Cooked over high heat for characteristic smoky wok hei flavour.",
+  "dietary_considerations": [
+    "High sodium: 1,100–1,400 mg per plate, contributing approximately 48–60% of recommended daily intake",
+    "Contains shellfish: shrimp and dried shrimp present",
+    "Contains eggs",
+    "Contains peanuts and tree nuts",
+    "Contains fish: fish sauce used in preparation",
+    "Possible gluten: oyster sauce and soy sauce may contain gluten unless gluten-free alternatives are used",
+    "Possible soy: tofu and soy sauce may be present",
+    "Not suitable for vegans: contains eggs, fish sauce, and shrimp",
+    "Not typically vegetarian: fish sauce and dried shrimp are standard ingredients",
+    "Not suitable for low-carb or keto diets: high rice noodle content",
+    "Gluten-free only if gluten-free sauces are substituted",
+    "Halal suitability depends on preparation and ingredient sourcing",
+    "Dairy-free: no dairy ingredients in standard preparation",
+    "Nutritional values vary depending on protein choice (shrimp, chicken, or tofu) and quantity of oil used"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods, cross-referenced with USDA FoodData Central, Thai culinary nutritional studies, and established food composition databases. Actual values may vary by restaurant and chef."
+}
+
+{
+  "dish_name": "Green Curry",
+  "portion_size": "1 bowl (approx. 400g)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": 520,
+    "protein_g": 28,
+    "carbohydrates_g": 18,
+    "sugars_g": 8,
+    "total_fat_g": 38,
+    "saturated_fat_g": 26,
+    "dietary_fiber_g": 3,
+    "sodium_mg": 980,
+    "cholesterol_mg": 75,
+    "micronutrients": {
+      "iron_mg": 3.2,
+      "iron_percent_dv": 18,
+      "potassium_mg": 620,
+      "potassium_percent_dv": 13,
+      "vitamin_c_mg": 22,
+      "vitamin_c_percent_dv": 24,
+      "calcium_mg": 65,
+      "calcium_percent_dv": 5,
+      "magnesium_mg": 55,
+      "magnesium_percent_dv": 13,
+      "vitamin_a_iu": 480,
+      "vitamin_a_percent_dv": 10,
+      "phosphorus_mg": 280,
+      "phosphorus_percent_dv": 22
+    }
+  },
+  "ingredients_notes": "Made with green curry paste, full-fat coconut milk, chicken (typical protein), Thai eggplant, bamboo shoots, kaffir lime leaves, Thai basil, fish sauce, and palm sugar. Green colour derived from fresh green chillies, lemongrass, galangal, and herbs blended into the paste.",
+  "dietary_considerations": [
+    "Contains fish allergen via fish sauce",
+    "Contains shellfish allergen via shrimp paste in green curry paste",
+    "Some curry pastes may contain gluten — verify labels before consumption",
+    "Possible cross-contamination with tree nuts depending on preparation environment",
+    "High saturated fat (~26g) sourced primarily from full-fat coconut milk (MCT-based)",
+    "High sodium (~980mg per bowl, approximately 40-43% of recommended daily intake)",
+    "Not suitable for vegetarians or vegans unless fish sauce and shrimp paste are substituted",
+    "Generally gluten-free but paste ingredients should be verified",
+    "Dairy-free",
+    "Suitable for keto and low-carb diets (~18g carbs, excluding rice)",
+    "Borderline paleo — fish sauce is acceptable but palm sugar is debated",
+    "Typically nut-free but cross-contamination risk exists"
+  ],
+  "calorie_adjustments": [
+    {
+      "variation": "Add 1 cup steamed jasmine rice",
+      "calorie_impact_kcal": 200
+    },
+    {
+      "variation": "Use light coconut milk instead of full-fat",
+      "calorie_impact_kcal": -80,
+      "fat_impact_g": -10
+    },
+    {
+      "variation": "Substitute tofu for chicken",
+      "calorie_impact_kcal": -30,
+      "protein_impact_g": -8
+    },
+    {
+      "variation": "Substitute prawns for chicken",
+      "calorie_impact_kcal": -20
+    },
+    {
+      "variation": "Extra coconut milk (typical restaurant portions)",
+      "calorie_impact_kcal_range": "60-100"
+    }
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation using chicken and full-fat coconut milk. Values cross-referenced with USDA FoodData Central, Thai culinary nutritional studies, and established food composition databases. Actual values may vary based on restaurant, home recipe, and ingredient brands."
+}
+
+{
+  "dish_name": "Tom Yum Goong",
+  "portion_size": "1 bowl (approximately 400–450ml / ~350g serving)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 165,
+      "max": 185
+    },
+    "protein_g": {
+      "min": 18,
+      "max": 22
+    },
+    "carbohydrates_g": {
+      "min": 10,
+      "max": 13
+    },
+    "sugars_g": {
+      "min": 4,
+      "max": 6
+    },
+    "total_fat_g": {
+      "min": 5,
+      "max": 7
+    },
+    "saturated_fat_g": {
+      "min": 1,
+      "max": 2
+    },
+    "dietary_fiber_g": {
+      "min": 1.5,
+      "max": 2.5
+    },
+    "sodium_mg": {
+      "min": 900,
+      "max": 1200
+    },
+    "cholesterol_mg": {
+      "min": 130,
+      "max": 160
+    },
+    "micronutrients": {
+      "vitamin_c_mg": {
+        "min": 25,
+        "max": 35,
+        "percent_daily_value_min": 30,
+        "percent_daily_value_max": 40
+      },
+      "iron_mg": {
+        "min": 2.5,
+        "max": 3.5,
+        "percent_daily_value_min": 15,
+        "percent_daily_value_max": 20
+      },
+      "calcium_mg": {
+        "min": 60,
+        "max": 80,
+        "percent_daily_value_min": 6,
+        "percent_daily_value_max": 8
+      },
+      "potassium_mg": {
+        "min": 380,
+        "max": 450,
+        "percent_daily_value_min": 10,
+        "percent_daily_value_max": 12
+      },
+      "magnesium_mg": {
+        "min": 35,
+        "max": 50,
+        "percent_daily_value_min": 9,
+        "percent_daily_value_max": 12
+      },
+      "zinc_mg": {
+        "min": 1.5,
+        "max": 2.5,
+        "percent_daily_value_min": 15,
+        "percent_daily_value_max": 20
+      },
+      "vitamin_b12_mcg": {
+        "min": 1.0,
+        "max": 1.5,
+        "percent_daily_value_min": 40,
+        "percent_daily_value_max": 60
+      },
+      "phosphorus_mg": {
+        "min": 200,
+        "max": 250,
+        "percent_daily_value_min": 20,
+        "percent_daily_value_max": 25
+      }
+    }
+  },
+  "ingredients_notes": "Classic clear broth (nam sai) version prepared with fresh prawns, lemongrass, galangal, kaffir lime leaves, Thai bird's eye chillies, fish sauce, lime juice, and mushrooms. The creamy version (nam khon) uses evaporated milk or coconut milk and adds approximately 60–90 kcal and 4–6g of additional fat per bowl.",
+  "dietary_considerations": [
+    "Contains shellfish (prawns) — major allergen; unsuitable for those with shellfish allergies",
+    "Contains fish sauce — not suitable for those with fish allergies",
+    "Generally gluten-free, but some commercial fish sauces or pastes may contain trace gluten — verify labels",
+    "High sodium content (900–1,200mg per bowl) — contributes approximately 39–52% of recommended daily sodium intake; caution advised for those managing hypertension or kidney conditions",
+    "Not suitable for vegetarians or vegans due to prawns and fish sauce",
+    "Suitable for gluten-free diets (verify fish sauce label)",
+    "Suitable for dairy-free diets (clear broth version only)",
+    "Suitable for low-carb and ketogenic diets (~10–13g carbohydrates per bowl)",
+    "Suitable for high-protein diets (~18–22g protein per bowl)",
+    "Suitable for pescatarian diets",
+    "Generally suitable for paleo diets",
+    "Low-sodium dieters should exercise caution or request reduced fish sauce"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods. Values may vary depending on the restaurant, chef, prawn size, and quantity of fish sauce or chilli paste used."
+}
+
+{
+  "dish_name": "Massaman Curry",
+  "portion_size": "1 bowl (approximately 380g curry + 150g steamed jasmine rice)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 620,
+      "max": 680
+    },
+    "protein_g": {
+      "min": 28,
+      "max": 32
+    },
+    "carbohydrates_g": {
+      "min": 58,
+      "max": 65
+    },
+    "sugars_g": {
+      "min": 8,
+      "max": 11
+    },
+    "total_fat_g": {
+      "min": 28,
+      "max": 34
+    },
+    "saturated_fat_g": {
+      "min": 16,
+      "max": 20
+    },
+    "dietary_fiber_g": {
+      "min": 4,
+      "max": 6
+    },
+    "sodium_mg": {
+      "min": 900,
+      "max": 1200
+    },
+    "cholesterol_mg": {
+      "min": 65,
+      "max": 85
+    },
+    "micronutrients": {
+      "iron_mg": {
+        "min": 3.5,
+        "max": 4.5,
+        "percent_daily_value_min": 20,
+        "percent_daily_value_max": 25
+      },
+      "potassium_mg": {
+        "min": 700,
+        "max": 850,
+        "percent_daily_value_min": 15,
+        "percent_daily_value_max": 18
+      },
+      "calcium_mg": {
+        "min": 55,
+        "max": 75,
+        "percent_daily_value_min": 6,
+        "percent_daily_value_max": 8
+      },
+      "magnesium_mg": {
+        "min": 55,
+        "max": 70,
+        "percent_daily_value_min": 13,
+        "percent_daily_value_max": 17
+      },
+      "vitamin_c_mg": {
+        "min": 8,
+        "max": 14,
+        "percent_daily_value_min": 9,
+        "percent_daily_value_max": 15
+      },
+      "vitamin_b6_mg": {
+        "min": 0.5,
+        "max": 0.7,
+        "percent_daily_value_min": 30,
+        "percent_daily_value_max": 40
+      },
+      "zinc_mg": {
+        "min": 3.5,
+        "max": 5.0,
+        "percent_daily_value_min": 32,
+        "percent_daily_value_max": 45
+      },
+      "phosphorus_mg": {
+        "min": 280,
+        "max": 320,
+        "percent_daily_value_min": 22,
+        "percent_daily_value_max": 26
+      }
+    }
+  },
+  "ingredients_notes": "Traditionally prepared with beef or chicken, potatoes, onions, roasted peanuts, and coconut milk, simmered in a fragrant curry paste made from dried chilies, lemongrass, galangal, cinnamon, cardamom, cloves, and star anise. Seasoned with fish sauce (nam pla). Served with steamed jasmine rice.",
+  "dietary_considerations": [
+    "Contains peanuts — roasted peanuts are a core ingredient; not suitable for those with peanut allergies",
+    "Contains fish — fish sauce (nam pla) is typically used; not suitable for those with fish allergies",
+    "Possible gluten content — some curry pastes or soy-based additions may contain gluten; verify labels",
+    "Possible soy content — depending on preparation method and ingredients used",
+    "Dairy-free — coconut milk is used in place of dairy cream",
+    "High sodium — fish sauce and curry paste contribute significantly; those managing hypertension should be mindful",
+    "High saturated fat — coconut milk is calorie-dense; contains medium-chain triglycerides (MCTs)",
+    "Moderate glycaemic impact — potatoes and jasmine rice raise overall glycaemic load; portion control advised for blood sugar management",
+    "Not suitable for vegetarian or vegan diets without substitution of meat and fish sauce",
+    "Not suitable for keto or low-carb diets due to potatoes and rice",
+    "Gluten-free when curry paste is verified gluten-free",
+    "Halal-friendly — traditionally a Muslim-influenced dish; verify meat sourcing",
+    "Partially paleo-compatible — omit rice and peanuts for closer compliance",
+    "Anti-inflammatory spices present — cinnamon, cardamom, and cloves contribute functional health value"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation using standard recipe ingredients. Values derived from USDA Food Composition Database and Thai Food Composition Database. Actual nutritional values may vary based on specific recipes, cooking methods, ingredient brands, and restaurant or home preparation."
+}
+
+{
+  "dish_name": "Thai Basil Stir Fry",
+  "portion_size": "1 plate (approx. 350–400g with rice)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 620,
+      "max": 680
+    },
+    "protein_g": 32,
+    "carbohydrates_g": 65,
+    "sugars_g": 6,
+    "total_fat_g": 24,
+    "saturated_fat_g": 7,
+    "dietary_fiber_g": 2,
+    "sodium_mg": {
+      "min": 1100,
+      "max": 1300
+    },
+    "cholesterol_mg": 260,
+    "micronutrients": {
+      "iron_mg": 3.5,
+      "vitamin_c_mg": {
+        "min": 15,
+        "max": 20
+      },
+      "vitamin_a_ug_rae": 180,
+      "calcium_mg": 60,
+      "potassium_mg": 480,
+      "vitamin_b12_ug": 0.8,
+      "zinc_mg": 3.2
+    }
+  },
+  "ingredients_notes": "Steamed jasmine rice (~180g) as primary carbohydrate source; minced pork (~120g) providing protein, fat, B vitamins, and zinc; one large fried egg (~50g) contributing protein and cholesterol; holy basil leaves (~10g) for antioxidants and Vitamin K; garlic and fresh chilies (~10g) for Vitamin C and capsaicin; oyster sauce (~15ml) and fish sauce (~10ml) as primary sodium contributors; vegetable cooking oil (~15ml) for unsaturated fats; and a small amount of palm or white sugar (~5g).",
+  "dietary_considerations": [
+    "High sodium content: approximately 1,100–1,300mg per plate, representing 47–57% of the recommended daily intake of 2,300mg",
+    "Contains fish allergen: fish sauce is a core ingredient",
+    "Contains shellfish and mollusc allergen: oyster sauce is a core ingredient",
+    "May contain gluten: oyster sauce is typically thickened with wheat; soy sauce may also be added",
+    "May contain soy: soy sauce is sometimes included in preparation",
+    "Contains egg: fried egg is a standard topping and unsuitable for those with egg allergies",
+    "Not suitable for vegetarians or vegans: contains meat, fish sauce, oyster sauce, and egg",
+    "Not suitable for low-carb or ketogenic diets: jasmine rice contributes significant carbohydrates",
+    "Halal status uncertain: depends on meat sourcing and specific fish sauce brand used",
+    "Gluten-free status uncertain: standard oyster sauce contains wheat",
+    "Dairy-free: no dairy ingredients in standard preparation",
+    "Nut-free: no nut ingredients in standard preparation",
+    "High-protein dish: approximately 32g protein per plate",
+    "Elevated cholesterol content at approximately 260mg, primarily from the fried egg"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods for Pad Krapao (Thai Basil Stir Fry) using minced pork, holy basil, fish sauce, oyster sauce, steamed jasmine rice, and a fried egg. Values may vary depending on restaurant, chef, and specific ingredients used."
+}
+
+{
+  "dish_name": "Green Papaya Salad (Som Tum)",
+  "portion_size": "1 plate (approx. 250–280g)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 150,
+      "max": 170
+    },
+    "protein_g": {
+      "min": 4,
+      "max": 6
+    },
+    "carbohydrates_g": {
+      "min": 28,
+      "max": 32
+    },
+    "sugars_g": {
+      "min": 18,
+      "max": 22
+    },
+    "total_fat_g": {
+      "min": 3,
+      "max": 5
+    },
+    "saturated_fat_g": {
+      "min": 0.5,
+      "max": 1
+    },
+    "dietary_fiber_g": {
+      "min": 3,
+      "max": 4
+    },
+    "sodium_mg": {
+      "min": 900,
+      "max": 1200
+    },
+    "cholesterol_mg": {
+      "min": 10,
+      "max": 20
+    },
+    "micronutrients": {
+      "vitamin_c_mg": {
+        "min": 60,
+        "max": 80,
+        "percent_daily_value_approx": "70–90%"
+      },
+      "vitamin_a_rae_mcg": {
+        "min": 500,
+        "max": 700,
+        "percent_daily_value_approx": "55–80%"
+      },
+      "potassium_mg": {
+        "min": 350,
+        "max": 450,
+        "percent_daily_value_approx": "~10%"
+      },
+      "calcium_mg": {
+        "min": 80,
+        "max": 120,
+        "percent_daily_value_approx": "8–12%"
+      },
+      "iron_mg": {
+        "min": 1.5,
+        "max": 2.5,
+        "percent_daily_value_approx": "8–14%"
+      },
+      "magnesium_mg": {
+        "min": 25,
+        "max": 35,
+        "percent_daily_value_approx": "6–8%"
+      }
+    }
+  },
+  "ingredients_notes": "Primary ingredients include shredded unripe green papaya, dried shrimp, fish sauce (nam pla), palm sugar, lime juice, fresh garlic, bird's eye chillies, cherry tomatoes, yard-long beans, and roasted peanuts. Some regional variations include fermented crab (pu pla ra) or salted crab.",
+  "allergens": {
+    "shellfish": true,
+    "fish": true,
+    "peanuts": true,
+    "gluten": "generally absent but verify fish sauce brand",
+    "dairy": false,
+    "eggs": false
+  },
+  "diet_suitability": {
+    "vegetarian": false,
+    "vegan": false,
+    "gluten_free": "generally yes — verify fish sauce",
+    "low_calorie": true,
+    "diabetic_friendly": "moderate — contains added palm sugar; portion awareness advised",
+    "low_sodium": false
+  },
+  "dietary_considerations": [
+    "High sodium content: 900–1,200 mg per plate (~40–50% of recommended daily intake), primarily from fish sauce and dried shrimp",
+    "Contains shellfish allergen: dried shrimp and optionally fermented or salted crab",
+    "Contains fish allergen: fish sauce (nam pla)",
+    "Contains peanuts: roasted peanuts commonly added as topping",
+    "Not suitable for vegetarians or vegans due to fish sauce and dried shrimp",
+    "Moderate sugar content from palm sugar and cherry tomatoes — diabetics should monitor portion size",
+    "Rich in Vitamin C — supports immune function",
+    "Good source of Vitamin A (beta-carotene) — supports eye health and skin",
+    "Low in saturated fat — heart-friendly fat profile",
+    "Gluten-free in most authentic preparations — verify fish sauce brand for hidden gluten"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods. Values may vary depending on restaurant, regional variation (e.g., Som Tum Thai vs. Som Tum Pu), and specific ingredient quantities used. References include USDA FoodData Central, Thai nutritional databases, and established food science literature."
+}
+
+{
+  "dish_name": "Tom Kha Gai",
+  "portion_size": "1 bowl (~400ml / ~350g)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 320,
+      "max": 360
+    },
+    "protein_g": {
+      "min": 18,
+      "max": 22
+    },
+    "carbohydrates_g": {
+      "min": 10,
+      "max": 13
+    },
+    "sugars_g": {
+      "min": 5,
+      "max": 7
+    },
+    "total_fat_g": {
+      "min": 24,
+      "max": 28
+    },
+    "saturated_fat_g": {
+      "min": 18,
+      "max": 21
+    },
+    "dietary_fiber_g": {
+      "min": 1,
+      "max": 2
+    },
+    "sodium_mg": {
+      "min": 900,
+      "max": 1200
+    },
+    "cholesterol_mg": {
+      "min": 55,
+      "max": 70
+    },
+    "micronutrients": {
+      "potassium_mg": {
+        "min": 400,
+        "max": 500,
+        "source_note": "From coconut milk and chicken"
+      },
+      "magnesium_mg": {
+        "min": 35,
+        "max": 50,
+        "source_note": "From coconut milk"
+      },
+      "iron_mg": {
+        "min": 1.5,
+        "max": 2.5,
+        "source_note": "From chicken and mushrooms"
+      },
+      "phosphorus_mg": {
+        "min": 180,
+        "max": 220,
+        "source_note": "From chicken"
+      },
+      "vitamin_c_mg": {
+        "min": 8,
+        "max": 15,
+        "source_note": "From lemongrass, lime juice and chilli"
+      },
+      "calcium_mg": {
+        "min": 25,
+        "max": 40,
+        "source_note": "From coconut milk and herbs"
+      },
+      "vitamin_b6_mg": {
+        "min": 0.4,
+        "max": 0.6,
+        "source_note": "From chicken"
+      },
+      "zinc_mg": {
+        "min": 1.2,
+        "max": 1.8,
+        "source_note": "From chicken"
+      }
+    }
+  },
+  "allergens": {
+    "fish": true,
+    "shellfish": false,
+    "gluten": "possible_trace",
+    "tree_nuts_coconut": true,
+    "soy": false
+  },
+  "diet_suitability": {
+    "gluten_free": "generally_yes_verify_fish_sauce",
+    "dairy_free": true,
+    "paleo_whole30": "yes_with_compliant_fish_sauce",
+    "low_carb_keto": true,
+    "vegetarian_vegan": false,
+    "low_fat": false,
+    "low_sodium": false
+  },
+  "ingredients_notes": "Rich coconut milk broth (~150–180ml full-fat coconut milk per bowl) infused with galangal, lemongrass, kaffir lime leaves, and bird's eye chillies. Contains approximately 80–100g chicken breast or thigh, mushrooms (commonly straw or oyster), seasoned with fish sauce (nam pla) and lime juice, garnished with fresh coriander.",
+  "dietary_considerations": [
+    "High in saturated fat due to full-fat coconut milk; contains medium-chain fatty acids (MCFAs) which are metabolised differently from long-chain saturated fats",
+    "High sodium content — a single bowl may account for 40–50% of the recommended daily sodium intake of 2,000mg; caution advised for individuals with hypertension",
+    "Contains fish allergen via fish sauce (nam pla)",
+    "Contains coconut (tree nut allergen) via coconut milk",
+    "May contain trace gluten depending on fish sauce brand — verify label if gluten intolerance is a concern",
+    "Not suitable for vegetarian or vegan diets due to chicken and fish sauce",
+    "Not suitable for low-fat or low-sodium diets",
+    "Galangal, lemongrass, and kaffir lime leaves carry anti-inflammatory and antioxidant properties",
+    "Coconut milk provides medium-chain triglycerides (MCTs) associated with quicker energy metabolism"
+  ],
+  "data_source_note": "Estimated based on authentic Thai restaurant-style preparation using full-fat coconut milk, chicken breast or thigh, mushrooms, and standard seasoning. Actual nutritional values may vary depending on restaurant, recipe, and ingredient brands."
+}
+
+{
+  "dish_name": "Thai Fried Rice",
+  "portion_size": "1 plate (~350–400g)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 580,
+      "max": 620
+    },
+    "protein_g": {
+      "min": 22,
+      "max": 25
+    },
+    "carbohydrates_g": {
+      "min": 72,
+      "max": 78
+    },
+    "sugars_g": {
+      "min": 4,
+      "max": 6
+    },
+    "total_fat_g": {
+      "min": 18,
+      "max": 22
+    },
+    "saturated_fat_g": {
+      "min": 3.5,
+      "max": 5
+    },
+    "dietary_fiber_g": {
+      "min": 2,
+      "max": 3
+    },
+    "sodium_mg": {
+      "min": 1100,
+      "max": 1400
+    },
+    "cholesterol_mg": {
+      "min": 185,
+      "max": 210
+    },
+    "micronutrients": {
+      "iron_mg": {
+        "min": 2.5,
+        "max": 3.5,
+        "percent_daily_value_min": 14,
+        "percent_daily_value_max": 19
+      },
+      "vitamin_a_ug_rae": {
+        "min": 120,
+        "max": 180,
+        "percent_daily_value_min": 13,
+        "percent_daily_value_max": 20
+      },
+      "vitamin_c_mg": {
+        "min": 8,
+        "max": 12,
+        "percent_daily_value_min": 9,
+        "percent_daily_value_max": 13
+      },
+      "calcium_mg": {
+        "min": 55,
+        "max": 75,
+        "percent_daily_value_min": 5,
+        "percent_daily_value_max": 7
+      },
+      "potassium_mg": {
+        "min": 380,
+        "max": 450,
+        "percent_daily_value_min": 8,
+        "percent_daily_value_max": 10
+      },
+      "phosphorus_mg": {
+        "min": 220,
+        "max": 260,
+        "percent_daily_value_min": 18,
+        "percent_daily_value_max": 21
+      },
+      "vitamin_b12_ug": {
+        "min": 0.5,
+        "max": 0.8,
+        "percent_daily_value_min": 21,
+        "percent_daily_value_max": 33
+      },
+      "zinc_mg": {
+        "min": 1.8,
+        "max": 2.4,
+        "percent_daily_value_min": 16,
+        "percent_daily_value_max": 22
+      }
+    }
+  },
+  "ingredients_notes": "Prepared with jasmine rice stir-fried in a wok with eggs, garlic, onion, fish sauce, oyster sauce, soy sauce, white pepper, and neutral cooking oil (vegetable or sunflower). Standard version includes chicken as the protein. Served with cucumber slices, spring onions, and a wedge of lime.",
+  "dietary_considerations": [
+    "High sodium content: 1,100–1,400 mg per plate, representing 48–61% of the recommended daily intake of 2,300 mg — not suitable for individuals managing hypertension or kidney conditions",
+    "Contains shellfish allergens: fish sauce is anchovy-based and oyster sauce is derived from oysters",
+    "Contains gluten: soy sauce and oyster sauce are not gluten-free unless specifically substituted",
+    "Contains eggs: eggs are directly incorporated into the dish",
+    "Contains soy: soy sauce is a core ingredient",
+    "Not suitable for vegans: contains eggs and fish sauce",
+    "Not suitable for vegetarians unless fish sauce and oyster sauce are substituted with plant-based alternatives",
+    "Not gluten-free unless tamari or certified gluten-free sauces are used",
+    "Dairy-free: no dairy ingredients in standard preparation",
+    "Moderate-to-high protein content (~22–25g) suitable for high-protein dietary goals",
+    "Use of day-old jasmine rice (traditional technique) slightly lowers glycemic impact compared to freshly cooked rice"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation of Khao Pad (Thai Fried Rice). Values reflect a standard chicken version using traditional Thai condiments and cooking methods. Nutritional values may vary depending on the restaurant, chef, and specific ingredients used."
+}
+
+{
+  "dish_name": "Panang Curry",
+  "portion_size": "1 plate (approximately 350-400g curry with 180g cooked jasmine rice)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 680,
+      "max": 720
+    },
+    "protein_g": {
+      "min": 28,
+      "max": 32
+    },
+    "carbohydrates_g": {
+      "min": 58,
+      "max": 62
+    },
+    "sugars_g": {
+      "min": 10,
+      "max": 13
+    },
+    "total_fat_g": {
+      "min": 34,
+      "max": 38
+    },
+    "saturated_fat_g": {
+      "min": 22,
+      "max": 26
+    },
+    "dietary_fiber_g": {
+      "min": 3,
+      "max": 5
+    },
+    "sodium_mg": {
+      "min": 950,
+      "max": 1200
+    },
+    "cholesterol_mg": {
+      "min": 65,
+      "max": 80
+    },
+    "micronutrients": {
+      "iron_mg": {
+        "min": 3.5,
+        "max": 4.5,
+        "percent_daily_value_min": 20,
+        "percent_daily_value_max": 25
+      },
+      "calcium_mg": {
+        "min": 60,
+        "max": 80,
+        "percent_daily_value_min": 6,
+        "percent_daily_value_max": 8
+      },
+      "potassium_mg": {
+        "min": 550,
+        "max": 700,
+        "percent_daily_value_min": 12,
+        "percent_daily_value_max": 15
+      },
+      "vitamin_c_mg": {
+        "min": 15,
+        "max": 25,
+        "percent_daily_value_min": 17,
+        "percent_daily_value_max": 28
+      },
+      "vitamin_a_iu": {
+        "min": 400,
+        "max": 600,
+        "percent_daily_value_min": 8,
+        "percent_daily_value_max": 12
+      },
+      "magnesium_mg": {
+        "min": 45,
+        "max": 60,
+        "percent_daily_value_min": 11,
+        "percent_daily_value_max": 14
+      },
+      "phosphorus_mg": {
+        "min": 280,
+        "max": 320,
+        "percent_daily_value_min": 22,
+        "percent_daily_value_max": 26
+      }
+    }
+  },
+  "ingredients_notes": "Panang curry paste (dried red chilies, lemongrass, galangal, kaffir lime zest, shrimp paste, roasted peanuts, coriander and cumin seeds), full-fat coconut milk, chicken (approximately 120g), fish sauce, palm sugar, kaffir lime leaves, Thai basil, served with steamed jasmine rice",
+  "dietary_considerations": [
+    "Contains shellfish allergen: shrimp paste present in curry paste",
+    "Contains peanuts: roasted peanuts are a core ingredient in authentic Panang paste - high risk for peanut allergy sufferers",
+    "Contains fish allergen: fish sauce used in preparation",
+    "Generally gluten-free but verify fish sauce and curry paste brands for hidden gluten sources",
+    "Dairy-free: coconut milk used instead of dairy cream",
+    "Not suitable for vegans or vegetarians in traditional form due to shrimp paste and fish sauce; vegan versions available on request",
+    "High saturated fat: full-fat coconut milk contributes significantly - those monitoring cardiovascular health should be mindful",
+    "Moderately high sodium: fish sauce and curry paste are sodium-dense; not suitable for low-sodium diets without modification",
+    "Moderate to high glycaemic load: jasmine rice has a high GI; those managing blood sugar should consider portion control or substitute with brown rice"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods and established food composition databases including USDA and Thai Food Composition Database. Actual values will vary by restaurant, chef, and specific ingredients used."
+}
+
+{
+  "dish_name": "Mango Sticky Rice",
+  "portion_size": "1 plate (approx. 300–350g)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 490,
+      "max": 520
+    },
+    "protein_g": {
+      "min": 6,
+      "max": 7
+    },
+    "carbohydrates_g": {
+      "min": 82,
+      "max": 86
+    },
+    "sugars_g": {
+      "min": 32,
+      "max": 36
+    },
+    "total_fat_g": {
+      "min": 16,
+      "max": 18
+    },
+    "saturated_fat_g": {
+      "min": 13,
+      "max": 15
+    },
+    "dietary_fiber_g": {
+      "min": 2.5,
+      "max": 3.5
+    },
+    "sodium_mg": {
+      "min": 180,
+      "max": 230
+    },
+    "cholesterol_mg": 0,
+    "micronutrients": {
+      "vitamin_c_mg": {
+        "min": 28,
+        "max": 35,
+        "percent_daily_value_approx": "30–40%"
+      },
+      "vitamin_a_ug_rae": {
+        "min": 180,
+        "max": 220,
+        "percent_daily_value_approx": "20–25%"
+      },
+      "potassium_mg": {
+        "min": 320,
+        "max": 380,
+        "percent_daily_value_approx": "~9%"
+      },
+      "magnesium_mg": {
+        "min": 30,
+        "max": 40,
+        "percent_daily_value_approx": "~9%"
+      },
+      "iron_mg": {
+        "min": 1.5,
+        "max": 2.0,
+        "percent_daily_value_approx": "~10%"
+      },
+      "calcium_mg": {
+        "min": 20,
+        "max": 30,
+        "percent_daily_value_approx": "2–3%"
+      },
+      "folate_b9_ug": {
+        "min": 25,
+        "max": 35,
+        "percent_daily_value_approx": "~8%"
+      },
+      "manganese_mg": {
+        "min": 0.8,
+        "max": 1.1,
+        "percent_daily_value_approx": "~40%"
+      }
+    }
+  },
+  "ingredients_notes": "Approximately 150g steamed glutinous (sticky) rice soaked in sweetened salted coconut milk, 120g fresh ripe mango (typically Nam Dok Mai or Ok Rong variety), and 80ml coconut milk sauce with added sugar and salt. Optionally garnished with toasted sesame seeds or mung beans.",
+  "dietary_considerations": [
+    "Vegan: suitable — entirely plant-based",
+    "Vegetarian: suitable",
+    "Gluten-free: suitable — glutinous rice contains no gluten despite its name",
+    "Dairy-free: suitable",
+    "Nut-free: generally suitable — verify sesame garnish if sesame allergy is present",
+    "Low-carb or keto: not suitable — very high carbohydrate content",
+    "Low-fat: not suitable — high saturated fat from coconut milk",
+    "Diabetic-friendly: caution advised — high glycaemic index (GI ~86–98) and high simple sugar content (32–36g)",
+    "High in saturated fat: 13–15g primarily from coconut milk, relevant for cardiovascular health monitoring",
+    "High in simple sugars: from both added sugar and natural mango sugars",
+    "Calorie-dense: approximately 500 kcal per dessert serving",
+    "High glycaemic load: glutinous rice causes rapid blood sugar spikes",
+    "Allergen — sesame: present if garnished with sesame seeds",
+    "Allergen — coconut: occasionally classified as a tree nut in allergy contexts; consult if sensitive",
+    "No shellfish, gluten, dairy, or egg allergens in standard preparation",
+    "MCTs present: coconut milk provides medium-chain triglycerides, metabolised differently from long-chain fats"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods and standard ingredient quantities. Actual values may vary depending on restaurant preparation, mango ripeness, and coconut milk fat content."
+}
+
+{
+  "dish_name": "Pad See Ew",
+  "portion_size": "1 plate (approx. 350–400g serving)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 490,
+      "max": 540
+    },
+    "protein_g": {
+      "min": 24,
+      "max": 28
+    },
+    "carbohydrates_g": {
+      "min": 62,
+      "max": 68
+    },
+    "sugars_g": {
+      "min": 8,
+      "max": 11
+    },
+    "total_fat_g": {
+      "min": 14,
+      "max": 18
+    },
+    "saturated_fat_g": {
+      "min": 3,
+      "max": 5
+    },
+    "dietary_fiber_g": {
+      "min": 2,
+      "max": 3
+    },
+    "sodium_mg": {
+      "min": 1200,
+      "max": 1600
+    },
+    "cholesterol_mg": {
+      "min": 130,
+      "max": 160
+    },
+    "micronutrients": {
+      "iron_mg": {
+        "min": 2.5,
+        "max": 3.5,
+        "notes": "From gai lan and soy sauces"
+      },
+      "calcium_mg": {
+        "min": 80,
+        "max": 110,
+        "notes": "From Chinese broccoli"
+      },
+      "vitamin_c_mg": {
+        "min": 20,
+        "max": 35,
+        "notes": "From gai lan"
+      },
+      "vitamin_a_iu": {
+        "min": 300,
+        "max": 450,
+        "notes": "From egg yolk and greens"
+      },
+      "potassium_mg": {
+        "min": 350,
+        "max": 450,
+        "notes": "From vegetables and protein"
+      },
+      "vitamin_b12_mcg": {
+        "min": 0.4,
+        "max": 0.6,
+        "notes": "From egg and chicken"
+      }
+    }
+  },
+  "ingredients_notes": "Wide flat rice noodles (sen yai) stir-fried with Chinese broccoli (gai lan), egg, and chicken (standard protein). Seasoned with dark soy sauce, light soy sauce, oyster sauce, and a touch of sugar. Cooked in vegetable oil or lard using high-heat wok frying technique to achieve wok hei flavour.",
+  "dietary_considerations": [
+    "High sodium content: 1,200–1,600 mg per plate, representing 50–70% of recommended daily intake",
+    "Contains gluten: soy sauce and oyster sauce typically contain wheat",
+    "Contains eggs: standard ingredient in preparation",
+    "Contains shellfish/molluscs: oyster sauce contains oyster extract",
+    "Not suitable for gluten-free diets unless tamari and gluten-free oyster sauce are substituted",
+    "Not suitable for vegans without removing egg and substituting vegan-friendly sauces",
+    "Vegetarian adaptation possible with tofu and mushroom sauce replacing oyster sauce",
+    "Dairy-free in standard preparation",
+    "Pescatarian-friendly with seafood protein substitution",
+    "Requesting less sauce when ordering can reduce sodium by approximately 200–400 mg"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods, cross-referenced with USDA FoodData Central, Thai nutritional databases, and standard restaurant portion analysis. Actual values may vary based on chef preparation, oil quantity, and protein choice."
+}
+
+{
+  "dish_name": "Red Curry",
+  "portion_size": "1 bowl (approx. 350–400g, curry only, without rice)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 420,
+      "max": 480
+    },
+    "protein_g": {
+      "min": 24,
+      "max": 28
+    },
+    "carbohydrates_g": {
+      "min": 14,
+      "max": 18
+    },
+    "sugars_g": {
+      "min": 6,
+      "max": 9
+    },
+    "total_fat_g": {
+      "min": 30,
+      "max": 36
+    },
+    "saturated_fat_g": {
+      "min": 20,
+      "max": 24
+    },
+    "dietary_fiber_g": {
+      "min": 2,
+      "max": 4
+    },
+    "sodium_mg": {
+      "min": 900,
+      "max": 1200
+    },
+    "cholesterol_mg": {
+      "min": 65,
+      "max": 85
+    },
+    "micronutrients": {
+      "vitamin_a_iu": {
+        "min": 800,
+        "max": 1000,
+        "percent_daily_value_min": 15,
+        "percent_daily_value_max": 20
+      },
+      "vitamin_c_mg": {
+        "min": 25,
+        "max": 35,
+        "percent_daily_value_min": 28,
+        "percent_daily_value_max": 38
+      },
+      "iron_mg": {
+        "min": 3,
+        "max": 4,
+        "percent_daily_value_min": 17,
+        "percent_daily_value_max": 22
+      },
+      "calcium_mg": {
+        "min": 60,
+        "max": 80,
+        "percent_daily_value_min": 6,
+        "percent_daily_value_max": 8
+      },
+      "potassium_mg": {
+        "min": 500,
+        "max": 650,
+        "percent_daily_value_min": 11,
+        "percent_daily_value_max": 14
+      },
+      "magnesium_mg": {
+        "min": 45,
+        "max": 60,
+        "percent_daily_value_min": 11,
+        "percent_daily_value_max": 14
+      }
+    }
+  },
+  "ingredients_notes": "Made with red curry paste, coconut milk, and chicken as the primary protein. Contains vegetables including bamboo shoots, bell peppers, Thai eggplant, and kaffir lime leaves. Seasoned with fish sauce, palm sugar, and fresh Thai basil. Shrimp paste is a component of the red curry paste. Nutritional values may vary if protein is substituted with beef (higher fat), prawns (higher cholesterol), or tofu (lower fat and protein).",
+  "dietary_considerations": [
+    "High in saturated fat — coconut milk accounts for approximately 100–120% of recommended daily saturated fat intake per bowl",
+    "High sodium — fish sauce and shrimp paste contribute 40–52% of the recommended daily sodium limit of 2300mg per bowl",
+    "Calorie-dense due to high fat content from coconut milk",
+    "Contains shellfish allergen — shrimp paste present in red curry paste",
+    "Contains fish allergen — fish sauce used in preparation",
+    "May contain gluten — some commercial curry pastes include soy sauce or wheat; verify label",
+    "May contain tree nuts — dish is occasionally garnished with peanuts or cashews",
+    "Not suitable for vegetarian or vegan diets unless a vegan version is specifically requested, due to fish sauce and shrimp paste",
+    "Not suitable for low-fat diets",
+    "Generally gluten-free but curry paste label should be verified",
+    "Dairy-free",
+    "Suitable for keto and low-carb diets — low carbohydrate content with high fat profile",
+    "Partially suitable for paleo diets — fish sauce and palm sugar are debated ingredients",
+    "If served with 1 cup of steamed jasmine rice, add approximately 200 kcal, 44g carbohydrates, and 4g protein, bringing the total meal estimate to 620–680 kcal",
+    "To reduce saturated fat and calories, light coconut milk can be requested, reducing fat content by up to 40%"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation of Red Curry (Gaeng Phet) using chicken as the protein source. Values are approximate and may vary depending on specific ingredients, preparation methods, portion sizes, and regional variations."
+}
+
+{
+  "dish_name": "Thai Chicken Rice",
+  "portion_size": "1 plate (~400–450g)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 580,
+      "max": 620
+    },
+    "protein_g": {
+      "min": 38,
+      "max": 42
+    },
+    "carbohydrates_g": {
+      "min": 65,
+      "max": 70
+    },
+    "sugars_g": {
+      "min": 4,
+      "max": 6
+    },
+    "total_fat_g": {
+      "min": 14,
+      "max": 18
+    },
+    "saturated_fat_g": {
+      "min": 4,
+      "max": 5
+    },
+    "dietary_fiber_g": {
+      "min": 1.5,
+      "max": 2.5
+    },
+    "sodium_mg": {
+      "min": 900,
+      "max": 1100
+    },
+    "cholesterol_mg": {
+      "min": 110,
+      "max": 130
+    },
+    "micronutrients": {
+      "iron_mg": {
+        "min": 2.5,
+        "max": 3.0,
+        "percent_dv_min": 14,
+        "percent_dv_max": 17
+      },
+      "phosphorus_mg": {
+        "min": 320,
+        "max": 360,
+        "percent_dv_min": 26,
+        "percent_dv_max": 29
+      },
+      "zinc_mg": {
+        "min": 2.8,
+        "max": 3.5,
+        "percent_dv_min": 25,
+        "percent_dv_max": 32
+      },
+      "niacin_b3_mg": {
+        "min": 12,
+        "max": 15,
+        "percent_dv_min": 75,
+        "percent_dv_max": 94
+      },
+      "vitamin_b6_mg": {
+        "min": 0.8,
+        "max": 1.0,
+        "percent_dv_min": 47,
+        "percent_dv_max": 59
+      },
+      "potassium_mg": {
+        "min": 380,
+        "max": 430,
+        "percent_dv_min": 8,
+        "percent_dv_max": 9
+      },
+      "calcium_mg": {
+        "min": 35,
+        "max": 50,
+        "percent_dv_min": 3,
+        "percent_dv_max": 5
+      },
+      "vitamin_c_mg": {
+        "min": 4,
+        "max": 8,
+        "percent_dv_min": 4,
+        "percent_dv_max": 9,
+        "source_note": "Primarily from cucumber and garnish"
+      },
+      "selenium_mcg": {
+        "min": 28,
+        "max": 34,
+        "percent_dv_min": 51,
+        "percent_dv_max": 62
+      }
+    }
+  },
+  "ingredients_notes": "Key components include poached chicken breast or thigh (150–180g), broth-cooked jasmine rice (200–220g cooked), fermented soybean dipping sauce (tao jiao, 30–40ml), cucumber slices (40–50g), ginger and garlic garnish (5–8g), sesame oil or chicken fat drizzle (5–8ml), and a side of clear chicken broth soup (150–200ml). Rice is cooked in seasoned chicken broth, contributing additional sodium and collagen.",
+  "dietary_considerations": [
+    "High sodium content: approximately 900–1,100mg per serving from dipping sauce, seasoned broth, and side soup — approximately 43–52% of the 2,300mg recommended daily limit; individuals managing hypertension or kidney conditions should limit sauce and soup intake",
+    "May contain gluten: tao jiao fermented soybean paste dipping sauce may contain wheat — not suitable for coeliac disease or gluten intolerance without ingredient verification",
+    "Contains soy: fermented soybean paste present in dipping sauce — relevant for soy allergies",
+    "Contains sesame: sesame oil commonly drizzled over dish — relevant for sesame allergies",
+    "May contain fish sauce depending on vendor preparation — verify if fish or shellfish allergy is a concern",
+    "Not suitable for vegetarian or vegan diets: contains chicken and animal-based broth",
+    "High glycaemic index: jasmine rice is high-GI; portion control advised for diabetic individuals or those following a low-GI diet",
+    "Suitable for high-protein diets: approximately 38–42g protein per serving",
+    "Suitable for low-fat diets: relatively lean, especially when chicken breast is used; opting for breast over thigh reduces fat by approximately 4–6g",
+    "Naturally dairy-free"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods and standard ingredient quantities for Khao Man Gai. Actual values may vary depending on the restaurant, chef technique, chicken cut used, and sauce quantity served."
+}
+
+{
+  "dish_name": "Pad Woon Sen",
+  "portion_size": "1 plate (~350g serving)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": 420,
+    "protein_g": 22,
+    "carbohydrates_g": 52,
+    "sugars_g": 6,
+    "total_fat_g": 13,
+    "saturated_fat_g": 3,
+    "dietary_fiber_g": 2,
+    "sodium_mg": 1050,
+    "cholesterol_mg": 185,
+    "micronutrients": {
+      "iron_mg": 2.8,
+      "iron_percent_dv": 16,
+      "vitamin_c_mg": 18,
+      "vitamin_c_percent_dv": 20,
+      "calcium_mg": 65,
+      "calcium_percent_dv": 6,
+      "vitamin_a_iu": 320,
+      "vitamin_a_percent_dv": 6,
+      "phosphorus_mg": 210,
+      "phosphorus_percent_dv": 17,
+      "potassium_mg": 380,
+      "potassium_percent_dv": 8
+    }
+  },
+  "ingredients_notes": "Glass noodles (mung bean vermicelli), eggs (1-2), chicken and prawns as primary protein, oyster sauce, light soy sauce, fish sauce, white pepper, garlic, shallots, celery, spring onions, white cabbage, carrot, and vegetable oil or lard. Nutritional values based on chicken and prawn version.",
+  "dietary_considerations": [
+    "High sodium: ~1,050mg per serving, contributing approximately 44% of the recommended daily intake of 2,300mg",
+    "Contains shellfish: prawns present",
+    "Contains eggs",
+    "Contains soy: soy sauce and oyster sauce",
+    "Contains fish: fish sauce used in preparation",
+    "May contain gluten: standard oyster sauce contains wheat; request gluten-free oyster sauce for a gluten-free version",
+    "Not vegan or vegetarian: contains meat, seafood, eggs, and fish sauce; can be adapted with tofu and vegetarian oyster or fish sauce",
+    "Lower glycaemic index: glass noodles made from mung beans have a GI of approximately 39-45, lower than rice or wheat noodles",
+    "Good complete protein source from the combination of egg, chicken, and prawns",
+    "Moderate calorie density: lighter than Pad Thai (~550 kcal) or Pad See Ew (~600 kcal)"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods, cross-referenced with USDA FoodData Central, Thai nutritional databases, and established food composition tables. Actual values may vary by restaurant and chef."
+}
+
+{
+  "dish_name": "Thai Beef Salad (Yam Nuea)",
+  "portion_size": "1 plate (approx. 300g)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": 320,
+    "protein_g": 28,
+    "carbohydrates_g": 14,
+    "sugars_g": 9,
+    "total_fat_g": 16,
+    "saturated_fat_g": 5,
+    "dietary_fiber_g": 2.5,
+    "sodium_mg": 980,
+    "cholesterol_mg": 75,
+    "micronutrients": {
+      "iron_mg": 3.2,
+      "iron_percent_dv": 18,
+      "vitamin_c_mg": 22,
+      "vitamin_c_percent_dv": 24,
+      "vitamin_b12_mcg": 1.8,
+      "vitamin_b12_percent_dv": 75,
+      "zinc_mg": 4.5,
+      "zinc_percent_dv": 41,
+      "potassium_mg": 520,
+      "potassium_percent_dv": 11,
+      "calcium_mg": 45,
+      "calcium_percent_dv": 5,
+      "vitamin_a_iu": 480,
+      "vitamin_a_percent_dv": 10
+    }
+  },
+  "ingredients_notes": "Key ingredients include grilled or seared beef (sirloin or flank steak, thinly sliced), lime juice, fish sauce (nam pla), fresh bird's eye chillies, shallots, cherry tomatoes, cucumber, fresh herbs (coriander, mint, lemongrass), garlic, a small amount of sugar, and optional toasted rice powder (khao khua) for texture.",
+  "dietary_considerations": [
+    "High sodium content — 980mg per plate, approximately 43% of the recommended daily intake of 2,300mg; primary sources are fish sauce and beef",
+    "Contains fish allergen — fish sauce is a core ingredient",
+    "Possible gluten presence — some fish sauce brands may contain trace gluten; verify brand before consumption",
+    "Possible peanut presence — some regional variations include crushed peanuts",
+    "Shellfish unlikely — not a typical ingredient in standard recipe",
+    "Dairy-free — naturally contains no dairy",
+    "Egg-free — eggs are not typically included",
+    "Not suitable for pescatarians — contains beef",
+    "Not suitable for vegetarians or vegans — contains beef and fish sauce",
+    "Suitable for gluten-free diets — verify fish sauce brand",
+    "Suitable for paleo diet",
+    "Suitable for low-carb and ketogenic diets — moderate carbohydrates mostly from vegetables",
+    "Excellent choice for high-protein diets — 28g protein per serving"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods; values may vary depending on restaurant, portion size, and specific recipe variations."
+}
+
+{
+  "dish_name": "Khao Soi",
+  "portion_size": "1 bowl (approx. 450–500g)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 620,
+      "max": 680
+    },
+    "protein_g": {
+      "min": 32,
+      "max": 36
+    },
+    "carbohydrates_g": {
+      "min": 52,
+      "max": 58
+    },
+    "sugars_g": {
+      "min": 7,
+      "max": 10
+    },
+    "total_fat_g": {
+      "min": 32,
+      "max": 38
+    },
+    "saturated_fat_g": {
+      "min": 18,
+      "max": 22
+    },
+    "dietary_fiber_g": {
+      "min": 3,
+      "max": 5
+    },
+    "sodium_mg": {
+      "min": 1100,
+      "max": 1400
+    },
+    "cholesterol_mg": {
+      "min": 110,
+      "max": 135
+    },
+    "micronutrients": {
+      "iron_mg": {
+        "min": 3.5,
+        "max": 4.5,
+        "percent_daily_value_approx": "20–25%"
+      },
+      "calcium_mg": {
+        "min": 80,
+        "max": 110,
+        "percent_daily_value_approx": "8–11%"
+      },
+      "potassium_mg": {
+        "min": 520,
+        "max": 620,
+        "percent_daily_value_approx": "11–13%"
+      },
+      "vitamin_a_ug_rae": {
+        "min": 350,
+        "max": 500,
+        "percent_daily_value_approx": "40–55%"
+      },
+      "vitamin_c_mg": {
+        "min": 8,
+        "max": 14,
+        "percent_daily_value_approx": "9–15%"
+      },
+      "magnesium_mg": {
+        "min": 45,
+        "max": 60,
+        "percent_daily_value_approx": "11–14%"
+      },
+      "zinc_mg": {
+        "min": 2.5,
+        "max": 3.5,
+        "percent_daily_value_approx": "23–32%"
+      }
+    },
+    "calorie_source_breakdown": {
+      "coconut_milk_broth_percent": 28,
+      "egg_noodles_soft_percent": 22,
+      "chicken_thigh_percent": 20,
+      "crispy_noodles_percent": 15,
+      "curry_paste_and_oil_percent": 10,
+      "toppings_and_garnish_percent": 5
+    }
+  },
+  "ingredients_notes": "Northern Thai coconut curry noodle soup made with full-fat coconut milk, red or yellow curry paste, braised chicken thigh, fresh egg noodles, and topped with crispy fried egg noodles, pickled mustard greens, shallots, lime, and chili oil. Curry paste typically contains shrimp paste (kapi), fish sauce, turmeric, and dried chilies. Reflects Burmese and Yunnanese culinary influences.",
+  "dietary_considerations": [
+    "Contains gluten — egg noodles and crispy noodle topping are wheat-based",
+    "Contains eggs — present in egg noodles",
+    "Contains fish — fish sauce is a standard ingredient",
+    "Contains shellfish — shrimp paste (kapi) is used in authentic curry paste",
+    "High sodium — 1,100–1,400 mg per bowl represents approximately 48–60% of the recommended daily intake of 2,300 mg",
+    "High saturated fat — full-fat coconut milk contributes approximately 90–110% of the recommended daily saturated fat intake (~20g/day guideline)",
+    "Moderate-to-high calorie density — suitable for active individuals but not ideal for those in a caloric deficit",
+    "Not suitable for vegans or vegetarians in standard preparation due to chicken, fish sauce, and shrimp paste",
+    "Not suitable for low-sodium diets without significant modification",
+    "Not suitable for low-fat diets without coconut milk substitution",
+    "Gluten-free adaptation possible by substituting rice noodles",
+    "Dairy-free — no dairy ingredients in authentic preparation",
+    "High-protein meal option at 32–36g per bowl"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation using standard restaurant-style ingredients including chicken thigh, full-fat coconut milk, fresh and fried egg noodles, and traditional curry paste. Values derived from USDA Food Composition Database and Thai Food Composition Database. Actual values may vary based on restaurant, recipe, and ingredient proportions."
+}
+
+{
+  "dish_name": "Northern Pork Curry (แกงฮังเล)",
+  "portion_size": "1 bowl (~300–350g)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 520,
+      "max": 560
+    },
+    "protein_g": {
+      "min": 28,
+      "max": 32
+    },
+    "carbohydrates_g": {
+      "min": 18,
+      "max": 22
+    },
+    "sugars_g": {
+      "min": 10,
+      "max": 13
+    },
+    "total_fat_g": {
+      "min": 36,
+      "max": 42
+    },
+    "saturated_fat_g": {
+      "min": 13,
+      "max": 16
+    },
+    "dietary_fiber_g": {
+      "min": 2,
+      "max": 3
+    },
+    "sodium_mg": {
+      "min": 950,
+      "max": 1150
+    },
+    "cholesterol_mg": {
+      "min": 95,
+      "max": 115
+    },
+    "micronutrients": {
+      "iron_mg": {
+        "min": 2.5,
+        "max": 3.5,
+        "percent_dv_min": 15,
+        "percent_dv_max": 20
+      },
+      "zinc_mg": {
+        "min": 4,
+        "max": 5,
+        "percent_dv_min": 35,
+        "percent_dv_max": 45
+      },
+      "vitamin_b1_thiamine_mg": {
+        "min": 0.6,
+        "max": 0.8,
+        "percent_dv_min": 50,
+        "percent_dv_max": 65
+      },
+      "vitamin_b6_mg": {
+        "min": 0.5,
+        "max": 0.7,
+        "percent_dv_min": 30,
+        "percent_dv_max": 40
+      },
+      "potassium_mg": {
+        "min": 480,
+        "max": 560,
+        "percent_dv_min": 10,
+        "percent_dv_max": 12
+      },
+      "phosphorus_mg": {
+        "min": 220,
+        "max": 260,
+        "percent_dv_min": 20,
+        "percent_dv_max": 25
+      },
+      "vitamin_c_mg": {
+        "min": 5,
+        "max": 10,
+        "note": "Modest contribution from chilies and lemongrass"
+      },
+      "calcium_mg": {
+        "min": 35,
+        "max": 50,
+        "percent_dv_min": 4,
+        "percent_dv_max": 5
+      },
+      "magnesium_mg": {
+        "min": 30,
+        "max": 40,
+        "percent_dv_min": 8,
+        "percent_dv_max": 10
+      },
+      "curcumin_turmeric": {
+        "present": true,
+        "note": "Anti-inflammatory properties from turmeric in curry paste"
+      }
+    }
+  },
+  "ingredients_notes": "Key ingredients include pork belly or pork shoulder (bone-in), Hang Lay curry paste (dried chilies, shrimp paste, lemongrass, galangal, turmeric), tamarind paste, palm sugar, pickled garlic, fresh ginger, shallots, fish sauce, and optionally peanuts. Some modern versions may include a small amount of coconut milk. No coconut milk is used in the most traditional preparation.",
+  "dietary_considerations": [
+    "High sodium: ~950–1150mg per bowl, contributing approximately 40–50% of the recommended daily intake of 2300mg",
+    "High saturated fat: due to use of pork belly; leaner alternatives such as pork shoulder may reduce saturated fat content",
+    "Contains shellfish: shrimp paste (kapi) is a core ingredient — not suitable for shellfish or crustacean allergies",
+    "Contains fish: fish sauce is used — not suitable for fish allergies",
+    "May contain peanuts: some versions include peanuts — verify with restaurant",
+    "Generally gluten-free: verify that commercial curry paste does not contain soy-based or gluten-containing additives",
+    "Dairy-free: no dairy ingredients used",
+    "Not suitable for Halal diets: contains pork",
+    "Not suitable for vegetarian or vegan diets: contains pork, fish sauce, and shrimp paste",
+    "Moderate carbohydrate content (~18–22g): palm sugar and tamarind contribute to carb and sugar levels — caution advised for strict keto or low-carb diets"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation of Northern Pork Curry (Hang Lay). Nutritional values reflect traditional recipes and may vary depending on the restaurant, cook, specific recipe used, and exact portion weight."
+}
+
+{
+  "dish_name": "Thai Fish Cakes (Tod Mun Pla)",
+  "portion_size": "1 plate (approx. 4-5 pieces, ~200g)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": 285,
+    "protein_g": 24,
+    "carbohydrates_g": 18,
+    "sugars_g": 6,
+    "total_fat_g": 12,
+    "saturated_fat_g": 3,
+    "dietary_fiber_g": 1.5,
+    "sodium_mg": 820,
+    "cholesterol_mg": 95,
+    "micronutrients": {
+      "calcium_mg": 85,
+      "calcium_percent_dv": 8,
+      "iron_mg": 1.8,
+      "iron_percent_dv": 10,
+      "vitamin_c_mg": 12,
+      "vitamin_c_percent_dv": 13,
+      "vitamin_b12_mcg": 1.4,
+      "vitamin_b12_percent_dv": 58,
+      "phosphorus_mg": 310,
+      "phosphorus_percent_dv": 25,
+      "potassium_mg": 420,
+      "potassium_percent_dv": 9,
+      "zinc_mg": 1.2,
+      "zinc_percent_dv": 11
+    }
+  },
+  "ingredients_notes": "Primary ingredients include white fish paste (commonly Spanish mackerel or snapper), red curry paste (Nam Prik Gaeng Daeng), finely sliced kaffir lime leaves, thinly sliced long beans, fish sauce (Nam Pla), egg as a binder, palm sugar, and vegetable oil for deep frying. Served with a sweet chilli cucumber dipping sauce (Ajad) containing cucumber, shallots, chilli, vinegar, and sugar. Dipping sauce contributes approximately 35-40 kcal and most of the listed sugar content.",
+  "dietary_considerations": [
+    "Contains fish (primary allergen)",
+    "Contains shellfish - shrimp paste present in curry paste",
+    "Contains egg",
+    "Possible gluten presence in some fish sauces and curry paste brands - verify before serving",
+    "High sodium content (820mg) - fish sauce and curry paste are primary contributors; caution advised for those managing hypertension",
+    "Mild to moderate spice level from red curry paste",
+    "Not suitable for vegetarians or vegans",
+    "Pescatarians should verify no shrimp paste is used",
+    "Suitable for dairy-free diets",
+    "May be suitable for gluten-free diets - ingredient verification required",
+    "Moderately low-carb compared to other Thai dishes, though dipping sauce adds sugars",
+    "Deep-frying method increases fat content; baked or air-fried versions can reduce fat by approximately 30-40%",
+    "Contains omega-3 fatty acids from white fish, beneficial for cardiovascular health",
+    "Kaffir lime leaves provide trace antioxidants and flavonoids"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods. Values may vary depending on the specific fish used, curry paste brand, oil absorption during frying, and portion size of dipping sauce served."
+}
+
+{
+  "dish_name": "Thai Oyster Omelette (Hoy Tod / หอยทอด)",
+  "portion_size": "1 plate (approx. 300–350g)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": 540,
+    "protein_g": 23.5,
+    "carbohydrates_g": 40,
+    "sugars_g": 4,
+    "total_fat_g": 34,
+    "saturated_fat_g": 9.5,
+    "dietary_fiber_g": 2.5,
+    "sodium_mg": 1000,
+    "cholesterol_mg": 350,
+    "micronutrients": {
+      "zinc_mg": 20,
+      "vitamin_b12_mcg": 14,
+      "iron_mg": 7,
+      "calcium_mg": 90,
+      "selenium_mcg": 62.5,
+      "vitamin_d_mcg": 3.5,
+      "iodine_mcg": 105,
+      "vitamin_a_rae_mcg": 200
+    }
+  },
+  "ingredients_notes": "Fresh small briny oysters, 2–3 eggs, rice flour and tapioca starch batter, bean sprouts, spring onions or garlic chives, lard or vegetable oil (generous amount), fish sauce, white pepper, and sriracha-based dipping sauce served alongside.",
+  "dietary_considerations": [
+    "Contains shellfish (oysters) — major allergen",
+    "Contains eggs",
+    "Contains fish (fish sauce)",
+    "Possible gluten traces — fish sauce and some batters may contain wheat",
+    "Possible soy — depending on sauce preparation",
+    "High sodium — approximately 900–1,100 mg per plate, contributing 40–50% of recommended daily intake",
+    "High cholesterol — approximately 320–380 mg per plate from eggs and oysters",
+    "High fat from frying — traditional preparation uses lard or large amounts of oil",
+    "Not suitable for low-sodium diets",
+    "Not suitable for low-cholesterol diets",
+    "Not suitable for keto or low-carb diets due to rice flour batter",
+    "Not suitable for vegetarian or vegan diets",
+    "Suitable for pescatarians",
+    "Mostly dairy-free — verify if lard is used",
+    "Mostly gluten-free — verify fish sauce and batter ingredients",
+    "Excellent source of zinc — approximately 160–200% DV",
+    "Excellent source of vitamin B12 — approximately 500–650% DV",
+    "Good source of selenium — approximately 100–127% DV",
+    "Good source of protein — approximately 22–25g per plate"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods and established food composition databases including USDA, Thai FDA, and regional food science literature. Actual values may vary depending on the restaurant, chef, oil quantity, and oyster size used."
+}
+
+{
+  "dish_name": "Thai Grilled Chicken (Gai Yang)",
+  "portion_size": "1 plate (approx. 250–300g cooked chicken)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 420,
+      "max": 460
+    },
+    "protein_g": {
+      "min": 42,
+      "max": 46
+    },
+    "carbohydrates_g": {
+      "min": 8,
+      "max": 10
+    },
+    "sugars_g": {
+      "min": 4,
+      "max": 5
+    },
+    "total_fat_g": {
+      "min": 24,
+      "max": 28
+    },
+    "saturated_fat_g": {
+      "min": 7,
+      "max": 9
+    },
+    "dietary_fiber_g": {
+      "min": 0.5,
+      "max": 1.0
+    },
+    "sodium_mg": {
+      "min": 780,
+      "max": 950
+    },
+    "cholesterol_mg": {
+      "min": 145,
+      "max": 165
+    },
+    "micronutrients": {
+      "iron_mg": {
+        "min": 2.2,
+        "max": 2.8,
+        "percent_daily_value_min": 12,
+        "percent_daily_value_max": 15
+      },
+      "zinc_mg": {
+        "min": 3.5,
+        "max": 4.5,
+        "percent_daily_value_min": 32,
+        "percent_daily_value_max": 40
+      },
+      "phosphorus_mg": {
+        "min": 320,
+        "max": 380,
+        "percent_daily_value_min": 30,
+        "percent_daily_value_max": 35
+      },
+      "potassium_mg": {
+        "min": 420,
+        "max": 500,
+        "percent_daily_value_min": 9,
+        "percent_daily_value_max": 11
+      },
+      "vitamin_b6_mg": {
+        "min": 0.8,
+        "max": 1.0,
+        "percent_daily_value_min": 47,
+        "percent_daily_value_max": 59
+      },
+      "vitamin_b12_mcg": {
+        "min": 0.5,
+        "max": 0.7,
+        "percent_daily_value_min": 21,
+        "percent_daily_value_max": 29
+      },
+      "niacin_b3_mg": {
+        "min": 12,
+        "max": 15,
+        "percent_daily_value_min": 75,
+        "percent_daily_value_max": 94
+      },
+      "vitamin_c_mg": {
+        "min": 3,
+        "max": 5,
+        "percent_daily_value_min": 3,
+        "percent_daily_value_max": 6
+      },
+      "calcium_mg": {
+        "min": 25,
+        "max": 35,
+        "percent_daily_value_min": 2,
+        "percent_daily_value_max": 3
+      }
+    }
+  },
+  "ingredients_notes": "Chicken (typically thigh and drumstick pieces) marinated in lemongrass, garlic, fish sauce, oyster sauce, turmeric, coriander root, white pepper, and coconut milk, then grilled over charcoal. Traditionally served with sticky rice (khao niao) and Nam Jim Jaew dipping sauce. Nutritional values reflect grilled chicken with marinade only, excluding sticky rice and dipping sauce.",
+  "dietary_considerations": [
+    "Contains fish allergen — fish sauce used in marinade",
+    "Contains shellfish allergen — oyster sauce used in marinade",
+    "Contains gluten — oyster sauce contains wheat; not suitable for gluten-free diets without modification",
+    "May contain soy allergen if soy-based sauces are used",
+    "Moderately high sodium content (780–950 mg per plate), representing approximately 34–41% of recommended daily intake",
+    "Not suitable for vegetarians or vegans",
+    "Suitable for high-protein and low-carb or keto diets (without sticky rice)",
+    "Dairy-free",
+    "Halal status unverified — fish sauce and preparation methods may vary by restaurant",
+    "Removing chicken skin reduces total fat content by approximately 30–35%",
+    "Individuals managing hypertension or kidney conditions should monitor sodium intake"
+  ],
+  "diet_suitability": {
+    "high_protein": true,
+    "low_carb_keto": true,
+    "gluten_free": false,
+    "dairy_free": true,
+    "paleo": null,
+    "halal": null,
+    "vegetarian": false,
+    "vegan": false
+  },
+  "data_source_note": "Estimated based on authentic Thai preparation methods using standard ingredient ratios. Actual values may vary depending on the restaurant, marinade duration, chicken cut used (bone-in vs boneless, skin-on vs skinless), and cooking method."
+}
+
+{
+  "dish_name": "Waterfall Beef Salad (Nam Tok Neua)",
+  "portion_size": "1 plate (~300g)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": "320-350",
+    "protein_g": "28-32",
+    "carbohydrates_g": "14-16",
+    "sugars_g": "4-5",
+    "total_fat_g": "16-19",
+    "saturated_fat_g": "6-7",
+    "dietary_fiber_g": "2-3",
+    "sodium_mg": "900-1100",
+    "cholesterol_mg": "75-90",
+    "micronutrients": {
+      "iron_mg": "3.5-4.5",
+      "zinc_mg": "5-6",
+      "vitamin_c_mg": "10-15",
+      "vitamin_b12_mcg": "1.5-2.0",
+      "potassium_mg": "400-500",
+      "calcium_mg": "40-60",
+      "niacin_b3_mg": "6-8",
+      "vitamin_k_mcg": "15-20"
+    }
+  },
+  "ingredients_notes": "Grilled beef sirloin or rump (~150-180g) as the primary protein source, seasoned with fish sauce (~2-3 tbsp) and lime juice (~2 tbsp). Toasted rice powder (~1 tbsp) adds texture and nutty flavour. Aromatics include shallots (~30g), spring onions (~15g), and dried chilli flakes (~1 tsp). Fresh mint and coriander (~15g) are used as garnish and flavour enhancers.",
+  "dietary_considerations": [
+    "High sodium: ~900-1100mg per serving, contributing approximately 40-48% of the recommended daily sodium intake of 2300mg",
+    "Contains fish: fish sauce is a primary ingredient, not suitable for those with fish or shellfish allergies",
+    "Gluten: generally gluten-free but some fish sauce brands may contain wheat, verify label before consumption",
+    "Not suitable for vegetarians or vegans due to beef and fish sauce",
+    "Suitable for high-protein and low-carbohydrate diets",
+    "Suitable for keto and paleo diets due to low carb content and whole food ingredients",
+    "Dairy-free",
+    "Not recommended for low-sodium diets without modification such as requesting reduced fish sauce"
+  ],
+  "data_source_note": "Estimated based on authentic Thai Isan-style preparation. Nutritional values may vary depending on the cut of beef used, the amount of fish sauce applied, and restaurant-specific recipes."
+}
+
+{
+  "dish_name": "Fried Fish with Chili Sauce",
+  "portion_size": "1 plate",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 520,
+      "max": 560
+    },
+    "protein_g": {
+      "min": 38,
+      "max": 42
+    },
+    "carbohydrates_g": {
+      "min": 28,
+      "max": 32
+    },
+    "sugars_g": {
+      "min": 14,
+      "max": 17
+    },
+    "total_fat_g": {
+      "min": 24,
+      "max": 28
+    },
+    "saturated_fat_g": {
+      "min": 4,
+      "max": 6
+    },
+    "dietary_fiber_g": {
+      "min": 2,
+      "max": 3
+    },
+    "sodium_mg": {
+      "min": 1100,
+      "max": 1400
+    },
+    "cholesterol_mg": {
+      "min": 95,
+      "max": 115
+    },
+    "micronutrients": {
+      "vitamin_c_mg": {
+        "min": 25,
+        "max": 35,
+        "percent_dv_min": 30,
+        "percent_dv_max": 40
+      },
+      "vitamin_b12_mcg": {
+        "min": 2.5,
+        "max": 3.5,
+        "percent_dv_min": 100,
+        "percent_dv_max": 145
+      },
+      "vitamin_a_mcg_rae": {
+        "min": 150,
+        "max": 200,
+        "percent_dv_min": 17,
+        "percent_dv_max": 22
+      },
+      "iron_mg": {
+        "min": 2.5,
+        "max": 3.5,
+        "percent_dv_min": 14,
+        "percent_dv_max": 20
+      },
+      "calcium_mg": {
+        "min": 80,
+        "max": 120,
+        "percent_dv_min": 8,
+        "percent_dv_max": 12
+      },
+      "potassium_mg": {
+        "min": 600,
+        "max": 750,
+        "percent_dv_min": 13,
+        "percent_dv_max": 16
+      },
+      "phosphorus_mg": {
+        "min": 350,
+        "max": 420,
+        "percent_dv_min": 28,
+        "percent_dv_max": 34
+      },
+      "selenium_mcg": {
+        "min": 35,
+        "max": 50,
+        "percent_dv_min": 64,
+        "percent_dv_max": 90
+      }
+    }
+  },
+  "ingredients_notes": "Whole fish or thick fillet (commonly snapper, tilapia, or sea bass) deep-fried until golden and crispy, topped with a chili sauce made from fresh chilies, garlic, fish sauce, oyster sauce, palm sugar, and Thai basil. Approximate serving includes ~200g cooked fish and 3-4 tbsp of chili sauce.",
+  "dietary_considerations": [
+    "High sodium content: 1,100-1,400 mg per plate, contributing 48-61% of recommended daily intake",
+    "Contains fish: primary ingredient",
+    "Possible shellfish derivatives: oyster sauce may contain shellfish",
+    "Possible gluten: oyster sauce and soy-based condiments may contain wheat",
+    "Not suitable for vegetarians or vegans",
+    "Not guaranteed gluten-free: verify sauce ingredients",
+    "Dairy-free: suitable for lactose-intolerant individuals",
+    "Keto/low-carb: moderate suitability due to palm sugar in sauce",
+    "Pescatarian: suitable",
+    "Halal: verify oyster sauce brand for compliance",
+    "Paleo: partial suitability; fish sauce acceptable but oyster sauce is debated",
+    "Moderate calorie density due to deep-frying; oil absorption adds approximately 80-120 kcal compared to steamed preparation",
+    "Moderate sugar content from palm sugar; notable for those monitoring glycemic intake",
+    "Excellent source of lean protein supporting muscle repair and satiety",
+    "Rich in Vitamin B12 and Selenium supporting neurological health and antioxidant defense",
+    "Good source of Omega-3 fatty acids if prepared with oily fish such as snapper or sea bass",
+    "Individuals managing hypertension or kidney conditions should consume with caution due to high sodium"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods using whole fried fish approximately 200g cooked weight with approximately 3-4 tbsp of chili sauce. Nutritional values may vary depending on fish species, oil absorption during frying, and sauce quantity used. Percent Daily Values based on a 2,000 kcal diet."
+}
+
+{
+  "dish_name": "Khao Niao Mamuang (Mango Sticky Rice)",
+  "portion_size": "1 plate",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 520,
+      "max": 560,
+      "unit": "kcal"
+    },
+    "protein_g": {
+      "min": 6,
+      "max": 7,
+      "unit": "g"
+    },
+    "carbohydrates_g": {
+      "min": 85,
+      "max": 90,
+      "unit": "g"
+    },
+    "sugars_g": {
+      "min": 38,
+      "max": 42,
+      "unit": "g"
+    },
+    "total_fat_g": {
+      "min": 16,
+      "max": 19,
+      "unit": "g"
+    },
+    "saturated_fat_g": {
+      "min": 13,
+      "max": 16,
+      "unit": "g"
+    },
+    "dietary_fiber_g": {
+      "min": 3,
+      "max": 4,
+      "unit": "g"
+    },
+    "sodium_mg": {
+      "min": 180,
+      "max": 220,
+      "unit": "mg"
+    },
+    "cholesterol_mg": {
+      "value": 0,
+      "unit": "mg"
+    },
+    "micronutrients": {
+      "vitamin_c_mg": {
+        "min": 40,
+        "max": 50,
+        "unit": "mg",
+        "percent_rdi_note": "~45-50% RDI",
+        "source": "Fresh ripe mango"
+      },
+      "vitamin_a_iu": {
+        "min": 900,
+        "max": 1000,
+        "unit": "IU",
+        "notes": "Beta-carotene from mango; supports eye health"
+      },
+      "potassium_mg": {
+        "min": 280,
+        "max": 320,
+        "unit": "mg",
+        "source": "Mango and coconut milk"
+      },
+      "iron_mg": {
+        "min": 1.5,
+        "max": 2.0,
+        "unit": "mg",
+        "percent_rdi_note": "~10-15% RDI",
+        "source": "Glutinous rice"
+      },
+      "magnesium_mg": {
+        "min": 35,
+        "max": 45,
+        "unit": "mg",
+        "source": "Coconut milk and rice"
+      },
+      "calcium_mg": {
+        "min": 25,
+        "max": 35,
+        "unit": "mg",
+        "source": "Coconut milk"
+      },
+      "folate_b9_mcg": {
+        "min": 25,
+        "max": 35,
+        "unit": "mcg",
+        "source": "Mango"
+      },
+      "manganese_mg": {
+        "min": 0.8,
+        "max": 1.0,
+        "unit": "mg",
+        "percent_rdi_note": "~40-50% RDI",
+        "source": "Glutinous rice"
+      }
+    },
+    "caloric_source_breakdown": {
+      "carbohydrates_percent": {
+        "min": 62,
+        "max": 65
+      },
+      "fats_percent": {
+        "min": 28,
+        "max": 32
+      },
+      "protein_percent": {
+        "min": 5,
+        "max": 6
+      }
+    }
+  },
+  "ingredients_notes": "Key ingredients include glutinous (sticky) rice (~150g cooked) prepared with coconut milk and sugar, fresh ripe mango slices (~150g), and a lightly salted sweet coconut cream topping (~60-80ml). Optional garnishes include toasted mung beans and/or toasted sesame seeds.",
+  "dietary_considerations": [
+    "Vegan and vegetarian friendly - entirely plant-based with no animal products",
+    "Gluten-free - glutinous rice contains no gluten despite its name; safe for coeliac disease or gluten sensitivity",
+    "Dairy-free - uses coconut milk and coconut cream, not dairy",
+    "High in saturated fat (~13-16g) from coconut milk and coconut cream; may be a concern for those monitoring cardiovascular health",
+    "High in simple sugars (~38-42g) from added sugar in sticky rice preparation and natural sugars in ripe mango",
+    "High glycaemic load due to glutinous rice and ripe mango; individuals managing blood sugar levels such as Type 2 diabetes should consume mindfully",
+    "Moderate sodium (~180-220mg) from salted coconut cream topping; worth noting for those on low-sodium diets",
+    "Coconut allergen warning - coconut is classified as a tree nut by some regulatory bodies including the FDA; individuals with tree nut allergies should exercise caution",
+    "Potential sesame allergen - if garnished with toasted sesame seeds; confirm with vendor",
+    "Mung beans occasionally used as garnish; generally low allergen risk"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods and standard ingredient quantities for a typical 1-plate serving (~360-380g total). Actual values may vary depending on the restaurant, portion size, and specific recipe used."
+}
+
+{
+  "dish_name": "Sour Curry (Gaeng Som)",
+  "portion_size": "1 bowl (~400ml / approximately 400g)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 185,
+      "max": 210,
+      "unit": "kcal"
+    },
+    "protein_g": {
+      "min": 18,
+      "max": 22,
+      "unit": "g"
+    },
+    "carbohydrates_g": {
+      "min": 16,
+      "max": 20,
+      "unit": "g"
+    },
+    "sugars_g": {
+      "min": 6,
+      "max": 9,
+      "unit": "g"
+    },
+    "total_fat_g": {
+      "min": 3,
+      "max": 5,
+      "unit": "g"
+    },
+    "saturated_fat_g": {
+      "min": 0.8,
+      "max": 1.2,
+      "unit": "g"
+    },
+    "dietary_fiber_g": {
+      "min": 3,
+      "max": 5,
+      "unit": "g"
+    },
+    "sodium_mg": {
+      "min": 900,
+      "max": 1200,
+      "unit": "mg"
+    },
+    "cholesterol_mg": {
+      "min": 85,
+      "max": 120,
+      "unit": "mg"
+    },
+    "micronutrients": {
+      "vitamin_c_mg": {
+        "min": 25,
+        "max": 40,
+        "unit": "mg",
+        "percent_rdi_note": "~30–45% RDI",
+        "sources": "tamarind, chillies, vegetables"
+      },
+      "vitamin_a_rae_mcg": {
+        "min": 180,
+        "max": 250,
+        "unit": "µg RAE",
+        "sources": "papaya, chillies, herbs"
+      },
+      "iron_mg": {
+        "min": 2.0,
+        "max": 3.0,
+        "unit": "mg",
+        "percent_rdi_note": "~15–20% RDI",
+        "sources": "shrimp, fish, vegetables"
+      },
+      "calcium_mg": {
+        "min": 80,
+        "max": 110,
+        "unit": "mg",
+        "sources": "shrimp with shells, fish paste, vegetables"
+      },
+      "potassium_mg": {
+        "min": 450,
+        "max": 600,
+        "unit": "mg",
+        "sources": "vegetables, broth base"
+      },
+      "zinc_mg": {
+        "min": 1.5,
+        "max": 2.5,
+        "unit": "mg",
+        "sources": "shrimp, fish protein"
+      },
+      "magnesium_mg": {
+        "min": 35,
+        "max": 50,
+        "unit": "mg",
+        "sources": "vegetables, tamarind"
+      }
+    }
+  },
+  "ingredients_notes": "Tamarind or green mango-based broth with pounded chilli paste (prik gaeng som), shrimp or white fish as primary protein, fish sauce (nam pla), shrimp paste (kapi), and vegetables such as green papaya, cabbage, or morning glory. Contains no coconut milk.",
+  "dietary_considerations": [
+    "Contains shellfish — shrimp and shrimp paste present; high allergen risk",
+    "Contains fish — fish sauce used in almost all versions; not suitable for fish allergies",
+    "Generally gluten-free — verify fish sauce brand for additives",
+    "High sodium content — 900–1,200 mg per bowl (~39–52% of 2,300 mg daily recommended limit); caution advised for those managing hypertension or kidney conditions",
+    "Not suitable for vegetarians or vegans — contains shrimp paste and fish sauce",
+    "Suitable for pescatarians",
+    "Dairy-free — no dairy ingredients used",
+    "Low-fat — one of the leanest Thai curry options due to absence of coconut milk",
+    "Low-calorie — suitable for calorie-conscious diets",
+    "Keto and low-carb suitability is moderate and depends on vegetables used"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods and cross-referenced with USDA FoodData Central, Thai food composition databases, and established culinary nutrition references. Actual values may vary based on specific ingredients, cooking methods, and portion sizes."
+}
+
+{
+  "dish_name": "Crispy Noodles (Mee Krob)",
+  "portion_size": "1 plate (approx. 250g)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 520,
+      "max": 560
+    },
+    "protein_g": {
+      "min": 14,
+      "max": 16
+    },
+    "carbohydrates_g": {
+      "min": 72,
+      "max": 78
+    },
+    "sugars_g": {
+      "min": 28,
+      "max": 34
+    },
+    "total_fat_g": {
+      "min": 20,
+      "max": 24
+    },
+    "saturated_fat_g": {
+      "min": 4,
+      "max": 6
+    },
+    "dietary_fiber_g": {
+      "min": 2,
+      "max": 3
+    },
+    "sodium_mg": {
+      "min": 900,
+      "max": 1100
+    },
+    "cholesterol_mg": {
+      "min": 85,
+      "max": 110
+    },
+    "micronutrients": {
+      "iron_mg": {
+        "min": 2.0,
+        "max": 2.8,
+        "notes": "From dried shrimp, tofu and noodles"
+      },
+      "calcium_mg": {
+        "min": 80,
+        "max": 110,
+        "notes": "From tofu and dried shrimp"
+      },
+      "vitamin_c_mg": {
+        "min": 8,
+        "max": 12,
+        "notes": "From bean sprouts and lime/citrus garnish"
+      },
+      "vitamin_b1_thiamine_mg": {
+        "min": 0.15,
+        "max": 0.20,
+        "notes": "From rice vermicelli"
+      },
+      "potassium_mg": {
+        "min": 220,
+        "max": 280,
+        "notes": "From tamarind and vegetables"
+      },
+      "phosphorus_mg": {
+        "min": 150,
+        "max": 190,
+        "notes": "From shrimp and tofu"
+      }
+    },
+    "calorie_source_breakdown": {
+      "carbohydrates_percent": 55,
+      "fats_percent": 38,
+      "protein_percent": 11
+    }
+  },
+  "ingredients_notes": "Deep-fried rice vermicelli noodles tossed in a sweet-sour-savoury sauce made from tamarind, fish sauce, palm sugar, and citrus. Garnished with bean sprouts, egg ribbons, dried shrimp or prawns, tofu, and fresh coriander.",
+  "dietary_considerations": [
+    "Contains shellfish (dried shrimp/prawns)",
+    "Contains eggs",
+    "Contains soy (tofu)",
+    "Contains fish (fish sauce)",
+    "May contain gluten if soy sauce is used in the sauce base",
+    "High sugar content due to palm sugar and tamarind — not suitable for low-sugar or blood glucose management diets",
+    "High sodium from fish sauce and dried shrimp — caution advised for low-sodium or hypertensive diets",
+    "Not suitable for vegan or vegetarian diets in traditional form",
+    "Potentially gluten-free if fish sauce is used exclusively instead of soy sauce — confirm with restaurant",
+    "Not recommended for low-sugar diets",
+    "Consume in moderation on low-sodium diets"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods. Values referenced from USDA FoodData Central, Thai culinary nutritional studies, and established food composition databases. Nutritional values may vary depending on the restaurant, portion size, and specific recipe variations."
+}
+
+{
+  "dish_name": "Northern Thai Sausage (Sai Ua)",
+  "portion_size": "1 plate (~200g, approx. 2-3 sausage links)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": "520-560",
+    "protein_g": "24-26",
+    "carbohydrates_g": "8-10",
+    "sugars_g": "2-3",
+    "total_fat_g": "44-48",
+    "saturated_fat_g": "15-17",
+    "dietary_fiber_g": "1.5-2",
+    "sodium_mg": "900-1100",
+    "cholesterol_mg": "95-110",
+    "micronutrients": {
+      "iron_mg": "2.5-3.0",
+      "zinc_mg": "3.0-3.5",
+      "vitamin_b1_thiamine_mg": "0.6-0.8",
+      "vitamin_b12_mcg": "0.8-1.0",
+      "vitamin_c_mg": "5-8",
+      "potassium_mg": "380-420",
+      "calcium_mg": "30-40",
+      "phosphorus_mg": "200-230"
+    }
+  },
+  "ingredients_notes": "Coarsely minced pork stuffed in natural pork casings, seasoned with lemongrass, galangal, kaffir lime leaves, dried chilies, shallots, garlic, shrimp paste (kapi), and fish sauce. Grilled or pan-fried. Typically served with sticky rice, fresh vegetables, and nam prik noom (green chili dip).",
+  "dietary_considerations": [
+    "High sodium: 900-1100mg per plate, approximately 40-48% of recommended daily intake",
+    "Contains shellfish: shrimp paste (kapi) is a core ingredient",
+    "Contains fish: fish sauce is commonly used",
+    "Contains pork: primary protein source",
+    "Contains alliums: shallots and garlic are key aromatics",
+    "Possible gluten: some recipes use soy sauce, preparation should be verified",
+    "Suitable for keto and low-carb diets due to very low carbohydrate and high fat content",
+    "Not suitable for halal diets due to pork content",
+    "Not suitable for vegetarian or vegan diets due to pork, fish sauce, and shrimp paste",
+    "Dairy-free",
+    "Not suitable for low-sodium diets",
+    "Paleo suitability is partial and depends on shrimp paste quality",
+    "Gluten-free status is conditional and requires verification of no soy sauce addition",
+    "If served with sticky rice (~150g) and fresh vegetables, total meal estimate rises to approximately 700-750 kcal"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods and standard nutritional databases including USDA and Thai Food Composition Database. Actual values may vary by recipe, region, and cooking method."
+}
+
+{
+  "dish_name": "Thai Steamed Fish with Lime (Pla Neung Manao)",
+  "portion_size": "1 plate (approx. 350–400g serving)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 285,
+      "max": 320
+    },
+    "protein_g": {
+      "min": 38,
+      "max": 42
+    },
+    "carbohydrates_g": {
+      "min": 12,
+      "max": 15
+    },
+    "sugars_g": {
+      "min": 4,
+      "max": 6
+    },
+    "total_fat_g": {
+      "min": 8,
+      "max": 10
+    },
+    "saturated_fat_g": {
+      "min": 1.5,
+      "max": 2.5
+    },
+    "dietary_fiber_g": {
+      "min": 1,
+      "max": 2
+    },
+    "sodium_mg": {
+      "min": 950,
+      "max": 1200
+    },
+    "cholesterol_mg": {
+      "min": 85,
+      "max": 110
+    },
+    "micronutrients": {
+      "vitamin_c_mg": {
+        "min": 25,
+        "max": 35,
+        "percent_daily_value_approx": "30–40%"
+      },
+      "vitamin_b12_mcg": {
+        "min": 2.5,
+        "max": 3.5,
+        "percent_daily_value_approx": "100–145%"
+      },
+      "phosphorus_mg": {
+        "min": 380,
+        "max": 420,
+        "percent_daily_value_approx": "55%"
+      },
+      "potassium_mg": {
+        "min": 620,
+        "max": 700,
+        "percent_daily_value_approx": "15–18%"
+      },
+      "selenium_mcg": {
+        "min": 40,
+        "max": 55,
+        "percent_daily_value_approx": "70–100%"
+      },
+      "iron_mg": {
+        "min": 1.5,
+        "max": 2.2,
+        "percent_daily_value_approx": "10–15%"
+      },
+      "calcium_mg": {
+        "min": 55,
+        "max": 80,
+        "percent_daily_value_approx": "6–8%"
+      },
+      "magnesium_mg": {
+        "min": 45,
+        "max": 60,
+        "percent_daily_value_approx": "12–15%"
+      }
+    }
+  },
+  "ingredients_notes": "Whole steamed fish (sea bass, tilapia, or snapper; approx. 250–280g edible portion), fresh lime juice, fish sauce (nam pla), minced or sliced garlic, fresh bird's eye chillies (prik kee noo), lemongrass, galangal, coriander/cilantro garnish, a small amount of sugar, chicken or vegetable stock as steaming liquid, and optional glass noodles placed under the fish.",
+  "dietary_considerations": [
+    "High sodium content — fish sauce contributes significantly; individuals with hypertension should monitor intake",
+    "Contains fish and fish sauce — not suitable for those with fish or seafood allergies",
+    "Generally gluten-free — verify fish sauce brand as some may contain wheat",
+    "Low in carbohydrates — suitable for low-carb diets when served without glass noodles",
+    "High lean protein source — ideal for muscle maintenance and repair",
+    "Low in saturated fat — fish provides beneficial omega-3 fatty acids supporting heart health",
+    "Not vegan or vegetarian — contains fish and fish sauce",
+    "Typically served with steamed jasmine rice which adds approximately 180 kcal per cup and is not included in the nutritional values above"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods, cross-referenced with USDA FoodData Central, Thai food composition databases, and standard culinary portion references. Values may vary depending on fish species, fish size, and amount of sauce consumed."
+}
+
+{
+  "dish_name": "Thai Spicy Isaan Soup",
+  "portion_size": "1 bowl (~400–450ml)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": "210–230",
+    "protein_g": "18–22",
+    "carbohydrates_g": "10–13",
+    "sugars_g": "3–4",
+    "total_fat_g": "9–12",
+    "saturated_fat_g": "3–4",
+    "dietary_fiber_g": "1.5–2",
+    "sodium_mg": "900–1100",
+    "cholesterol_mg": "55–70",
+    "micronutrients": {
+      "iron_mg": "2.0–2.8",
+      "vitamin_c_mg": "8–14",
+      "calcium_mg": "30–45",
+      "potassium_mg": "380–450",
+      "phosphorus_mg": "160–200",
+      "zinc_mg": "2.5–3.2",
+      "vitamin_b12_mcg": "0.6–0.9",
+      "magnesium_mg": "22–30"
+    }
+  },
+  "ingredients_notes": "Primary ingredients include pork ribs or offal as the main protein and fat source, lemongrass and galangal for antioxidant and anti-inflammatory properties, kaffir lime leaves for aromatic oils, dried chilies for capsaicin and Vitamin A precursors, fish sauce as the primary sodium and umami contributor, toasted rice powder (khao khua) for slight carbohydrate and fiber addition, lime juice for Vitamin C, and fresh herbs such as sawtooth coriander and spring onions for micronutrient support including iron, Vitamin K, and folate.",
+  "dietary_considerations": [
+    "Contains fish allergens from fish sauce — not suitable for fish or seafood allergies",
+    "High sodium content at 900–1100mg per bowl, representing approximately 40–48% of the recommended daily intake of 2300mg — caution advised for those managing hypertension or kidney conditions",
+    "Generally gluten-free in authentic preparation, but commercial fish sauces or seasoning pastes may contain trace gluten — verify labels before consumption",
+    "Traditional recipe is shellfish-free, however some regional Isaan variations may include dried shrimp (kung haeng)",
+    "Not suitable for vegetarians or vegans due to pork and fish sauce content",
+    "Not suitable for a low-sodium diet without significant modification",
+    "Suitable for gluten-free diets if fish sauce is verified gluten-free",
+    "Suitable for dairy-free diets",
+    "Suitable for paleo diets",
+    "Suitable for keto and low-carb diets at approximately 10–13g net carbohydrates per bowl",
+    "Halal-suitable only if pork is substituted with beef or chicken and halal fish sauce is used",
+    "If served with traditional sticky rice, add approximately 160–180 kcal and 35–38g of carbohydrates per serving"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation using standard Isaan-style Tom Saep methods and established food composition databases including USDA and the Thai Food Composition Database. Actual values may vary based on restaurant preparation, ingredient ratios, and portion sizes."
+}
+
+{
+  "dish_name": "Thai Crepes (Khanom Buang)",
+  "portion_size": "1 piece (~28g)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": 90,
+    "protein_g": 1.8,
+    "carbohydrates_g": 12.5,
+    "sugars_g": 7.2,
+    "total_fat_g": 3.8,
+    "saturated_fat_g": 2.9,
+    "dietary_fiber_g": 0.5,
+    "sodium_mg": 52,
+    "cholesterol_mg": 28,
+    "micronutrients": {
+      "calcium_mg": 18,
+      "iron_mg": 0.4,
+      "phosphorus_mg": 22,
+      "potassium_mg": 55,
+      "vitamin_b2_riboflavin_mg": 0.05
+    }
+  },
+  "ingredients_notes": "Crispy shell made from rice flour and mung bean flour; filled with sweetened coconut cream, foi thong (golden egg yolk threads), meringue-like whipped coconut topping, and shredded coconut. Sweetened with palm sugar or white sugar. Batter traditionally flavored with coriander root and a small amount of salt.",
+  "dietary_considerations": [
+    "Contains eggs — allergen risk",
+    "Contains coconut (tree nut) — allergen risk",
+    "Typically gluten-free due to rice flour base — verify cross-contamination at point of purchase",
+    "Not vegan — contains egg yolks and coconut cream",
+    "Suitable for vegetarians (sweet version only)",
+    "Moderate to high saturated fat from coconut cream",
+    "Moderate sugar content from palm sugar and egg yolk thread filling",
+    "Savory version contains shrimp — shellfish allergen risk",
+    "Low in protein — considered a treat rather than a nutritious snack",
+    "Moderate calorie density — easy to consume multiple pieces; monitor portion intake",
+    "Those managing blood sugar should be mindful of palm sugar and sweetened fillings"
+  ],
+  "data_source_note": "Estimated based on authentic Thai street food preparation of the sweet version (Khanom Buang). Values represent a midpoint average and may vary depending on vendor, shell thickness, and filling quantity."
+}
+
+{
+  "dish_name": "Thai Baked Prawns with Glass Noodles (Kung Ob Woon Sen / กุ้งอบวุ้นเส้น)",
+  "portion_size": "1 plate (approx. 350–400g serving)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 420,
+      "max": 460
+    },
+    "protein_g": {
+      "min": 32,
+      "max": 36
+    },
+    "carbohydrates_g": {
+      "min": 45,
+      "max": 50
+    },
+    "sugars_g": {
+      "min": 4,
+      "max": 6
+    },
+    "total_fat_g": {
+      "min": 12,
+      "max": 15
+    },
+    "saturated_fat_g": {
+      "min": 2.5,
+      "max": 3.5
+    },
+    "dietary_fiber_g": {
+      "min": 1.5,
+      "max": 2.5
+    },
+    "sodium_mg": {
+      "min": 1100,
+      "max": 1400
+    },
+    "cholesterol_mg": {
+      "min": 185,
+      "max": 220
+    },
+    "micronutrients": {
+      "selenium_mcg": {
+        "min": 45,
+        "max": 55,
+        "note": "Excellent source — from prawns"
+      },
+      "phosphorus_mg": {
+        "min": 320,
+        "max": 380,
+        "note": "High — supports bone health"
+      },
+      "iodine_mcg": {
+        "min": 80,
+        "max": 100,
+        "note": "Good source — from prawns"
+      },
+      "iron_mg": {
+        "min": 2.5,
+        "max": 3.5,
+        "note": "Moderate — from prawns and noodles"
+      },
+      "zinc_mg": {
+        "min": 2.8,
+        "max": 3.5,
+        "note": "Good source — from prawns"
+      },
+      "vitamin_b12_mcg": {
+        "min": 1.8,
+        "max": 2.5,
+        "note": "High — from shellfish"
+      },
+      "vitamin_c_mg": {
+        "min": 5,
+        "max": 8,
+        "note": "Modest — from garlic and celery"
+      },
+      "calcium_mg": {
+        "min": 80,
+        "max": 110,
+        "note": "Moderate — from prawn shells and heads"
+      },
+      "potassium_mg": {
+        "min": 350,
+        "max": 420,
+        "note": "Moderate"
+      },
+      "magnesium_mg": {
+        "min": 45,
+        "max": 60,
+        "note": "Moderate"
+      }
+    }
+  },
+  "ingredients_notes": "Key ingredients include whole shell-on prawns (200–220g) as the primary protein source, cooked glass noodles from approximately 60g dry mung bean vermicelli as the primary carbohydrate, oyster sauce (2–3 tbsp) and light soy sauce (1–2 tbsp) contributing sodium and umami, sesame oil (1–2 tsp) for healthy fats and flavour, fresh and fried garlic (15–20g), ginger (10g), lard or cooking oil (1–2 tsp), coriander root, white pepper, Chinese celery (15–20g), and a small amount of sugar (~1 tsp).",
+  "dietary_considerations": [
+    "Contains shellfish (prawns) — major allergen; not suitable for shellfish allergy sufferers",
+    "Contains gluten — oyster sauce and soy sauce typically contain wheat; not gluten-free unless tamari or gluten-free alternatives are used",
+    "Contains sesame — sesame oil is present; relevant for sesame allergies",
+    "Contains soy — soy sauce is a key ingredient",
+    "High sodium — approximately 1,100–1,400 mg per serving, representing 48–61% of the recommended daily intake of 2,300 mg; caution advised for individuals managing hypertension, kidney disease, or cardiovascular conditions",
+    "Suitable for pescatarians",
+    "Dairy-free in standard preparation",
+    "Not suitable for low-carb or ketogenic diets due to high carbohydrate content from glass noodles",
+    "Not suitable for low-sodium diets in standard preparation",
+    "Nut-free in standard preparation",
+    "Halal status requires verification of oyster sauce brand compliance",
+    "Moderate-to-high cholesterol content due to prawns; dietary cholesterol has less impact on blood cholesterol than saturated fat for most individuals",
+    "Relatively low in saturated fat compared to many other Thai dishes",
+    "Glass noodles are low in fibre and micronutrients but provide quick-release energy"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods and standard ingredient quantities. Actual values may vary depending on restaurant preparation, prawn size, noodle quantity, and sauce amounts used."
+}
+
+{
+  "dish_name": "Shrimp Paste Fried Rice (Khao Khluk Kapi)",
+  "portion_size": "1 plate (~380g)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 620,
+      "max": 680
+    },
+    "protein_g": {
+      "min": 22,
+      "max": 26
+    },
+    "carbohydrates_g": {
+      "min": 78,
+      "max": 85
+    },
+    "sugars_g": {
+      "min": 12,
+      "max": 16,
+      "note": "Primarily from sweet pork (moo wan) and green mango"
+    },
+    "total_fat_g": {
+      "min": 22,
+      "max": 28
+    },
+    "saturated_fat_g": {
+      "min": 7,
+      "max": 10
+    },
+    "dietary_fiber_g": {
+      "min": 3,
+      "max": 5
+    },
+    "sodium_mg": {
+      "min": 1400,
+      "max": 1800,
+      "flag": "HIGH"
+    },
+    "cholesterol_mg": {
+      "min": 180,
+      "max": 220
+    },
+    "micronutrients": {
+      "iron_mg": {
+        "min": 3.5,
+        "max": 4.5,
+        "percent_rdi_min": 20,
+        "percent_rdi_max": 25,
+        "source": "Dried shrimp and shrimp paste"
+      },
+      "calcium_mg": {
+        "min": 120,
+        "max": 160,
+        "percent_rdi_min": 12,
+        "percent_rdi_max": 16,
+        "source": "Dried shrimp and shrimp paste"
+      },
+      "vitamin_c_mg": {
+        "min": 15,
+        "max": 25,
+        "percent_rdi_min": 17,
+        "percent_rdi_max": 28,
+        "source": "Green mango and fresh chilli"
+      },
+      "zinc_mg": {
+        "min": 2.5,
+        "max": 3.5,
+        "percent_rdi_min": 23,
+        "percent_rdi_max": 32,
+        "source": "Shrimp components"
+      },
+      "vitamin_b12_mcg": {
+        "min": 1.8,
+        "max": 2.5,
+        "percent_rdi_min": 75,
+        "percent_rdi_max": 100,
+        "source": "Fermented and dried seafood"
+      },
+      "iodine_mcg": {
+        "min": 85,
+        "max": 120,
+        "percent_rdi_min": 55,
+        "percent_rdi_max": 80,
+        "source": "Shrimp paste"
+      },
+      "potassium_mg": {
+        "min": 380,
+        "max": 450,
+        "note": "Moderate — from vegetables and rice"
+      },
+      "vitamin_a_rae_mcg": {
+        "min": 80,
+        "max": 120,
+        "source": "Egg and chilli"
+      }
+    }
+  },
+  "ingredients_notes": "Jasmine rice stir-fried with fermented shrimp paste (kapi) in coconut oil or lard. Served with traditional accompaniments including sweet caramelised pork (moo wan), shredded omelette, green mango, shallots, dried shrimp, long beans, and fresh bird's eye chillies. Day-old rice is traditionally used to increase resistant starch content and improve texture.",
+  "dietary_considerations": [
+    "Very high sodium content (1,400–1,800 mg per plate; 60–78% of recommended daily intake) — not suitable for low-sodium or hypertension diets without significant modification",
+    "Contains shellfish (major allergen) — shrimp paste and dried shrimp present throughout dish",
+    "Contains eggs — shredded omelette included as standard accompaniment",
+    "Contains pork — sweet pork (moo wan) is a core component; not suitable for pescatarians or those avoiding pork",
+    "Possible gluten presence — some sweet pork recipes use soy sauce; verify preparation if gluten-free diet is required",
+    "Possible fish allergen — some versions include fish sauce",
+    "Possible soy allergen — sweet pork marinade may contain soy-based ingredients",
+    "Not suitable for vegetarians or vegans — contains shrimp paste, dried shrimp, pork, and egg",
+    "Moderate to high cholesterol content (180–220 mg) — primarily from egg and dried shrimp",
+    "Elevated sugar content compared to standard fried rice — due to caramelised sweet pork and green mango",
+    "Dairy-free as traditionally prepared",
+    "Good source of Vitamin B12 (75–100% RDI) from fermented and dried seafood",
+    "Resistant starch benefit — use of day-old jasmine rice lowers glycaemic impact compared to freshly cooked rice",
+    "Capsaicin present from fresh bird's eye chillies — potential metabolic and anti-inflammatory benefits"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods and established food composition databases including USDA, Thai Food Composition Database, and FAO. Actual nutritional values may vary depending on restaurant, portion size, and specific recipe variations."
+}
+
+{
+  "dish_name": "Thai Yellow Curry",
+  "portion_size": "1 plate (~350-400g, served with rice)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 620,
+      "max": 680
+    },
+    "protein_g": {
+      "min": 28,
+      "max": 32
+    },
+    "carbohydrates_g": {
+      "min": 58,
+      "max": 65
+    },
+    "sugars_g": {
+      "min": 8,
+      "max": 11
+    },
+    "total_fat_g": {
+      "min": 28,
+      "max": 34
+    },
+    "saturated_fat_g": {
+      "min": 18,
+      "max": 22
+    },
+    "dietary_fiber_g": {
+      "min": 3,
+      "max": 5
+    },
+    "sodium_mg": {
+      "min": 950,
+      "max": 1200
+    },
+    "cholesterol_mg": {
+      "min": 65,
+      "max": 85
+    },
+    "micronutrients": {
+      "iron_mg": {
+        "min": 3.5,
+        "max": 4.5,
+        "percent_rdi_min": 20,
+        "percent_rdi_max": 25,
+        "source_note": "From chicken, curry paste and turmeric"
+      },
+      "potassium_mg": {
+        "min": 550,
+        "max": 700,
+        "percent_rdi_min": 15,
+        "percent_rdi_max": 15,
+        "source_note": "From potatoes and coconut milk"
+      },
+      "vitamin_c_mg": {
+        "min": 25,
+        "max": 40,
+        "percent_rdi_min": 30,
+        "percent_rdi_max": 45,
+        "source_note": "From bell peppers and onions"
+      },
+      "calcium_mg": {
+        "min": 50,
+        "max": 70,
+        "percent_rdi_min": 5,
+        "percent_rdi_max": 7,
+        "source_note": "From coconut milk"
+      },
+      "vitamin_a_ug_rae": {
+        "min": 180,
+        "max": 250,
+        "percent_rdi_min": 20,
+        "percent_rdi_max": 28,
+        "source_note": "From turmeric and yellow curry paste"
+      },
+      "magnesium_mg": {
+        "min": 55,
+        "max": 75,
+        "percent_rdi_min": 15,
+        "percent_rdi_max": 15,
+        "source_note": "From coconut milk and spices"
+      },
+      "manganese_mg": {
+        "min": 1.2,
+        "max": 1.8,
+        "percent_rdi_min": 55,
+        "percent_rdi_max": 80,
+        "source_note": "From turmeric and lemongrass"
+      }
+    }
+  },
+  "ingredients_notes": "Authentic Thai preparation using full-fat coconut milk (~165ml), yellow curry paste (~30g), chicken thigh as protein (~120g), potatoes (~80g), onions, bell peppers, fish sauce, palm sugar, and 1 cup cooked jasmine rice (~180g). Occasionally garnished with peanuts or cashews.",
+  "dietary_considerations": [
+    "High in saturated fat — coconut milk is the primary contributor; individuals managing cardiovascular health should be mindful",
+    "High sodium — fish sauce and curry paste are significant sodium sources; may not be suitable for those on low-sodium diets",
+    "Calorie-dense — combination of coconut milk and rice makes this a relatively high-calorie meal",
+    "Contains fish and shellfish allergens — fish sauce and shrimp paste present in curry paste",
+    "May contain gluten — some commercial curry pastes may contain gluten; use certified gluten-free products if required",
+    "May contain tree nuts — occasionally garnished with peanuts or cashews",
+    "May contain soy — if tofu is used as the protein source",
+    "Not suitable for vegans or vegetarians in standard preparation — contains fish sauce and shrimp paste",
+    "Can be adapted for vegans using vegan curry paste and soy sauce or coconut aminos as substitute",
+    "Gluten-free if using certified gluten-free curry paste and fish sauce",
+    "Not suitable for low-fat or low-sodium diets without significant modification"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation. Values sourced from USDA FoodData Central, Thai culinary nutritional references, and established food science data. Nutritional values may vary based on restaurant portioning, coconut milk fat content, and ingredient substitutions."
+}
+
+{
+  "dish_name": "Thai Water Chestnut Dessert (Tub Tim Krob)",
+  "portion_size": "1 bowl (approx. 250–280g)",
+  "cuisine": "Thai",
+  "nutrition": {
+    "calories_kcal": {
+      "min": 185,
+      "max": 210
+    },
+    "protein_g": {
+      "min": 1.5,
+      "max": 2.0
+    },
+    "carbohydrates_g": {
+      "min": 42,
+      "max": 46
+    },
+    "sugars_g": {
+      "min": 28,
+      "max": 32
+    },
+    "total_fat_g": {
+      "min": 5,
+      "max": 7
+    },
+    "saturated_fat_g": {
+      "min": 4.5,
+      "max": 6.0
+    },
+    "dietary_fiber_g": {
+      "min": 1.0,
+      "max": 1.5
+    },
+    "sodium_mg": {
+      "min": 40,
+      "max": 60
+    },
+    "cholesterol_mg": 0,
+    "micronutrients": {
+      "calcium_mg": {
+        "min": 20,
+        "max": 35,
+        "source": "Coconut milk"
+      },
+      "potassium_mg": {
+        "min": 180,
+        "max": 220,
+        "source": "Coconut milk and water chestnuts"
+      },
+      "iron_mg": {
+        "min": 0.8,
+        "max": 1.2,
+        "source": "Water chestnuts and tapioca starch"
+      },
+      "vitamin_c_mg": {
+        "min": 2,
+        "max": 4,
+        "source": "Trace amounts from water chestnuts"
+      },
+      "magnesium_mg": {
+        "min": 15,
+        "max": 25,
+        "source": "Coconut milk"
+      },
+      "phosphorus_mg": {
+        "min": 30,
+        "max": 45,
+        "source": "Water chestnuts"
+      }
+    }
+  },
+  "ingredients_notes": "Key ingredients include diced water chestnuts coated in red food colouring, tapioca starch for the chewy translucent coating, full-fat coconut milk lightly sweetened and salted, simple syrup made from sugar and water, pandan leaves for fragrance, crushed ice for serving, and optional jasmine water for floral aroma.",
+  "dietary_considerations": [
+    "Vegan and vegetarian friendly — contains no animal products",
+    "Gluten-free — tapioca starch is naturally gluten-free; verify no cross-contamination",
+    "High in saturated fat — primarily from full-fat coconut milk; those monitoring cardiovascular health should be mindful",
+    "Moderate to high sugar content — due to added simple syrup and naturally sweet coconut milk; not ideal for diabetics or those on low-sugar diets",
+    "Contains artificial food colouring — traditional red colour from red food dye; individuals sensitive to artificial colourants should take note",
+    "Potential tree nut allergy concern — coconut is classified as a tree nut by some regulatory bodies such as the FDA",
+    "Relatively low sodium — generally well-tolerated for those on sodium-restricted diets",
+    "Served cold — may not be suitable for individuals with cold food sensitivities"
+  ],
+  "data_source_note": "Estimated based on authentic Thai preparation methods. Nutritional values may vary depending on the specific recipe, coconut milk fat content, and amount of syrup used."
+}
