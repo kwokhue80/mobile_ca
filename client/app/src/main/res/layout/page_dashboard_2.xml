@@ -70,7 +70,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/actor"
+                        android:fontFamily="sans-serif-medium"
                         android:includeFontPadding="false"
                         android:text="Weight"
                         android:textColor="#37423F"
@@ -81,7 +81,8 @@
                         android:id="@+id/tvWeight"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/adlam_display"
+                        android:fontFamily="sans-serif"
+                        android:textStyle="bold"
                         android:text="68kg"
                         android:textSize="26sp" />
                 </LinearLayout>
@@ -156,7 +157,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/actor"
+                        android:fontFamily="sans-serif-medium"
                         android:includeFontPadding="false"
                         android:text="Exercise Days"
                         android:textColor="#37423F"
@@ -167,7 +168,8 @@
                         android:id="@+id/tvExerciseDays"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/adlam_display"
+                        android:fontFamily="sans-serif"
+                        android:textStyle="bold"
                         android:text="2 of 5"
                         android:textSize="24sp" />
                 </LinearLayout>
@@ -237,7 +239,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/actor"
+                        android:fontFamily="sans-serif-medium"
                         android:includeFontPadding="false"
                         android:text="Mental Health"
                         android:textColor="#37423F"
@@ -248,7 +250,8 @@
                         android:id="@+id/tvMentalHealth"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/adlam_display"
+                        android:fontFamily="sans-serif"
+                        android:textStyle="bold"
                         android:text="Good"
                         android:textSize="26sp" />
                 </LinearLayout>

@@ -75,7 +75,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/actor"
+                        android:fontFamily="sans-serif-medium"
                         android:includeFontPadding="false"
                         android:text="Distance"
                         android:textColor="#37423F"
@@ -86,7 +86,8 @@
                         android:id="@+id/tvDistance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/adlam_display"
+                        android:fontFamily="sans-serif"
+                        android:textStyle="bold"
                         android:text="0.68km"
                         android:textSize="26sp" />
                 </LinearLayout>
@@ -163,7 +164,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/actor"
+                        android:fontFamily="sans-serif-medium"
                         android:includeFontPadding="false"
                         android:text="Steps"
                         android:textColor="#37423F"
@@ -174,7 +175,8 @@
                         android:id="@+id/tvSteps"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/adlam_display"
+                        android:fontFamily="sans-serif"
+                        android:textStyle="bold"
                         android:text="6329"
                         android:textSize="26sp" />
                 </LinearLayout>
@@ -249,7 +251,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/actor"
+                        android:fontFamily="sans-serif-medium"
                         android:includeFontPadding="false"
                         android:text="Calories"
                         android:textColor="#37423F"
@@ -260,7 +262,8 @@
                         android:id="@+id/tvCalBurned"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/adlam_display"
+                        android:fontFamily="sans-serif"
+                        android:textStyle="bold"
                         android:text="203Cal"
                         android:textSize="26sp" />
                 </LinearLayout>
@@ -335,7 +338,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/actor"
+                        android:fontFamily="sans-serif-medium"
                         android:includeFontPadding="false"
                         android:text="Sleep"
                         android:textColor="#37423F"
@@ -346,7 +349,8 @@
                         android:id="@+id/tvSleep"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/adlam_display"
+                        android:fontFamily="sans-serif"
+                        android:textStyle="bold"
                         android:text="8h"
                         android:textSize="26sp" />
                 </LinearLayout>
@@ -421,7 +425,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/actor"
+                        android:fontFamily="sans-serif-medium"
                         android:includeFontPadding="false"
                         android:text="Hydration"
                         android:textColor="#37423F"
@@ -432,7 +436,8 @@
                         android:id="@+id/tvHydration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/adlam_display"
+                        android:fontFamily="sans-serif"
+                        android:textStyle="bold"
                         android:text="1250ml"
                         android:textSize="26sp" />
                 </LinearLayout>
@@ -507,7 +512,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/actor"
+                        android:fontFamily="sans-serif-medium"
                         android:includeFontPadding="false"
                         android:text="Badges"
                         android:textColor="#37423F"
@@ -518,7 +523,8 @@
                         android:id="@+id/tvBadges"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/adlam_display"
+                        android:fontFamily="sans-serif"
+                        android:textStyle="bold"
                         android:text="13 of 100"
                         android:textSize="24sp" />
                 </LinearLayout>
