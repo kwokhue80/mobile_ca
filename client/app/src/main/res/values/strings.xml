@@ -12,6 +12,9 @@
     <string name="auth_error">Authentication Error</string>
     <string name="auth_success">Authentication Successful!!!</string>
     <string name="auth_failed">Authentication Failed</string>
+    <string name="token_encrypted">Token Encrypted &amp; Saved</string>
+    <string name="token_decrypted">Token Decrypted</string>
+    <string name="token_error">Encryption Error</string>"
     <string name="logout_success">Logout Successful</string>
     <string name="biometric_title">Biometric Authentication</string>
     <string name="biometric_subtitle">Log in Using your Biometric Credential</string>

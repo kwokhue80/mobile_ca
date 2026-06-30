@@ -8,10 +8,17 @@ class AuthInterceptor(private val sessionManager: SessionManager) : Interceptor 
     override fun intercept(chain: Interceptor.Chain): Response {
         val requestBuilder = chain.request().newBuilder()
 
-        sessionManager.fetchAuthToken()?.let {token ->
+        sessionManager.getDecryptedTokenFromMemory()?.let { token ->
             requestBuilder.addHeader("Authorization", "Bearer $token")
         }
 
-        return chain.proceed(requestBuilder.build())
+        val request = requestBuilder.build()
+        val response = chain.proceed(request)
+
+        if (response.code == 401) {
+            sessionManager.clearSession()
+        }
+
+        return response
     }
 }
