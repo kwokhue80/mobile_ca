@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_bottom_sheet"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="28dp">
+
+    <!-- 拖拽手柄 -->
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_drag_handle" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="16dp"
+        android:text="Add manually"
+        android:textColor="#1F1F1F"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <!-- 第一行 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddDistance"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:text="Distance"
+            android:textAllCaps="false"
+            android:textColor="#1F1F1F"
+            android:textSize="13sp"
+            app:backgroundTint="#C7D0CF"
+            app:cornerRadius="24dp"
+            app:icon="@drawable/distance_icon"
+            app:iconGravity="textStart"
+            app:iconPadding="6dp"
+            app:iconTint="@null" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddSteps"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:text="Steps"
+            android:textAllCaps="false"
+            android:textColor="#1F1F1F"
+            android:textSize="13sp"
+            app:backgroundTint="#C7D0CF"
+            app:cornerRadius="24dp"
+            app:icon="@drawable/steps_icon"
+            app:iconGravity="textStart"
+            app:iconPadding="6dp"
+            app:iconTint="@null" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddCalories"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:text="Calories"
+            android:textAllCaps="false"
+            android:textColor="#1F1F1F"
+            android:textSize="13sp"
+            app:backgroundTint="#C7D0CF"
+            app:cornerRadius="24dp"
+            app:icon="@drawable/calories_icon"
+            app:iconGravity="textStart"
+            app:iconPadding="6dp"
+            app:iconTint="@null" />
+
+    </LinearLayout>
+
+    <!-- 第二行 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddSleep"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:text="Sleep"
+            android:textAllCaps="false"
+            android:textColor="#1F1F1F"
+            android:textSize="13sp"
+            app:backgroundTint="#C7D0CF"
+            app:cornerRadius="24dp"
+            app:icon="@drawable/sleep_icon"
+            app:iconGravity="textStart"
+            app:iconPadding="6dp"
+            app:iconTint="@null" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddHydration"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:text="Hydration"
+            android:textAllCaps="false"
+            android:textColor="#1F1F1F"
+            android:textSize="13sp"
+            app:backgroundTint="#C7D0CF"
+            app:cornerRadius="24dp"
+            app:icon="@drawable/hydration_icon"
+            app:iconGravity="textStart"
+            app:iconPadding="6dp"
+            app:iconTint="@null" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddBadges"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:text="Badges"
+            android:textAllCaps="false"
+            android:textColor="#1F1F1F"
+            android:textSize="13sp"
+            app:backgroundTint="#C7D0CF"
+            app:cornerRadius="24dp"
+            app:icon="@drawable/badges_icon"
+            app:iconGravity="textStart"
+            app:iconPadding="6dp"
+            app:iconTint="@null" />
+
+    </LinearLayout>
+
+    <!-- 第三行 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddWeight"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:text="Weight"
+            android:textAllCaps="false"
+            android:textColor="#1F1F1F"
+            android:textSize="13sp"
+            app:backgroundTint="#C7D0CF"
+            app:cornerRadius="24dp"
+            app:icon="@drawable/weight_icon"
+            app:iconGravity="textStart"
+            app:iconPadding="6dp"
+            app:iconTint="@null" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddExerciseDays"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:text="Exercise Days"
+            android:textAllCaps="false"
+            android:textColor="#1F1F1F"
+            android:textSize="13sp"
+            app:backgroundTint="#C7D0CF"
+            app:cornerRadius="24dp"
+            app:icon="@drawable/exercise_days_icon"
+            app:iconGravity="textStart"
+            app:iconPadding="6dp"
+            app:iconTint="@null" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddMentalHealth"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:text="Mental Health"
+            android:textAllCaps="false"
+            android:textColor="#1F1F1F"
+            android:textSize="13sp"
+            app:backgroundTint="#C7D0CF"
+            app:cornerRadius="24dp"
+            app:icon="@drawable/mental_health_icon"
+            app:iconGravity="textStart"
+            app:iconPadding="6dp"
+            app:iconTint="@null" />
+
+    </LinearLayout>
+
+</LinearLayout>
