@@ -16,6 +16,7 @@ import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import sg.edu.nus.iss.client.R
+import sg.edu.nus.iss.client.dashboard.HomeFragment
 import sg.edu.nus.iss.client.databinding.FragmentLoginBinding
 import sg.edu.nus.iss.client.network.AuthApiService
 import sg.edu.nus.iss.client.network.LoginRequest
@@ -181,6 +182,9 @@ class LoginFragment : Fragment() {
                             getString(R.string.credential_valid),
                             Toast.LENGTH_SHORT
                         ).show()
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.fragment_container, HomeFragment())
+                            .commit()
                     } else {
                         Toast.makeText(
                             requireContext(),
