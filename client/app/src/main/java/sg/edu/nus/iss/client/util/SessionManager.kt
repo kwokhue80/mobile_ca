@@ -24,9 +24,6 @@ class SessionManager(context: Context) {
         private const val PREF_IV = "encryption_iv"
     }
 
-    init {
-        generateKeyIfNecessary()
-    }
     private fun generateKeyIfNecessary() {
         val keyStore = KeyStore.getInstance(KEY_STORE_PROVIDER)
         keyStore.load(null)
@@ -48,6 +45,7 @@ class SessionManager(context: Context) {
         }
     }
     private fun getSecretKey(): SecretKey {
+        generateKeyIfNecessary()
         val keyStore = KeyStore.getInstance(KEY_STORE_PROVIDER)
         keyStore.load(null)
         return keyStore.getKey(KEY_ALIAS, null) as SecretKey
