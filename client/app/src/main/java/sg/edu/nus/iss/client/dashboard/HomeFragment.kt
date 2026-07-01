@@ -28,6 +28,14 @@ class HomeFragment : Fragment() {
             showMainContent()
         }
 
+        binding.btnNotifications.setOnClickListener {
+            // TODO: Show notifications
+        }
+
+        binding.btnProfile.setOnClickListener {
+            // TODO: Show user profile
+        }
+
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_main -> {
