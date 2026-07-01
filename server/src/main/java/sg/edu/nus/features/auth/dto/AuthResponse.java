@@ -1,5 +1,7 @@
 package sg.edu.nus.features.auth.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,7 +28,8 @@ import sg.edu.nus.features.user.dto.UserResponse;
 @Builder
 public class AuthResponse {
 
-    private String accessToken;
+    @JsonProperty("token")
+    private String token;
     private UserResponse user;
 
 }

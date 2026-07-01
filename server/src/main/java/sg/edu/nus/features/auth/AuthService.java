@@ -48,7 +48,7 @@ public class AuthService {
 
         // Return auth response with access token and user response
         return AuthResponse.builder()
-            .accessToken(accessToken)
+            .token(accessToken)
             .user(respUser)
             .build();
 
@@ -80,7 +80,7 @@ public class AuthService {
 
         // Return auth response with access token and user response
         return AuthResponse.builder()
-            .accessToken(accessToken)
+            .token(accessToken)
             .user(respUser)
             .build();
 

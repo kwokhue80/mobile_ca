@@ -20,7 +20,7 @@ interface AuthApiService {
     suspend fun getLatestRecommendation(): Response<RecommendationResponse>
 }
 
-data class  LoginRequest(val email: String, val password: String)
+data class  LoginRequest(val emailAddress: String, val password: String)
 data class LoginResponse(val token: String)
 data class WellnessRecord(
     val recordDate: String,

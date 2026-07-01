@@ -1,7 +1,12 @@
 package sg.edu.nus.security;
 
 import java.io.IOException;
+import java.util.Collections;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -57,9 +62,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String username = claims.getSubject();
         String role = claims.get("role", String.class);
+        if (role == null) {
+            role = "ROLE_USER"; // or handle it according to your business logic
+        }
 
-        request.setAttribute(AUTH_USERNAME, username);
-        request.setAttribute(AUTH_ROLE, role);
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(username, null, Collections.singletonList(new SimpleGrantedAuthority(role)));
+
+            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+        }
 
         filterChain.doFilter(request, response);
     }
