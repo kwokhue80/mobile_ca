@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp">
+
+    <FrameLayout
+        android:id="@+id/iconContainer"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@drawable/bg_activity_icon_circle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:id="@+id/iconActivityType"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_activity_walk" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvActivityType"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="#1F1F1F"
+        android:text="Walk"
+        app:layout_constraintStart_toEndOf="@id/iconContainer"
+        app:layout_constraintTop_toTopOf="@id/iconContainer"
+        app:layout_constraintEnd_toStartOf="@id/btnDeleteActivity"
+        android:layout_marginStart="14dp" />
+
+    <TextView
+        android:id="@+id/tvActivityMeta"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="#7A7A7A"
+        android:text="Today, 9:39 AM · 30 min"
+        app:layout_constraintStart_toStartOf="@id/tvActivityType"
+        app:layout_constraintTop_toBottomOf="@id/tvActivityType"
+        app:layout_constraintEnd_toStartOf="@id/btnDeleteActivity"
+        android:layout_marginTop="2dp" />
+
+    <ImageButton
+        android:id="@+id/btnDeleteActivity"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_delete_outline"
+        android:contentDescription="Delete"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
