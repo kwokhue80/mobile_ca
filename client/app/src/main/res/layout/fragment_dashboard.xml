@@ -21,18 +21,6 @@
             android:background="#EEF1F5"
             android:paddingBottom="20dp">
 
-            <TextView
-                android:id="@+id/tvDashboardTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="45dp"
-                android:fontFamily="@font/bebas_neue"
-                android:text="Nova Health"
-                android:textColor="#1F1F1F"
-                android:textSize="30sp"
-                android:textStyle="bold" />
-
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/viewPagerDashboard"
                 android:layout_width="match_parent"

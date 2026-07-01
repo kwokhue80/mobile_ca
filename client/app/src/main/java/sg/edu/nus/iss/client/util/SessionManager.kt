@@ -13,7 +13,7 @@ import javax.crypto.spec.GCMParameterSpec
 
 class SessionManager(context: Context) {
     private val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-    private var inMemoryToken: String? = null
+    // private var inMemoryToken: String? = null
 
     companion object {
         private const val KEY_STORE_PROVIDER = "AndroidKeyStore"
@@ -22,6 +22,9 @@ class SessionManager(context: Context) {
 
         private const val PREF_ENCRYPTED_TOKEN = "encrypted_auth_token"
         private const val PREF_IV = "encryption_iv"
+
+        @Volatile
+        private var inMemoryToken: String? = null
     }
 
     private fun generateKeyIfNecessary() {

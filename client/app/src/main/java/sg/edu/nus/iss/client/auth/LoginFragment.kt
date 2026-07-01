@@ -19,6 +19,7 @@ import sg.edu.nus.iss.client.network.AuthApiService
 import sg.edu.nus.iss.client.network.RetrofitClient
 import sg.edu.nus.iss.client.util.BiometricHelper
 import sg.edu.nus.iss.client.util.SessionManager
+import sg.edu.nus.iss.client.dashboard.HomeFragment
 
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
@@ -50,9 +51,14 @@ class LoginFragment : Fragment() {
         viewModel = ViewModelProvider(this, factory)[LoginViewModel::class.java]
 
         binding.btnLogin.setOnClickListener {
+            android.util.Log.d("LoginFragment", "Login button clicked")
             val email = binding.etEmailAddress.text.toString()
             val password = binding.etPassword.text.toString()
-            viewModel.login(email, password)
+            if (email.isBlank() || password.isBlank()) {
+                Toast.makeText(requireContext(), "Please enter email and password", Toast.LENGTH_SHORT).show()
+            } else {
+                viewModel.login(email, password)
+            }
         }
 
         binding.btnFingerprint.setOnClickListener {
@@ -64,7 +70,9 @@ class LoginFragment : Fragment() {
                 viewModel.uiState.collect { state ->
                     when (state) {
                         is LoginUiState.Idle -> { }
-                        is LoginUiState.Loading -> { }
+                        is LoginUiState.Loading -> {
+                            Toast.makeText(requireContext(), "Logging in...", Toast.LENGTH_SHORT).show()
+                        }
                         is LoginUiState.Success -> {
                             pendingTokenToSave = state.token
                             authenticateToEncrypt()
@@ -85,9 +93,9 @@ class LoginFragment : Fragment() {
     }
 
     private fun authenticateToEncrypt() {
-        try {
-            if (biometricHelper.canAuthenticate() == BiometricManager.BIOMETRIC_SUCCESS) {
-
+        val biometricStatus = biometricHelper.canAuthenticate() // Set bio as optional
+        if (biometricStatus == BiometricManager.BIOMETRIC_SUCCESS) {
+            try {
                 val cipher = sessionManager.getInitializedCipherForEncryption()
                 val cryptoObject = BiometricPrompt.CryptoObject(cipher)
 
@@ -103,6 +111,7 @@ class LoginFragment : Fragment() {
                                     getString(R.string.token_encrypted),
                                     Toast.LENGTH_SHORT)
                                     .show()
+                                navigateToMainActivity()
                             }
                         }
                     },
@@ -114,19 +123,29 @@ class LoginFragment : Fragment() {
                             .show()
                     }
                 )
+            } catch (e: Exception) {
+                Toast.makeText(
+                    requireContext(),
+                    "${getString(R.string.token_error)}: ${e.message}",
+                    Toast.LENGTH_SHORT)
+                    .show()
             }
-        } catch (e: Exception) {
+        } else { // Biometrics not available/enrolled
             Toast.makeText(
                 requireContext(),
-                "${getString(R.string.token_error)}: ${e.message}",
+                "Biometrics not available. Saving token as is.",
                 Toast.LENGTH_SHORT)
                 .show()
+            
+            // For now, navigate if biometrics aren't set up
+            navigateToMainActivity()
         }
     }
 
     private fun checkBiometricSupportAndAuthenticate() {
-        try {
-            if (biometricHelper.canAuthenticate() == BiometricManager.BIOMETRIC_SUCCESS) {
+        val biometricStatus = biometricHelper.canAuthenticate()
+        if (biometricStatus == BiometricManager.BIOMETRIC_SUCCESS) {
+            try {
                 val cipher = sessionManager.getInitializedCipherForDecryption()
                 val cryptoObject = BiometricPrompt.CryptoObject(cipher)
 
@@ -151,27 +170,31 @@ class LoginFragment : Fragment() {
                             .show()
                     }
                 )
-            } else {
+            } catch (e: Exception) {
                 Toast.makeText(
                     requireContext(),
-                    getString(R.string.biometric_error_hw_unavailable),
+                    // getString(R.string.biometric_error_hw_unavailable),
+                    "Please login with password instead: ${e.message}", // Debug
                     Toast.LENGTH_SHORT)
                     .show()
             }
-        } catch (e: Exception) {
-            Toast.makeText(
-                requireContext(),
-                "${getString(R.string.biometric_login_failed)}: ${e.message}",
-                Toast.LENGTH_LONG).show()
+        } else {
+            val message = when(biometricStatus) { // Biometrics not available/enrolled
+                BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> getString(R.string.biometric_error_none_enrolled)
+                BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> getString(R.string.biometric_error_no_hardware)
+                else -> getString(R.string.biometric_error_hw_unavailable)
+            }
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun navigateToMainActivity() {
-        // TODO: Replace with your actual navigation graph logic or Intent
-        // Example:
         // val intent = Intent(requireContext(), MainActivity::class.java)
         // startActivity(intent)
         // requireActivity().finish()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, HomeFragment())
+            .commit()
     }
 
     override fun onDestroyView() {

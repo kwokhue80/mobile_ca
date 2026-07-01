@@ -2,6 +2,7 @@ package sg.edu.nus.iss.client.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,8 +31,10 @@ class LoginViewModel(private val authApiService: AuthApiService) : ViewModel() {
 
         viewModelScope.launch {
             try {
+                Log.d("LoginViewModel", "Attempting login for $email")
                 val request = LoginRequest(email, password)
                 val response = authApiService.login(request)
+                Log.d("LoginViewModel", "Login response: ${response.code()}")
 
                 if (response.isSuccessful && response.body() != null) {
                     _uiState.value = LoginUiState.Success(response.body()!!.token)
