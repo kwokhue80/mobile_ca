@@ -25,8 +25,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    public static final String AUTH_USERNAME = "authUsername";
-    public static final String AUTH_ROLE = "authRole";
+    // public static final String AUTH_EMAIL = "authUsername";
+    // public static final String AUTH_ROLE = "authRole";
 
     private final JwtService jwtService;
 
@@ -37,22 +37,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
+        // Get path URI
         String path = request.getRequestURI();
-
         if (!isProtectedPath(path)) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        // Get token from header
         String token = resolveTokenFromAuthorizationHeader(request);
-
         if (token == null) {
             handleUnauthorized(response);
             return;
         }
 
+        // Try to parse and authenticate token
         Claims claims;
-
         try {
             claims = jwtService.authenticateToken(token);
         } catch (Exception e) {
@@ -60,20 +60,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String username = claims.getSubject();
+        // Get email and role from token
+        String email = claims.getSubject();
         String role = claims.get("role", String.class);
         if (role == null) {
             role = "ROLE_USER"; // or handle it according to your business logic
         }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        // Authenticate request using JWT data
+        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(username, null, Collections.singletonList(new SimpleGrantedAuthority(role)));
+                new UsernamePasswordAuthenticationToken(email, null, Collections.singletonList(new SimpleGrantedAuthority(role)));
 
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authToken);
         }
 
+        // Invoke
         filterChain.doFilter(request, response);
     }
 
@@ -84,9 +87,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             && !path.equals("/api/auth/login");
     }
 
+    // Get token from header
     private String resolveTokenFromAuthorizationHeader(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
-
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);
         }
@@ -94,6 +97,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
 
+    // Construct unauth response
     private void handleUnauthorized(HttpServletResponse response) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
