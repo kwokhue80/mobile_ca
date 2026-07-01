@@ -25,4 +25,6 @@
     <string name="biometric_error_security_update_required">Security Update Required</string>
     <string name="biometric_error_unsupported">Biometric Features are Not Supported</string>
     <string name="biometric_status_unknown">Biometric Status is Unknown</string>
+    <string name="add_item_title_preview">Add Item</string>
+    <string name="close">Close</string>
 </resources>
