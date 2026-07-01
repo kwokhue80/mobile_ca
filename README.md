@@ -13,4 +13,8 @@ C. Connect to a backend service
 D. Store and retrieve data from a MySQL database (through backend services)
 E. Interact with a simple chatbot
 
+## 3. Repository Structure
+### 3.1 Frontend (Kotlin Android)
+### 3.2 Backend (Java Spring Boot)
+
 To be continued...
