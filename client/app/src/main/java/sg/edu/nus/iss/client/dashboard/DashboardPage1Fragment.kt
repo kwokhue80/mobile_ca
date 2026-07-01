@@ -5,6 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import sg.edu.nus.iss.client.R
+import sg.edu.nus.iss.client.dashboard.detail.MetricDetailFragment
+import sg.edu.nus.iss.client.dashboard.detail.model.MetricType
 import sg.edu.nus.iss.client.databinding.PageDashboard1Binding
 
 class DashboardPage1Fragment : Fragment() {
@@ -17,6 +20,22 @@ class DashboardPage1Fragment : Fragment() {
     ): View {
         _binding = PageDashboard1Binding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.cardDistance.setOnClickListener { openMetricDetail(MetricType.DISTANCE) }
+        binding.cardSteps.setOnClickListener { openMetricDetail(MetricType.STEPS) }
+        binding.cardCalBurned.setOnClickListener { openMetricDetail(MetricType.CALORIES) }
+        binding.cardHydration.setOnClickListener { openMetricDetail(MetricType.HYDRATION) }
+    }
+
+    private fun openMetricDetail(metricType: MetricType) {
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, MetricDetailFragment.newInstance(metricType))
+            .addToBackStack(null)
+            .commit()
     }
 
     override fun onDestroyView() {

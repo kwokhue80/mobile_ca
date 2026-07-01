@@ -46,6 +46,7 @@ dependencies {
     implementation(libs.androidx.viewpager2)
     implementation(libs.androidx.security.crypto)
     implementation(libs.androidx.recyclerview)
+    implementation(libs.mpandroidchart)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)

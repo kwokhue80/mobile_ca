@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="24dp">
+
+        <!-- Toolbar -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="48dp"
+            android:paddingBottom="12dp">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="start|center_vertical"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Back"
+                android:src="@drawable/ic_back_arrow" />
+
+            <TextView
+                android:id="@+id/tvMetricTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Distance"
+                android:textColor="#1F1F1F"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+        </FrameLayout>
+
+        <!-- Time range tabs -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTabDay"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:text="D"
+                android:textColor="#FFFFFF"
+                app:backgroundTint="#0B57D0"
+                app:cornerRadius="20dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTabWeek"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:text="W"
+                android:textColor="#1F1F1F"
+                app:backgroundTint="#EEF1F5"
+                app:cornerRadius="20dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTabMonth"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:text="M"
+                android:textColor="#1F1F1F"
+                app:backgroundTint="#EEF1F5"
+                app:cornerRadius="20dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTabSixMonth"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:text="6M"
+                android:textColor="#1F1F1F"
+                app:backgroundTint="#EEF1F5"
+                app:cornerRadius="20dp" />
+
+        </LinearLayout>
+
+        <!-- Period navigator -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="20dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvPeriodLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Today"
+                android:textColor="#1F1F1F"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/btnPrevPeriod"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/bg_circle_button"
+                android:contentDescription="Previous"
+                android:src="@drawable/ic_chevron_left" />
+
+            <ImageButton
+                android:id="@+id/btnNextPeriod"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/bg_circle_button"
+                android:contentDescription="Next"
+                android:src="@drawable/ic_chevron_right" />
+
+            <ImageButton
+                android:id="@+id/btnPickDate"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_circle_button"
+                android:contentDescription="Pick date"
+                android:src="@drawable/ic_calendar" />
+
+        </LinearLayout>
+
+        <!-- Default summary: total vs goal -->
+        <LinearLayout
+            android:id="@+id/layoutSummaryDefault"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="24dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvSummaryDefaultValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4.41 of 8.05km"
+                android:textColor="#1F1F1F"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvSummarySubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="You're 3.64 kilometres away from hitting your goal."
+                android:textColor="#7A7A7A"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <!-- Selected-bar summary -->
+        <LinearLayout
+            android:id="@+id/layoutSummarySelected"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="24dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvSelectedValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 km"
+                    android:textColor="#1F1F1F"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+
+                <ImageButton
+                    android:id="@+id/btnClearSelection"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_circle_button"
+                    android:contentDescription="Clear selection"
+                    android:src="@drawable/ic_close" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvSelectedRange"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="11:00 AM–12:00 PM"
+                android:textColor="#7A7A7A"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="20dp">
+
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/chartMetric"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <sg.edu.nus.iss.client.dashboard.detail.MetricSelectionOverlayView
+                android:id="@+id/chartSelectionOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="false"
+                android:focusable="false" />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvSummaryRowsHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:paddingEnd="16dp"
+            android:gravity="end"
+            android:text="Daily average"
+            android:textColor="#1F1F1F"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSummaryRows"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            tools:listitem="@layout/item_metric_summary_row" />
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

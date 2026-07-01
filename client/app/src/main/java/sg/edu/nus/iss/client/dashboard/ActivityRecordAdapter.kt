@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import sg.edu.nus.iss.client.R
 import sg.edu.nus.iss.client.databinding.ItemActivityRecordBinding
 import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
+import sg.edu.nus.iss.client.dashboard.util.ActivityDateFormatter
 
 class ActivityRecordAdapter(
     private val onDeleteClick: (ActivityRecord) -> Unit
@@ -35,7 +36,8 @@ class ActivityRecordAdapter(
                 }
             )
             binding.tvActivityType.text = record.type
-            binding.tvActivityMeta.text = "${record.date} · ${record.durationMinutes} min"
+            binding.tvActivityMeta.text =
+                "${ActivityDateFormatter.formatCompact(record.timestamp)} · ${record.durationMinutes} min"
             binding.btnDeleteActivity.setOnClickListener { onDeleteClick(record) }
         }
     }
