@@ -1,4 +1,4 @@
-package sg.edu.nus.modules.user;
+package sg.edu.nus.features.user;
 
 import java.util.UUID;
 

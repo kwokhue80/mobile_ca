@@ -1,8 +1,8 @@
-package sg.edu.nus.modules.user;
+package sg.edu.nus.features.user;
 
 import org.springframework.stereotype.Component;
 
-import sg.edu.nus.modules.user.dto.UserResponseDto;
+import sg.edu.nus.features.user.dto.UserResponse;
 
 /*
 *   AUTHOR: Amelia
@@ -19,8 +19,8 @@ public class UserMapper {
             .build();
     }
 
-    public UserResponseDto toResponseDto(User user) {
-        return UserResponseDto.builder()
+    public UserResponse toResponseDto(User user) {
+        return UserResponse.builder()
             .id(user.getId())
             .emailAddress(user.getEmailAddress())
             .enabled(user.getEnabled())

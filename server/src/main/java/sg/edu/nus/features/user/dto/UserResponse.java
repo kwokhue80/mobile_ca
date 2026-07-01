@@ -1,4 +1,4 @@
-package sg.edu.nus.modules.user.dto;
+package sg.edu.nus.features.user.dto;
 
 import java.util.UUID;
 
@@ -17,7 +17,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponseDto {
+public class UserResponse {
 
     private UUID id;
     private String emailAddress;

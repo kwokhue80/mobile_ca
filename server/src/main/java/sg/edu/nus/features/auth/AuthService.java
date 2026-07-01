@@ -1,16 +1,16 @@
-package sg.edu.nus.modules.auth;
+package sg.edu.nus.features.auth;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import sg.edu.nus.modules.auth.dto.AuthResponseDto;
-import sg.edu.nus.modules.auth.dto.LoginRequestDto;
-import sg.edu.nus.modules.auth.dto.RegisterRequestDto;
-import sg.edu.nus.modules.user.User;
-import sg.edu.nus.modules.user.UserMapper;
-import sg.edu.nus.modules.user.UserService;
-import sg.edu.nus.modules.user.dto.UserResponseDto;
+import sg.edu.nus.features.auth.dto.AuthResponse;
+import sg.edu.nus.features.auth.dto.LoginRequest;
+import sg.edu.nus.features.auth.dto.RegisterRequest;
+import sg.edu.nus.features.user.User;
+import sg.edu.nus.features.user.UserMapper;
+import sg.edu.nus.features.user.UserService;
+import sg.edu.nus.features.user.dto.UserResponse;
 import sg.edu.nus.security.JwtService;
 
 /*
@@ -27,12 +27,12 @@ public class AuthService {
     private final JwtService jwtService;
 
     // Registration
-    public AuthResponseDto register(RegisterRequestDto request) {
+    public AuthResponse register(RegisterRequest request) {
 
         // Get request details
         String email = request.getEmailAddress().trim().toLowerCase();
-        String passwordHash = passwordEncoder.encode(request.getPasswordRaw());
-        
+        String passwordHash = passwordEncoder.encode(request.getPassword());
+
         // Check if email already exists in DB
         if (userService.existsByEmailAddress(email)) {
             throw new RuntimeException("Email address is already registered");
@@ -42,14 +42,12 @@ public class AuthService {
         User user = userMapper.toEntity(email, passwordHash);
         User savedUser = userService.save(user);
 
-        // Generate jwt token
+        // Generate jwt token and user response (for client)
         String accessToken = jwtService.generateToken(savedUser);
-
-        // Generate user response dto without sensitive details
-        UserResponseDto respUser = userMapper.toResponseDto(savedUser);
+        UserResponse respUser = userMapper.toResponseDto(savedUser);
 
         // Return auth response with access token and user response
-        return AuthResponseDto.builder()
+        return AuthResponse.builder()
             .accessToken(accessToken)
             .user(respUser)
             .build();
@@ -57,11 +55,11 @@ public class AuthService {
     }
 
     // Login
-    public AuthResponseDto login(LoginRequestDto request) {
+    public AuthResponse login(LoginRequest request) {
 
         // Get request details
         String email = request.getEmailAddress().trim().toLowerCase();
-        String passwordRaw = request.getPasswordRaw();
+        String passwordRaw = request.getPassword();
 
         // Retrieve user from db - throws exception if not found
         User user = userService.getByEmail(email);
@@ -71,19 +69,17 @@ public class AuthService {
             throw new RuntimeException("Account is disabled");
         }
 
-        // Use encoder to check if raw password matches hashed password from db
+        // Check if raw password matches hashed password from db
         if (!passwordEncoder.matches(passwordRaw, user.getPasswordHash())) {
             throw new RuntimeException("Invalid email or password");
         }
 
-        // Generate jwt token
+        // Generate jwt token and user response (for client)
         String accessToken = jwtService.generateToken(user);
-
-        // Generate user response dto
-        UserResponseDto respUser = userMapper.toResponseDto(user);
+        UserResponse respUser = userMapper.toResponseDto(user);
 
         // Return auth response with access token and user response
-        return AuthResponseDto.builder()
+        return AuthResponse.builder()
             .accessToken(accessToken)
             .user(respUser)
             .build();

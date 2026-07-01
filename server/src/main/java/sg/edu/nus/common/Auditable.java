@@ -1,4 +1,4 @@
-package sg.edu.nus.modules.common;
+package sg.edu.nus.common;
 
 import java.time.LocalDateTime;
 

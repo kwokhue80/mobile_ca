@@ -1,6 +1,5 @@
-package sg.edu.nus.modules.auth.dto;
+package sg.edu.nus.features.user.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -9,23 +8,21 @@ import lombok.Setter;
 
 /*
 *   AUTHOR: Amelia
-*   PURPOSE: User registration DTO from client
+*   PURPOSE: User change password request DTO from client
 */
 @Getter
 @Setter
-public class RegisterRequestDto {
+public class ChangePasswordRequest {
 
-    @NotBlank(message = "Email address must not be null or blank")
-    @Email(message = "Invalid email address")
-    @Size(max = 100, message = "Email address must not exceed 100 characters")
-    private String emailAddress;
+    @NotBlank(message = "Current password is required")
+    private String currentPassword;
 
-    @NotBlank(message = "Password cannot be null or blank")
+    @NotBlank(message = "New password is required")
     @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters")
     @Pattern(
         regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{8,20}$",
         message = "Password must contain uppercase, lowercase, number, and special character"
     )
-    private String passwordRaw;
+    private String newPassword;
 
 }

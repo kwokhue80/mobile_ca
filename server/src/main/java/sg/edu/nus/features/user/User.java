@@ -1,6 +1,9 @@
-package sg.edu.nus.modules.user;
+package sg.edu.nus.features.user;
 
 import java.util.UUID;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,7 +16,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sg.edu.nus.modules.common.Auditable;
+import sg.edu.nus.common.Auditable;
 
 /*
 *   AUTHOR: Amelia
@@ -30,6 +33,7 @@ public class User extends Auditable {
     
     @Id
     @GeneratedValue(strategy=GenerationType.UUID)
+    @JdbcTypeCode(SqlTypes.CHAR)
     @Column(length = 36, nullable = false, updatable = false)
     private UUID id;
 
