@@ -1,0 +1,47 @@
+package sg.edu.nus.iss.client.dashboard
+
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
+import sg.edu.nus.iss.client.R
+import sg.edu.nus.iss.client.databinding.ItemActivityRecordBinding
+import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
+
+class ActivityRecordAdapter(
+    private val onDeleteClick: (ActivityRecord) -> Unit
+) : ListAdapter<ActivityRecord, ActivityRecordAdapter.ActivityViewHolder>(DiffCallback) {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActivityViewHolder {
+        val binding = ItemActivityRecordBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ActivityViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: ActivityViewHolder, position: Int) {
+        holder.bind(getItem(position))
+    }
+
+    inner class ActivityViewHolder(private val binding: ItemActivityRecordBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(record: ActivityRecord) {
+            binding.iconActivityType.setImageResource(
+                when (record.type) {
+                    "Walk" -> R.drawable.ic_activity_walk
+                    "Run" -> R.drawable.ic_activity_run
+                    "Swim" -> R.drawable.ic_activity_swim
+                    else -> R.drawable.ic_activity_default
+                }
+            )
+            binding.tvActivityType.text = record.type
+            binding.tvActivityMeta.text = "${record.date} · ${record.durationMinutes} min"
+            binding.btnDeleteActivity.setOnClickListener { onDeleteClick(record) }
+        }
+    }
+
+    private object DiffCallback : DiffUtil.ItemCallback<ActivityRecord>() {
+        override fun areItemsTheSame(oldItem: ActivityRecord, newItem: ActivityRecord) = oldItem.id == newItem.id
+        override fun areContentsTheSame(oldItem: ActivityRecord, newItem: ActivityRecord) = oldItem == newItem
+    }
+}

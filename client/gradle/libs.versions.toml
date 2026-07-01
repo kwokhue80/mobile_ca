@@ -15,6 +15,7 @@ lifecycle = "2.11.0"
 cardview = "1.0.0"
 securityCrypto = "1.1.0"
 viewpager2 = "1.1.0"
+recyclerview = "1.4.0"
 
 [libraries]
 androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
@@ -33,6 +34,7 @@ kotlinx-coroutines-android = {group = "org.jetbrains.kotlinx", name = "kotlinx-c
 androidx-lifecycle-viewmodel-ktx = {group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle"}
 androidx-cardview = { group = "androidx.cardview", name = "cardview", version.ref = "cardview" }
 androidx-viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "viewpager2" }
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 
 [bundles]
 network = ["retrofit-core", "retrofit-converter-gson"]

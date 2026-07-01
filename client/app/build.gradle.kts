@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.viewpager2)
     implementation(libs.androidx.security.crypto)
+    implementation(libs.androidx.recyclerview)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
