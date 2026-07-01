@@ -53,16 +53,42 @@
                 app:tabPaddingEnd="0dp"
                 app:tabRippleColor="@android:color/transparent" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnAddActivity"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
+                android:layout_marginStart="20dp"
                 android:layout_marginTop="16dp"
-                android:text="+ Add Activity"
-                android:textColor="#1F1F1F"
-                app:strokeColor="#1F1F1F" />
+                android:layout_marginEnd="20dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAddActivity"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:text="+ Add Activity"
+                    android:textSize="13sp"
+                    android:textColor="#1F1F1F"
+                    app:strokeColor="#1F1F1F" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSetGoals"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:text="Set Goals"
+                    android:textSize="13sp"
+                    android:textColor="#1F1F1F"
+                    app:strokeColor="#1F1F1F" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -87,12 +113,11 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvActivityRecords"
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPagerActivityRecords"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                tools:listitem="@layout/item_activity_record" />
+                android:layout_height="216dp"
+                android:layout_marginTop="12dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnHistory"

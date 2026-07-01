@@ -10,10 +10,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
+import sg.edu.nus.iss.client.R
 import sg.edu.nus.iss.client.databinding.FragmentDashboardBinding
+import sg.edu.nus.iss.client.dashboard.activity.ChooseExerciseFragment
+import sg.edu.nus.iss.client.dashboard.goals.ActivitiesFragment
+import sg.edu.nus.iss.client.dashboard.history.HistoryFragment
 import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
 
 class DashboardFragment : Fragment() {
@@ -27,9 +31,10 @@ class DashboardFragment : Fragment() {
 
     private lateinit var viewModel: DashboardViewModel
 
-    private val activityAdapter = ActivityRecordAdapter(onDeleteClick = { record ->
-        confirmDeleteRecord(record)
-    })
+    private val activityPagerAdapter = ActivityRecordPagerAdapter(
+        onDeleteClick = { record -> confirmDeleteRecord(record) },
+        onPageNumberClick = { page -> binding.viewPagerActivityRecords.setCurrentItem(page, true) }
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,7 +47,7 @@ class DashboardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel = ViewModelProvider(this)[DashboardViewModel::class.java]
+        viewModel = ViewModelProvider(requireActivity())[DashboardViewModel::class.java]
 
         binding.viewPagerDashboard.adapter = DashboardPagerAdapter(requireActivity())
         TabLayoutMediator(binding.tabDots, binding.viewPagerDashboard) { tab, _ ->
@@ -50,22 +55,38 @@ class DashboardFragment : Fragment() {
         }.attach()
         resizeDotTabs()
 
-        binding.rvActivityRecords.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvActivityRecords.adapter = activityAdapter
-        binding.rvActivityRecords.isNestedScrollingEnabled = false
+        binding.viewPagerActivityRecords.adapter = activityPagerAdapter
+        binding.viewPagerActivityRecords.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                activityPagerAdapter.setCurrentPage(position)
+            }
+        })
 
         binding.btnAddActivity.setOnClickListener {
-            // TODO: navigate to Add Activity form
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, ChooseExerciseFragment())
+                .addToBackStack(ChooseExerciseFragment.BACK_STACK_NAME)
+                .commit()
+        }
+
+        binding.btnSetGoals.setOnClickListener {
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, ActivitiesFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         binding.btnHistory.setOnClickListener {
-            // TODO: navigate to History page
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, HistoryFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.activityRecords.collect { records ->
-                    activityAdapter.submitList(records)
+                    activityPagerAdapter.submitList(records)
                 }
             }
         }
