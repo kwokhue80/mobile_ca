@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.mpandroidchart)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation("dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2-q:0.31.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
