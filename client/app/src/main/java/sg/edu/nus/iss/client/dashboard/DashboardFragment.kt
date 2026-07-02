@@ -13,12 +13,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
-import sg.edu.nus.iss.client.R
 import sg.edu.nus.iss.client.databinding.FragmentDashboardBinding
-import sg.edu.nus.iss.client.dashboard.activity.ChooseExerciseFragment
-import sg.edu.nus.iss.client.dashboard.goals.ActivitiesFragment
-import sg.edu.nus.iss.client.dashboard.history.HistoryFragment
 import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
+import sg.edu.nus.iss.client.util.RouteManager
 
 class DashboardFragment : Fragment() {
     companion object {
@@ -63,24 +60,15 @@ class DashboardFragment : Fragment() {
         })
 
         binding.btnAddActivity.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, ChooseExerciseFragment())
-                .addToBackStack(ChooseExerciseFragment.BACK_STACK_NAME)
-                .commit()
+            RouteManager.toChooseExercise(this)
         }
 
         binding.btnSetGoals.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, ActivitiesFragment())
-                .addToBackStack(null)
-                .commit()
+            RouteManager.toGoals(this)
         }
 
         binding.btnHistory.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, HistoryFragment())
-                .addToBackStack(null)
-                .commit()
+            RouteManager.toHistory(this)
         }
 
         viewLifecycleOwner.lifecycleScope.launch {

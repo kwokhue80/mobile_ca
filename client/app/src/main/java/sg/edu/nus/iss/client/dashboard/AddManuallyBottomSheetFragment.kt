@@ -8,6 +8,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import sg.edu.nus.iss.client.databinding.BottomSheetAddManuallyBinding
+import sg.edu.nus.iss.client.util.RouteManager
 
 class AddManuallyBottomSheetFragment : BottomSheetDialogFragment() {
     private var _binding: BottomSheetAddManuallyBinding? = null
@@ -43,7 +44,8 @@ class AddManuallyBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     private fun openAddItem(itemName: String) {
-        (parentFragment as? HomeFragment)?.showAddItemScreen(itemName)
+        val host = parentFragment ?: this
+        RouteManager.showAddItem(host, itemName)
         dismiss()
     }
 

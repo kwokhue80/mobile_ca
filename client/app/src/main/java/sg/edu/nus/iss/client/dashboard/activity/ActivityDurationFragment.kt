@@ -15,6 +15,7 @@ import sg.edu.nus.iss.client.databinding.FragmentGoalSettingBinding
 import sg.edu.nus.iss.client.dashboard.DashboardViewModel
 import sg.edu.nus.iss.client.dashboard.activity.model.ExerciseType
 import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
+import sg.edu.nus.iss.client.util.RouteManager
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -58,7 +59,7 @@ class ActivityDurationFragment : Fragment() {
         binding.btnSetGoal.text = "Confirm"
 
         binding.btnBack.setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStack()
+            RouteManager.back(this)
         }
 
         binding.btnDecrement.setOnClickListener { viewModel.decrement() }
@@ -72,10 +73,7 @@ class ActivityDurationFragment : Fragment() {
                 durationMinutes = viewModel.durationMinutes.value
             )
             dashboardViewModel.addRecord(record)
-            requireActivity().supportFragmentManager.popBackStack(
-                ChooseExerciseFragment.BACK_STACK_NAME,
-                FragmentManager.POP_BACK_STACK_INCLUSIVE
-            )
+            RouteManager.backTo(this, ChooseExerciseFragment.BACK_STACK_NAME, true)
         }
 
         viewLifecycleOwner.lifecycleScope.launch {

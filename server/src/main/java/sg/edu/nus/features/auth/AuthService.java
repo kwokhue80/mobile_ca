@@ -44,12 +44,13 @@ public class AuthService {
 
         // Generate jwt token and user response (for client)
         String accessToken = jwtService.generateToken(savedUser);
-        UserResponse respUser = userMapper.toResponseDto(savedUser);
+        // Old response payload kept for reference:
+        // UserResponse respUser = userMapper.toResponseDto(savedUser);
 
         // Return auth response with access token and user response
         return AuthResponse.builder()
             .token(accessToken)
-            .user(respUser)
+            // .user(respUser)
             .build();
 
     }
@@ -76,12 +77,13 @@ public class AuthService {
 
         // Generate jwt token and user response (for client)
         String accessToken = jwtService.generateToken(user);
-        UserResponse respUser = userMapper.toResponseDto(user);
+        // Old response payload kept for reference:
+        // UserResponse respUser = userMapper.toResponseDto(user);
 
         // Return auth response with access token and user response
         return AuthResponse.builder()
             .token(accessToken)
-            .user(respUser)
+            // .user(respUser)
             .build();
 
     }

@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import sg.edu.nus.iss.client.R
 import sg.edu.nus.iss.client.databinding.FragmentActivitiesBinding
 import sg.edu.nus.iss.client.dashboard.activity.model.ExerciseType
+import sg.edu.nus.iss.client.util.RouteManager
 
 class ChooseExerciseFragment : Fragment() {
 
@@ -33,14 +34,11 @@ class ChooseExerciseFragment : Fragment() {
         binding.tvPageTitle.text = "Choose Exercise"
 
         binding.btnBack.setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStack()
+            RouteManager.back(this)
         }
 
         val adapter = ExerciseTypeAdapter(ExerciseType.entries) { exerciseType ->
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, ActivityDurationFragment.newInstance(exerciseType))
-                .addToBackStack(null)
-                .commit()
+            RouteManager.toActivityDuration(this, exerciseType)
         }
         binding.rvActivities.layoutManager = LinearLayoutManager(requireContext())
         binding.rvActivities.adapter = adapter

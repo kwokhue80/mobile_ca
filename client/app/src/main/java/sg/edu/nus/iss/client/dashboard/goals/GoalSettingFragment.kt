@@ -12,6 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.databinding.FragmentGoalSettingBinding
 import sg.edu.nus.iss.client.dashboard.goals.model.ActivityGoalType
+import sg.edu.nus.iss.client.util.RouteManager
 
 class GoalSettingFragment : Fragment() {
 
@@ -53,15 +54,14 @@ class GoalSettingFragment : Fragment() {
         binding.tvGoalUnit.text = activityGoalType.unitLabel
 
         binding.btnBack.setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStack()
+            RouteManager.back(this)
         }
 
         binding.btnDecrement.setOnClickListener { viewModel.decrement() }
         binding.btnIncrement.setOnClickListener { viewModel.increment() }
 
         binding.btnSetGoal.setOnClickListener {
-            // TODO: persist the goal once a backend endpoint exists
-            requireActivity().supportFragmentManager.popBackStack()
+            RouteManager.back(this)
         }
 
         viewLifecycleOwner.lifecycleScope.launch {

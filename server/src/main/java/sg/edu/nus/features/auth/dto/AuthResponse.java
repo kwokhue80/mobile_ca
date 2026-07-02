@@ -30,6 +30,7 @@ public class AuthResponse {
 
     @JsonProperty("token")
     private String token;
-    private UserResponse user;
+    // Old response payload kept for reference:
+    // private UserResponse user;
 
 }

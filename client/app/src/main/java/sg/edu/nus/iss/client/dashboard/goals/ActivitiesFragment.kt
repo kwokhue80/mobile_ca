@@ -6,9 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import sg.edu.nus.iss.client.R
 import sg.edu.nus.iss.client.databinding.FragmentActivitiesBinding
 import sg.edu.nus.iss.client.dashboard.goals.model.ActivityGoalType
+import sg.edu.nus.iss.client.util.RouteManager
 
 class ActivitiesFragment : Fragment() {
 
@@ -29,14 +29,11 @@ class ActivitiesFragment : Fragment() {
         binding.tvPageTitle.text = "Activities"
 
         binding.btnBack.setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStack()
+            RouteManager.back(this)
         }
 
         val adapter = ActivityListAdapter(ActivityGoalType.entries) { activityGoalType ->
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, GoalSettingFragment.newInstance(activityGoalType))
-                .addToBackStack(null)
-                .commit()
+            RouteManager.toGoalSetting(this, activityGoalType)
         }
         binding.rvActivities.layoutManager = LinearLayoutManager(requireContext())
         binding.rvActivities.adapter = adapter

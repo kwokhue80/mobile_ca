@@ -6,6 +6,14 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface AuthApiService {
+
+    // User registration
+    @POST("api/auth/register")
+    suspend fun register(
+        @Body registerRequest: RegisterRequest
+    ): Response<RegisterResponse>
+
+    // User login
     @POST("api/auth/login")
     suspend fun login(
         @Body loginRequest: LoginRequest
@@ -20,8 +28,12 @@ interface AuthApiService {
     suspend fun getLatestRecommendation(): Response<RecommendationResponse>
 }
 
+data class RegisterRequest(val emailAddress: String, val password: String)
+data class RegisterResponse(val token: String)
+
 data class  LoginRequest(val emailAddress: String, val password: String)
 data class LoginResponse(val token: String)
+
 data class WellnessRecord(
     val recordDate: String,
     val sleepHours: Double,
@@ -31,4 +43,5 @@ data class WellnessRecord(
     val stressLevel: Int,
     val waterIntakeLiters: Double
 )
+
 data class RecommendationResponse(val recommendation: String, val generatedAt: String)

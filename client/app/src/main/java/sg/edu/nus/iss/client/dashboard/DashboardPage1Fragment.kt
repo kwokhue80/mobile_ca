@@ -6,9 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import sg.edu.nus.iss.client.R
-import sg.edu.nus.iss.client.dashboard.detail.MetricDetailFragment
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricType
 import sg.edu.nus.iss.client.databinding.PageDashboard1Binding
+import sg.edu.nus.iss.client.util.RouteManager
 
 class DashboardPage1Fragment : Fragment() {
     private var _binding: PageDashboard1Binding? = null
@@ -32,10 +32,7 @@ class DashboardPage1Fragment : Fragment() {
     }
 
     private fun openMetricDetail(metricType: MetricType) {
-        requireActivity().supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, MetricDetailFragment.newInstance(metricType))
-            .addToBackStack(null)
-            .commit()
+        RouteManager.toMetricDetail(this, metricType)
     }
 
     override fun onDestroyView() {

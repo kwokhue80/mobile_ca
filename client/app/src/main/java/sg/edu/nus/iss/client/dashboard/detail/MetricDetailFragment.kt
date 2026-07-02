@@ -16,6 +16,7 @@ import sg.edu.nus.iss.client.databinding.FragmentMetricDetailBinding
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricDetailUiState
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricType
 import sg.edu.nus.iss.client.dashboard.detail.model.TimeRange
+import sg.edu.nus.iss.client.util.RouteManager
 import java.time.LocalDate
 
 class MetricDetailFragment : Fragment() {
@@ -59,7 +60,7 @@ class MetricDetailFragment : Fragment() {
         binding.tvMetricTitle.text = metricType.displayName
 
         binding.btnBack.setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStack()
+            RouteManager.back(this)
         }
 
         binding.rvSummaryRows.layoutManager = LinearLayoutManager(requireContext())

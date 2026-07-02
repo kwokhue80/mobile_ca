@@ -19,7 +19,7 @@ import sg.edu.nus.iss.client.network.AuthApiService
 import sg.edu.nus.iss.client.network.RetrofitClient
 import sg.edu.nus.iss.client.util.BiometricHelper
 import sg.edu.nus.iss.client.util.SessionManager
-import sg.edu.nus.iss.client.dashboard.HomeFragment
+import sg.edu.nus.iss.client.util.RouteManager
 
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
@@ -189,7 +189,11 @@ class LoginFragment : Fragment() {
                 BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> getString(R.string.biometric_error_no_hardware)
                 else -> getString(R.string.biometric_error_hw_unavailable)
             }
-            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                message,
+                Toast.LENGTH_SHORT)
+                .show()
         }
     }
 
@@ -197,9 +201,7 @@ class LoginFragment : Fragment() {
         // val intent = Intent(requireContext(), MainActivity::class.java)
         // startActivity(intent)
         // requireActivity().finish()
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, HomeFragment())
-            .commit()
+        RouteManager.toHome(this)
     }
 
     override fun onDestroyView() {
