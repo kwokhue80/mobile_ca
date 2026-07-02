@@ -1,0 +1,101 @@
+package sg.edu.nus.iss.client.navigation
+
+import android.os.Bundle
+import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import sg.edu.nus.iss.client.R
+import sg.edu.nus.iss.client.chat.ChatFragment
+import sg.edu.nus.iss.client.dashboard.DashboardFragment
+import sg.edu.nus.iss.client.dashboard.activity.model.ExerciseType
+import sg.edu.nus.iss.client.dashboard.detail.model.MetricType
+import sg.edu.nus.iss.client.dashboard.goals.model.ActivityGoalType
+
+object RouteManager {
+
+    // Variables
+    enum class HomeTab { MAIN, CHAT }
+
+    // Routing - start destination: Login
+
+    // To login fragment (on logout)
+    fun toLogin(host: Fragment) {
+        // Navigate to login and clear backstack
+        host.findNavController().navigate(R.id.loginFragment)
+    }
+
+    // To home fragment
+    fun toHome(host: Fragment) {
+        host.findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
+    }
+
+    // Home navigation to dashboard / chatbot
+    // Note: not using Nav Component; keeping it simple for tab switching
+    fun switchHomeTab(host: Fragment, tab: HomeTab) {
+        // Implementation remains same as it manages a private sub-container
+        val target = when (tab) {
+            HomeTab.MAIN -> DashboardFragment()
+            HomeTab.CHAT -> ChatFragment()
+        }
+        host.childFragmentManager
+            .beginTransaction()
+            .replace(R.id.homeContentContainer, target)
+            .commit()
+    }
+
+    // Show add manually
+    fun showAddManually(host: Fragment) {
+        host.findNavController().navigate(R.id.addManuallyBottomSheetFragment)
+    }
+
+    // Show add item
+    fun showAddItem(host: Fragment, itemName: String) {
+        val bundle = Bundle().apply {
+            putString("item_name", itemName)
+        }
+        host.findNavController().navigate(R.id.addItemBottomSheetFragment, bundle)
+    }
+
+    // To choose exercise
+    fun toChooseExercise(host: Fragment) {
+        host.findNavController().navigate(R.id.action_homeFragment_to_chooseExerciseFragment)
+    }
+
+    // To activity duration
+    fun toActivityDuration(host: Fragment, exerciseType: ExerciseType) {
+        val bundle = bundleOf("arg_exercise_type" to exerciseType.name)
+        host.findNavController().navigate(R.id.action_chooseExerciseFragment_to_activityDurationFragment, bundle)
+    }
+
+    // To goals
+    fun toGoals(host: Fragment) {
+        host.findNavController().navigate(R.id.action_homeFragment_to_activitiesFragment)
+    }
+
+    // To goal setting
+    fun toGoalSetting(host: Fragment, goalType: ActivityGoalType) {
+        val bundle = bundleOf("arg_activity_goal_type" to goalType.name)
+        host.findNavController().navigate(R.id.action_activitiesFragment_to_goalSettingFragment, bundle)
+    }
+
+    // To history
+    fun toHistory(host: Fragment) {
+        host.findNavController().navigate(R.id.action_homeFragment_to_historyFragment)
+    }
+
+    // To metric detail
+    fun toMetricDetail(host: Fragment, metricType: MetricType) {
+        val bundle = bundleOf("arg_metric_type" to metricType.name)
+        host.findNavController().navigate(R.id.action_homeFragment_to_metricDetailFragment, bundle)
+    }
+
+    // Back to last fragment
+    fun back(host: Fragment) {
+        host.findNavController().popBackStack()
+    }
+
+    // Back to specific fragment
+    fun backTo(host: Fragment, destinationId: Int, inclusive: Boolean) {
+        host.findNavController().popBackStack(destinationId, inclusive)
+    }
+}

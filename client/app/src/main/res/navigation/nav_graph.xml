@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="sg.edu.nus.iss.client.auth.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_loginFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="sg.edu.nus.iss.client.dashboard.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_chooseExerciseFragment"
+            app:destination="@id/chooseExerciseFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_activitiesFragment"
+            app:destination="@id/activitiesFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_historyFragment"
+            app:destination="@id/historyFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_metricDetailFragment"
+            app:destination="@id/metricDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/chooseExerciseFragment"
+        android:name="sg.edu.nus.iss.client.dashboard.activity.ChooseExerciseFragment"
+        android:label="Choose Exercise">
+        <action
+            android:id="@+id/action_chooseExerciseFragment_to_activityDurationFragment"
+            app:destination="@id/activityDurationFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/activityDurationFragment"
+        android:name="sg.edu.nus.iss.client.dashboard.activity.ActivityDurationFragment"
+        android:label="Activity Duration">
+        <argument
+            android:name="arg_exercise_type"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/activitiesFragment"
+        android:name="sg.edu.nus.iss.client.dashboard.goals.ActivitiesFragment"
+        android:label="Activities">
+        <action
+            android:id="@+id/action_activitiesFragment_to_goalSettingFragment"
+            app:destination="@id/goalSettingFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/goalSettingFragment"
+        android:name="sg.edu.nus.iss.client.dashboard.goals.GoalSettingFragment"
+        android:label="Goal Setting">
+        <argument
+            android:name="arg_activity_goal_type"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/historyFragment"
+        android:name="sg.edu.nus.iss.client.dashboard.history.HistoryFragment"
+        android:label="History" />
+
+    <fragment
+        android:id="@+id/metricDetailFragment"
+        android:name="sg.edu.nus.iss.client.dashboard.detail.MetricDetailFragment"
+        android:label="Metric Detail">
+        <argument
+            android:name="arg_metric_type"
+            app:argType="string" />
+    </fragment>
+
+    <dialog
+        android:id="@+id/addManuallyBottomSheetFragment"
+        android:name="sg.edu.nus.iss.client.dashboard.AddManuallyBottomSheetFragment"
+        android:label="Add Manually">
+        <action
+            android:id="@+id/action_addManually_to_addItem"
+            app:destination="@id/addItemBottomSheetFragment" />
+    </dialog>
+
+    <dialog
+        android:id="@+id/addItemBottomSheetFragment"
+        android:name="sg.edu.nus.iss.client.dashboard.AddItemBottomSheetFragment"
+        android:label="Add Item">
+        <argument
+            android:name="item_name"
+            app:argType="string" />
+    </dialog>
+
+</navigation>

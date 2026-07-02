@@ -54,6 +54,8 @@ dependencies {
     implementation(libs.androidx.security.crypto)
     implementation(libs.androidx.recyclerview)
     implementation(libs.mpandroidchart)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -12,7 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.databinding.FragmentGoalSettingBinding
 import sg.edu.nus.iss.client.dashboard.goals.model.ActivityGoalType
-import sg.edu.nus.iss.client.util.RouteManager
+import sg.edu.nus.iss.client.navigation.RouteManager
 
 class GoalSettingFragment : Fragment() {
 

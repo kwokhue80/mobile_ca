@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import sg.edu.nus.iss.client.databinding.FragmentActivitiesBinding
 import sg.edu.nus.iss.client.dashboard.goals.model.ActivityGoalType
-import sg.edu.nus.iss.client.util.RouteManager
+import sg.edu.nus.iss.client.navigation.RouteManager
 
 class ActivitiesFragment : Fragment() {
 

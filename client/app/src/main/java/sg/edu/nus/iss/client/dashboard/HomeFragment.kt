@@ -9,7 +9,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import sg.edu.nus.iss.client.R
 import sg.edu.nus.iss.client.databinding.FragmentHomeBinding
-import sg.edu.nus.iss.client.util.RouteManager
+import sg.edu.nus.iss.client.navigation.RouteManager
 
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null

@@ -6,10 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import sg.edu.nus.iss.client.R
 import sg.edu.nus.iss.client.databinding.FragmentActivitiesBinding
 import sg.edu.nus.iss.client.dashboard.activity.model.ExerciseType
-import sg.edu.nus.iss.client.util.RouteManager
+import sg.edu.nus.iss.client.navigation.RouteManager
 
 class ChooseExerciseFragment : Fragment() {
 

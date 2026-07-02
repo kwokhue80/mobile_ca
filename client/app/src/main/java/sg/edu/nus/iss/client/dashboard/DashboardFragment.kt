@@ -15,7 +15,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.databinding.FragmentDashboardBinding
 import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
-import sg.edu.nus.iss.client.util.RouteManager
+import sg.edu.nus.iss.client.navigation.RouteManager
 
 class DashboardFragment : Fragment() {
     companion object {

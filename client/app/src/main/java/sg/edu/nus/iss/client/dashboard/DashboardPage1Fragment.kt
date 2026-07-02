@@ -5,10 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import sg.edu.nus.iss.client.R
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricType
 import sg.edu.nus.iss.client.databinding.PageDashboard1Binding
-import sg.edu.nus.iss.client.util.RouteManager
+import sg.edu.nus.iss.client.navigation.RouteManager
 
 class DashboardPage1Fragment : Fragment() {
     private var _binding: PageDashboard1Binding? = null

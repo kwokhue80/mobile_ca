@@ -13,7 +13,7 @@ import androidx.viewpager2.widget.ViewPager2
 import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.databinding.FragmentHistoryBinding
 import sg.edu.nus.iss.client.dashboard.DashboardViewModel
-import sg.edu.nus.iss.client.util.RouteManager
+import sg.edu.nus.iss.client.navigation.RouteManager
 
 class HistoryFragment : Fragment() {
 

@@ -19,7 +19,7 @@ import sg.edu.nus.iss.client.network.AuthApiService
 import sg.edu.nus.iss.client.network.RetrofitClient
 import sg.edu.nus.iss.client.util.BiometricHelper
 import sg.edu.nus.iss.client.util.SessionManager
-import sg.edu.nus.iss.client.util.RouteManager
+import sg.edu.nus.iss.client.navigation.RouteManager
 
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null

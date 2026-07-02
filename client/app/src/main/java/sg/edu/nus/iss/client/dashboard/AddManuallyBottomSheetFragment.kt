@@ -8,7 +8,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import sg.edu.nus.iss.client.databinding.BottomSheetAddManuallyBinding
-import sg.edu.nus.iss.client.util.RouteManager
+import sg.edu.nus.iss.client.navigation.RouteManager
 
 class AddManuallyBottomSheetFragment : BottomSheetDialogFragment() {
     private var _binding: BottomSheetAddManuallyBinding? = null
@@ -44,9 +44,9 @@ class AddManuallyBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     private fun openAddItem(itemName: String) {
-        val host = parentFragment ?: this
-        RouteManager.showAddItem(host, itemName)
-        dismiss()
+        // Navigate to the next bottom sheet
+        // Note: dismissal handled by navigation component
+        RouteManager.showAddItem(this, itemName)
     }
 
     override fun onDestroyView() {

@@ -16,7 +16,7 @@ import sg.edu.nus.iss.client.databinding.FragmentMetricDetailBinding
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricDetailUiState
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricType
 import sg.edu.nus.iss.client.dashboard.detail.model.TimeRange
-import sg.edu.nus.iss.client.util.RouteManager
+import sg.edu.nus.iss.client.navigation.RouteManager
 import java.time.LocalDate
 
 class MetricDetailFragment : Fragment() {
