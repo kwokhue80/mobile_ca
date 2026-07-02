@@ -1,4 +1,4 @@
-package sg.edu.nus.features.user;
+package sg.edu.nus.features.wellness;
 
 import java.util.UUID;
 
@@ -18,33 +18,19 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import sg.edu.nus.common.Auditable;
 
-/*
-*   AUTHOR: Amelia
-*   PURPOSE: User entity for login/registration
-*/
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "users")
-public class User extends Auditable {
-    
+@Table(name = "wellness_records")
+public class WellnessRecord extends Auditable {
+
     @Id
-    @GeneratedValue(strategy=GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @JdbcTypeCode(SqlTypes.CHAR)
     @Column(length = 36, nullable = false, updatable = false)
     private UUID id;
-
-    @Column(length = 100, nullable = false, unique = true)
-    private String emailAddress;
-
-    @Column(length = 255, nullable = false)
-    private String passwordHash;
-
-    @Builder.Default
-    @Column(nullable = false)
-    private Boolean enabled = true;
-
+    
 }

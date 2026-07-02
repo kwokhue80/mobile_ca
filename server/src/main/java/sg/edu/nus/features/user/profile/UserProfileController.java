@@ -1,4 +1,4 @@
-package sg.edu.nus.features.user;
+package sg.edu.nus.features.user.profile;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.RestController;
 *   PURPOSE: User controller for client to access API on backend
 */
 @RestController
-@RequestMapping("")
-public class UserController {
+@RequestMapping("/api/user-profile")
+public class UserProfileController {
+
+    
     
 }

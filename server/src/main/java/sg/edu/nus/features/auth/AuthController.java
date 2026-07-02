@@ -22,19 +22,19 @@ import sg.edu.nus.features.auth.dto.RegisterRequest;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authSvc;
+    private final AuthService authService;
 
     // Register user and return HTTP 201
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
-        AuthResponse response = authSvc.register(request);
+        AuthResponse response = authService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // Login user and return HTTP 200
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody LoginRequest request) {
-        AuthResponse response = authSvc.login(request);
+        AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
 
