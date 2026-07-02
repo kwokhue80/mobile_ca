@@ -1,4 +1,4 @@
-package sg.edu.nus.features.user;
+package sg.edu.nus.features.user.account;
 
 import org.springframework.stereotype.Component;
 

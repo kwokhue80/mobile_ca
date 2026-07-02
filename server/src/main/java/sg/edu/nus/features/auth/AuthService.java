@@ -7,10 +7,9 @@ import lombok.RequiredArgsConstructor;
 import sg.edu.nus.features.auth.dto.AuthResponse;
 import sg.edu.nus.features.auth.dto.LoginRequest;
 import sg.edu.nus.features.auth.dto.RegisterRequest;
-import sg.edu.nus.features.user.User;
-import sg.edu.nus.features.user.UserMapper;
-import sg.edu.nus.features.user.UserService;
-import sg.edu.nus.features.user.dto.UserResponse;
+import sg.edu.nus.features.user.account.User;
+import sg.edu.nus.features.user.account.UserMapper;
+import sg.edu.nus.features.user.account.UserService;
 import sg.edu.nus.security.JwtService;
 
 /*
