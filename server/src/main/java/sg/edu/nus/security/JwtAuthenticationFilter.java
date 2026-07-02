@@ -64,7 +64,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String email = claims.getSubject();
         String role = claims.get("role", String.class);
         if (role == null) {
-            role = "ROLE_USER"; // or handle it according to your business logic
+            role = "ROLE_USER";
         }
 
         // Authenticate request using JWT data
