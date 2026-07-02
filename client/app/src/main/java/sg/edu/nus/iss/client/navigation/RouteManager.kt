@@ -1,7 +1,6 @@
 package sg.edu.nus.iss.client.navigation
 
 import android.os.Bundle
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import sg.edu.nus.iss.client.R
@@ -63,7 +62,9 @@ object RouteManager {
 
     // To activity duration
     fun toActivityDuration(host: Fragment, exerciseType: ExerciseType) {
-        val bundle = bundleOf("arg_exercise_type" to exerciseType.name)
+        val bundle = Bundle().apply {
+            putString("arg_exercise_type", exerciseType.name)
+        }
         host.findNavController().navigate(R.id.action_chooseExerciseFragment_to_activityDurationFragment, bundle)
     }
 
@@ -74,7 +75,9 @@ object RouteManager {
 
     // To goal setting
     fun toGoalSetting(host: Fragment, goalType: ActivityGoalType) {
-        val bundle = bundleOf("arg_activity_goal_type" to goalType.name)
+        val bundle = Bundle().apply {
+            putString("arg_activity_goal_type", goalType.name)
+        }
         host.findNavController().navigate(R.id.action_activitiesFragment_to_goalSettingFragment, bundle)
     }
 
@@ -85,7 +88,9 @@ object RouteManager {
 
     // To metric detail
     fun toMetricDetail(host: Fragment, metricType: MetricType) {
-        val bundle = bundleOf("arg_metric_type" to metricType.name)
+        val bundle = Bundle().apply {
+            putString("arg_metric_type", metricType.name)
+        }
         host.findNavController().navigate(R.id.action_homeFragment_to_metricDetailFragment, bundle)
     }
 
