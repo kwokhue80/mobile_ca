@@ -52,6 +52,7 @@ class LoginFragment : Fragment() {
 
         binding.btnLogin.setOnClickListener {
             android.util.Log.d("LoginFragment", "Login button clicked")
+            Toast.makeText(requireContext(), "Processing Login...", Toast.LENGTH_SHORT).show()
             val email = binding.etEmailAddress.text.toString()
             val password = binding.etPassword.text.toString()
             if (email.isBlank() || password.isBlank()) {
@@ -133,11 +134,15 @@ class LoginFragment : Fragment() {
         } else { // Biometrics not available/enrolled
             Toast.makeText(
                 requireContext(),
-                "Biometrics not available. Saving token as is.",
+                "Biometrics not available. Saving session unencrypted.",
                 Toast.LENGTH_SHORT)
                 .show()
             
-            // For now, navigate if biometrics aren't set up
+            pendingTokenToSave?.let { token ->
+                sessionManager.saveEncryptedAuthToken(token, null)
+                pendingTokenToSave = null
+            }
+
             navigateToMainActivity()
         }
     }

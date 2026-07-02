@@ -67,18 +67,19 @@ class SessionManager(context: Context) {
         cipher.init(Cipher.DECRYPT_MODE, getSecretKey(), GCMParameterSpec(128, iv))
         return cipher
     }
-    fun saveEncryptedAuthToken(token: String, cipher: Cipher) {
-
-        val encryptedData = cipher.doFinal(token.toByteArray(Charsets.UTF_8))
-        val encryptedTokenBase64 = Base64.encodeToString(encryptedData, Base64.DEFAULT)
-        val ivBase64 = Base64.encodeToString(cipher.iv, Base64.DEFAULT)
-
-        sharedPreferences.edit {
-            putString(PREF_ENCRYPTED_TOKEN, encryptedTokenBase64)
-            putString(PREF_IV, ivBase64)
-        }
-
+    fun saveEncryptedAuthToken(token: String, cipher: Cipher?) {
         inMemoryToken = token
+
+        if (cipher != null) {
+            val encryptedData = cipher.doFinal(token.toByteArray(Charsets.UTF_8))
+            val encryptedTokenBase64 = Base64.encodeToString(encryptedData, Base64.DEFAULT)
+            val ivBase64 = Base64.encodeToString(cipher.iv, Base64.DEFAULT)
+
+            sharedPreferences.edit {
+                putString(PREF_ENCRYPTED_TOKEN, encryptedTokenBase64)
+                putString(PREF_IV, ivBase64)
+            }
+        }
     }
 
     fun getDecryptedAuthToken(cipher: Cipher): String {
