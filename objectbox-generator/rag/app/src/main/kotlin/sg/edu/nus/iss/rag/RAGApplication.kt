@@ -1,7 +1,8 @@
 
 package sg.edu.nus.iss.rag
 
-import dev.langchain4j.model.embedding.onnx.allminilml6v2.AllMiniLmL6V2EmbeddingModel
+
+import dev.langchain4j.model.embedding.onnx.allminilml6v2q.AllMiniLmL6V2QuantizedEmbeddingModel
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
@@ -32,7 +33,7 @@ object RAGApplication {
     private const val CHAT_MODEL = "llama3.1"
 
     // Loads the all-MiniLM-L6-v2 local model weights inside the JVM execution environment
-    private val embeddingModel = AllMiniLmL6V2EmbeddingModel()
+    private val embeddingModel = AllMiniLmL6V2QuantizedEmbeddingModel()
 
     private val client = HttpClient(CIO) {
         install(ContentNegotiation) {
