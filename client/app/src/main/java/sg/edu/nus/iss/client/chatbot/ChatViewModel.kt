@@ -1,4 +1,4 @@
-package sg.edu.nus.iss.client.chat
+package sg.edu.nus.iss.client.chatbot
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

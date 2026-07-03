@@ -1,4 +1,4 @@
-package sg.edu.nus.iss.client.chat
+package sg.edu.nus.iss.client.chatbot
 
 import android.os.Bundle
 import android.view.LayoutInflater

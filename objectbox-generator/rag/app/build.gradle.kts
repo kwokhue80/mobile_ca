@@ -20,6 +20,6 @@ dependencies {
     implementation(libs.ktor.client.negotiation)
     implementation(libs.ktor.serialization)
     implementation(libs.langchain4j.embeddings)
-    implementation("dev.langchain4j:langchain4j-core:0.33.0")
-    implementation("dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2:0.33.0")
+    implementation(libs.langchain4j.core)
+    implementation(libs.langchain4j.embeddings)
 }
