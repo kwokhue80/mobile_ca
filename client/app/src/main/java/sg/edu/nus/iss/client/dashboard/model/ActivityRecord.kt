@@ -6,5 +6,7 @@ data class ActivityRecord(
     val id: String,
     val type: String,
     val timestamp: LocalDateTime,
-    val durationMinutes: Int
+    val durationMinutes: Int,
+    val distanceKm: Double = 0.0,
+    val calories: Int = 0
 )

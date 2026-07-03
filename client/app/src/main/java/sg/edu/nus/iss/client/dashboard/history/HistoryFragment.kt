@@ -21,7 +21,8 @@ class HistoryFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val pagerAdapter = HistoryPagerAdapter(
-        onPageNumberClick = { page -> binding.viewPagerHistory.setCurrentItem(page, true) }
+        onPageNumberClick = { page -> binding.viewPagerHistory.setCurrentItem(page, true) },
+        onItemClick = { record -> RouteManager.toActivityDetail(this, record.id) }
     )
 
     override fun onCreateView(

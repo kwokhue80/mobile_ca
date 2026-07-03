@@ -11,7 +11,8 @@ import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
 import sg.edu.nus.iss.client.dashboard.util.ActivityDateFormatter
 
 class ActivityRecordAdapter(
-    private val onDeleteClick: (ActivityRecord) -> Unit
+    private val onDeleteClick: (ActivityRecord) -> Unit,
+    private val onItemClick: (ActivityRecord) -> Unit = {}
 ) : ListAdapter<ActivityRecord, ActivityRecordAdapter.ActivityViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActivityViewHolder {
@@ -39,6 +40,7 @@ class ActivityRecordAdapter(
             binding.tvActivityMeta.text =
                 "${ActivityDateFormatter.formatCompact(record.timestamp)} · ${record.durationMinutes} min"
             binding.btnDeleteActivity.setOnClickListener { onDeleteClick(record) }
+            binding.root.setOnClickListener { onItemClick(record) }
         }
     }
 

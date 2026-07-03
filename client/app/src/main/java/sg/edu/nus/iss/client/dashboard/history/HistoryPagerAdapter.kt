@@ -12,7 +12,8 @@ import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
 import sg.edu.nus.iss.client.dashboard.util.ActivityDateFormatter
 
 class HistoryPagerAdapter(
-    private val onPageNumberClick: (Int) -> Unit
+    private val onPageNumberClick: (Int) -> Unit,
+    private val onItemClick: (ActivityRecord) -> Unit = {}
 ) : RecyclerView.Adapter<HistoryPagerAdapter.PageViewHolder>() {
 
     companion object {
@@ -38,7 +39,7 @@ class HistoryPagerAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PageViewHolder {
         val binding = ItemActivityRecordPageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return PageViewHolder(binding, onPageNumberClick)
+        return PageViewHolder(binding, onPageNumberClick, onItemClick)
     }
 
     override fun onBindViewHolder(holder: PageViewHolder, position: Int) {
@@ -64,10 +65,11 @@ class HistoryPagerAdapter(
 
     class PageViewHolder(
         private val binding: ItemActivityRecordPageBinding,
-        onPageNumberClick: (Int) -> Unit
+        onPageNumberClick: (Int) -> Unit,
+        onItemClick: (ActivityRecord) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        private val listAdapter = HistoryListAdapter()
+        private val listAdapter = HistoryListAdapter(onItemClick)
         private val footerAdapter = ActivityPageFooterAdapter(onPageNumberClick)
 
         init {
