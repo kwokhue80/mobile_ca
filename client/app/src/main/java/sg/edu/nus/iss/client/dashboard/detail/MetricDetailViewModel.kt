@@ -33,11 +33,18 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
     private var referenceDate: LocalDate = today
     private var timeRange: TimeRange = TimeRange.DAY
     private var monthAnchorMode: MonthAnchorMode = MonthAnchorMode.ROLLING
+    private var currentGoal: Double = metricType.defaultGoal
 
     private val _uiState = MutableStateFlow(MetricDetailUiState())
     val uiState: StateFlow<MetricDetailUiState> = _uiState.asStateFlow()
 
     init {
+        refresh()
+    }
+
+    fun setGoal(value: Double) {
+        if (currentGoal == value) return
+        currentGoal = value
         refresh()
     }
 
@@ -114,7 +121,7 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
             )
         }
         val total = bars.sumOf { it.value }
-        val goal = metricType.defaultGoal
+        val goal = currentGoal
         val periodLabel = if (referenceDate == today) "Today" else formatDayLabel(referenceDate)
         return MetricDetailUiState(
             timeRange = TimeRange.DAY,
@@ -133,7 +140,7 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
         val weekStart = referenceDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         val weekEnd = weekStart.plusDays(6)
         val random = Random(weekStart.toEpochDay())
-        val dailyGoal = metricType.defaultGoal
+        val dailyGoal = currentGoal
         val bars = (0 until 7).map { i ->
             val date = weekStart.plusDays(i.toLong())
             val value = if (date.isAfter(today)) 0.0 else randomBarValue(random, biasHigh = true)
@@ -188,7 +195,7 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
         }
 
         val random = Random(monthStart.toEpochDay())
-        val dailyGoal = metricType.defaultGoal
+        val dailyGoal = currentGoal
         val totalDaysInWindow = ChronoUnit.DAYS.between(monthStart, monthEnd).toInt() + 1
         val bars = (0 until totalDaysInWindow).map { i ->
             val date = monthStart.plusDays(i.toLong())
@@ -220,7 +227,7 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
     private fun buildSixMonthState(): MetricDetailUiState {
         val periodEnd = referenceDate
         val periodStart = periodEnd.minusMonths(SIX_MONTH_COUNT - 1).withDayOfMonth(1)
-        val dailyGoal = metricType.defaultGoal
+        val dailyGoal = currentGoal
 
         var totalAllDays = 0.0
         var totalDaysCounted = 0
@@ -320,7 +327,7 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
     }
 
     private fun randomBarValue(random: Random, biasHigh: Boolean = false): Double {
-        val max = metricType.defaultGoal * if (biasHigh) 1.3 else 0.4
+        val max = currentGoal * if (biasHigh) 1.3 else 0.4
         val raw = random.nextDouble() * max
         return if (metricType.decimalPlaces == 0) {
             Math.round(raw).toDouble()

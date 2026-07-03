@@ -48,6 +48,24 @@ enum class MetricType(
         chartColorHex = "#52ADFF",
         chartGoalMetColorHex = "#B8C0F0",
         decimalPlaces = 0
+    ),
+    SLEEP(
+        displayName = "Sleep",
+        unit = "h",
+        defaultGoal = 8.0,
+        iconRes = R.drawable.sleep_icon,
+        chartColorHex = "#8B61FF",
+        chartGoalMetColorHex = "#C9A6E2",
+        decimalPlaces = 1
+    ),
+    WEIGHT(
+        displayName = "Weight",
+        unit = "kg",
+        defaultGoal = 65.0,
+        iconRes = R.drawable.weight_icon,
+        chartColorHex = "#27837B",
+        chartGoalMetColorHex = "#A6E2DD",
+        decimalPlaces = 1
     );
 
     val chartColor: Int get() = Color.parseColor(chartColorHex)

@@ -4,7 +4,7 @@ package sg.edu.nus.iss.client.chatbot
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import sg.edu.nus.iss.client.chatbot.databinding.ActivityChatBinding
+import sg.edu.nus.iss.client.databinding.ActivityChatBinding
 
 class ChatActivity : AppCompatActivity() {
 

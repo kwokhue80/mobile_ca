@@ -66,11 +66,20 @@ class ActivityDurationFragment : Fragment() {
         binding.btnIncrement.setOnClickListener { viewModel.increment() }
 
         binding.btnSetGoal.setOnClickListener {
+            val duration = viewModel.durationMinutes.value
+            val (speedKmh, calPerMin) = when (exerciseType.displayName) {
+                "Walk" -> 5.0 to 4.0
+                "Run" -> 10.0 to 10.0
+                "Swim" -> 2.0 to 8.0
+                else -> 4.0 to 5.0
+            }
             val record = ActivityRecord(
                 id = UUID.randomUUID().toString(),
                 type = exerciseType.displayName,
                 timestamp = LocalDateTime.now(),
-                durationMinutes = viewModel.durationMinutes.value
+                durationMinutes = duration,
+                distanceKm = Math.round(speedKmh * (duration / 60.0) * 100) / 100.0,
+                calories = (calPerMin * duration).toInt()
             )
             dashboardViewModel.addRecord(record)
             RouteManager.backTo(this, R.id.chooseExerciseFragment, true)
