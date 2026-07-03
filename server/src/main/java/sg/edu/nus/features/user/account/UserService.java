@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 /*
@@ -35,6 +36,13 @@ public class UserService {
         User user = getById(userId);
         user.setEnabled(false); // Disable account
         userRepository.save(user);
+    }
+
+    // Transactional - involves deletion of all child tables
+    @Transactional
+    public void deleteUser(UUID userId) {
+        User user = getById(userId);
+        userRepository.delete(user);
     }
 
     public boolean existsByEmailAddress(String emailAddress) {

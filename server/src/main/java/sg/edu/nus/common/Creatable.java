@@ -2,7 +2,6 @@ package sg.edu.nus.common;
 
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -14,20 +13,16 @@ import lombok.Setter;
 
 /*
 *   AUTHOR:     Amelia
-*   PURPOSE:    Reusable audit base class for create/update timestamps
+*   PURPOSE:    Reusable audit base class for create timestamps for not updatable audit logs
 */
 @Getter
 @Setter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public abstract class Auditable {
+public abstract class Creatable {
 
     @CreatedDate
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
 
 }
