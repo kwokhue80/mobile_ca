@@ -1,5 +1,6 @@
 package sg.edu.nus.features.user.profile;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import org.hibernate.annotations.JdbcTypeCode;
@@ -10,6 +11,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +22,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import sg.edu.nus.common.Auditable;
+import sg.edu.nus.features.user.account.User;
 
 @Getter
 @Setter
@@ -25,13 +30,26 @@ import sg.edu.nus.common.Auditable;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "users")
+@Table(name = "profiles")
 public class UserProfile extends Auditable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @JdbcTypeCode(SqlTypes.CHAR)
-    @Column(length = 36, nullable = false, updatable = false)
+    @Column(name = "user_id")
     private UUID id;
+
+    @Column(nullable = true)
+    private LocalDate dateOfBirth;
+
+    @Column(nullable = true)
+    private String gender;
+
+    @Column(nullable = true)
+    private Double height;
+
+    @OneToOne
+    @MapsId // Share PK with User
+    @JoinColumn(name = "user_id")
+    private User user;
     
 }
