@@ -17,8 +17,10 @@ securityCrypto = "1.1.0"
 viewpager2 = "1.1.0"
 recyclerview = "1.4.0"
 mpAndroidChart = "v3.1.0"
-
 navigation = "2.8.8"
+kotlin = "2.1.0"
+objectbox = "5.4.2"
+onnxruntime = "1.19.2"
 
 [libraries]
 androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigation" }
@@ -41,10 +43,13 @@ androidx-cardview = { group = "androidx.cardview", name = "cardview", version.re
 androidx-viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "viewpager2" }
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 mpandroidchart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpAndroidChart" }
+objectbox-android = { group = "io.objectbox", name = "objectbox-android", version.ref = "objectbox" }
+onnxruntime-android = { group = "com.microsoft.onnxruntime", name = "onnxruntime-android", version.ref = "onnxruntime" }
 
 [bundles]
 network = ["retrofit-core", "retrofit-converter-gson"]
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-
+legacy-kapt = { id = "com.android.legacy-kapt", version.ref = "agp" }
+objectbox = { id = "io.objectbox", version.ref = "objectbox" }

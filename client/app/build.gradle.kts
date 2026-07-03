@@ -1,5 +1,18 @@
+import java.util.Properties
+
+val localProperties = Properties().apply {
+    val localFile = rootProject.file("local.properties")
+    if (localFile.exists()) {
+        load(localFile.inputStream())
+    }
+}
+
+
+
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.legacy.kapt)
+    alias(libs.plugins.objectbox)
 }
 
 android {
@@ -14,6 +27,13 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            "String",
+            "OPENROUTER_API_KEY",
+            "\"${localProperties.getProperty("OPENROUTER_API_KEY", "")}\""
+        )
+
     }
 
     androidResources {
@@ -22,6 +42,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
     buildTypes {
         release {
@@ -65,7 +86,9 @@ dependencies {
     implementation(libs.mpandroidchart)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
-    implementation("dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2-q:0.31.0")
+    implementation(libs.objectbox.android)
+    implementation(libs.onnxruntime.android)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
