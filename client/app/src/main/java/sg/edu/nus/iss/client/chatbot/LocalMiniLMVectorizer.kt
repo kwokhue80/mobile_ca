@@ -1,4 +1,4 @@
-package sg.edu.nus.iss.client.chat
+package sg.edu.nus.iss.client.chatbot
 
 import dev.langchain4j.model.embedding.AllMiniLmL6V2QuantizedEmbeddingModel
 import kotlinx.coroutines.Dispatchers

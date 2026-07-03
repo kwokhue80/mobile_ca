@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import sg.edu.nus.iss.client.R
-import sg.edu.nus.iss.client.chat.ChatFragment
+import sg.edu.nus.iss.client.chatbot.ChatFragment
 import sg.edu.nus.iss.client.dashboard.DashboardFragment
 import sg.edu.nus.iss.client.dashboard.activity.model.ExerciseType
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricType
