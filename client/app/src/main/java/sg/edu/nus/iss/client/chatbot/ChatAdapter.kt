@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import sg.edu.nus.iss.client.R
 
 class ChatAdapter(private val messageList: List<ChatMessage>) :
     RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
