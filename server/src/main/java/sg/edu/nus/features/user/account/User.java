@@ -36,7 +36,7 @@ public class User extends Auditable {
     @Id
     @GeneratedValue(strategy=GenerationType.UUID)
     @JdbcTypeCode(SqlTypes.CHAR)
-    @Column(name = "user_id", length = 36, nullable = false, updatable = false)
+    @Column(name = "id", length = 36, nullable = false, updatable = false)
     private UUID id;
 
     @Column(length = 100, nullable = false, unique = true)

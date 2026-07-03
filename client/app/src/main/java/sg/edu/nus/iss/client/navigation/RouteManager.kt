@@ -94,6 +94,29 @@ object RouteManager {
         host.findNavController().navigate(R.id.action_homeFragment_to_metricDetailFragment, bundle)
     }
 
+    // To exercise days detail
+    fun toExerciseDaysDetail(host: Fragment) {
+        host.findNavController().navigate(R.id.action_homeFragment_to_exerciseDaysDetailFragment)
+    }
+
+    // To mental health detail
+    fun toMentalHealthDetail(host: Fragment) {
+        host.findNavController().navigate(R.id.action_homeFragment_to_mentalHealthDetailFragment)
+    }
+
+    // To badges
+    fun toBadges(host: Fragment) {
+        host.findNavController().navigate(R.id.action_homeFragment_to_badgesFragment)
+    }
+
+    // To activity detail
+    fun toActivityDetail(host: Fragment, recordId: String) {
+        val bundle = Bundle().apply {
+            putString("arg_record_id", recordId)
+        }
+        host.findNavController().navigate(R.id.action_global_activityDetailFragment, bundle)
+    }
+
     // Back to last fragment
     fun back(host: Fragment) {
         host.findNavController().popBackStack()

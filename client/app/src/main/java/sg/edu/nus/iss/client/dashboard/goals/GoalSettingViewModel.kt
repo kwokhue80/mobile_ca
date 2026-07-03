@@ -6,9 +6,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import sg.edu.nus.iss.client.dashboard.goals.model.ActivityGoalType
 
-class GoalSettingViewModel(private val activityGoalType: ActivityGoalType) : ViewModel() {
+class GoalSettingViewModel(
+    private val activityGoalType: ActivityGoalType,
+    initialValue: Double
+) : ViewModel() {
 
-    private val _value = MutableStateFlow(activityGoalType.defaultValue)
+    private val _value = MutableStateFlow(initialValue)
     val value: StateFlow<Double> = _value.asStateFlow()
 
     fun increment() {

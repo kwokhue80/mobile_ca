@@ -65,6 +65,12 @@ object MetricChartConfigurator {
             limitLine.lineColor = goalMetColor
             limitLine.lineWidth = 1.5f
             chart.axisLeft.addLimitLine(limitLine)
+            // Always keep the goal line comfortably in view, even when every bar
+            // (e.g. smoothed 6-month monthly averages) sits well below the goal.
+            val dataMax = bars.maxOfOrNull { it.value } ?: 0.0
+            chart.axisLeft.axisMaximum = maxOf(dataMax * 1.1, chartGoalValue * 1.2).toFloat()
+        } else {
+            chart.axisLeft.resetAxisMaximum()
         }
 
         chart.xAxis.position = XAxis.XAxisPosition.BOTTOM

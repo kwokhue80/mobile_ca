@@ -46,8 +46,9 @@ class GoalSettingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         activityGoalType = ActivityGoalType.valueOf(requireArguments().getString(ARG_ACTIVITY_GOAL_TYPE)!!)
+        val userGoalsViewModel = ViewModelProvider(requireActivity())[UserGoalsViewModel::class.java]
 
-        val factory = GoalSettingViewModelFactory(activityGoalType)
+        val factory = GoalSettingViewModelFactory(activityGoalType, userGoalsViewModel.getGoal(activityGoalType))
         viewModel = ViewModelProvider(this, factory)[GoalSettingViewModel::class.java]
 
         binding.tvActivityTitle.text = activityGoalType.displayName
@@ -61,6 +62,7 @@ class GoalSettingFragment : Fragment() {
         binding.btnIncrement.setOnClickListener { viewModel.increment() }
 
         binding.btnSetGoal.setOnClickListener {
+            userGoalsViewModel.setGoal(activityGoalType, viewModel.value.value)
             RouteManager.back(this)
         }
 

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:background="#F5F6F8"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:orientation="horizontal"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="14dp"
+    android:paddingBottom="14dp">
+
+    <TextView
+        android:id="@+id/tvWeekLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="This week"
+        android:textColor="#1F1F1F"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tvWeekValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="2 of 5 days"
+        android:textColor="#1F1F1F"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+</LinearLayout>
