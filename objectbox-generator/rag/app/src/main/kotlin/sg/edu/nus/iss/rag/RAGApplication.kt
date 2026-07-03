@@ -220,6 +220,11 @@ object RAGApplication {
         }
 
         println("Ingesting structured meal logs into ObjectBox...")
+        // TEMPORARY — for comparing against Android embedding, remove after checking
+//        val testVector = embed("chicken rice")
+//        println("JVM EMBEDDING (chicken rice), size=${testVector.size}")
+//        println(testVector.take(10).joinToString(", "))
+        // END TEMPORARY: TEST vector embedding
         ingestToObjectBox(DATA_DIR, reset = true)
 
         val scanner = Scanner(System.`in`)

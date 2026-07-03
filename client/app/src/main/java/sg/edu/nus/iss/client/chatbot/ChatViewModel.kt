@@ -4,22 +4,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 
-class ChatViewModel(private val vectorizer: LocalMiniLMVectorizer): ViewModel() {
-    fun processUserQuery(userQuery: String) {
+class ChatViewModel(private val ragRepository: RagRepository) : ViewModel() {
+
+    fun processUserQuery(userQuery: String, onResult: (String) -> Unit, onError: (Throwable) -> Unit) {
         if (userQuery.isBlank()) return
 
         viewModelScope.launch {
-            // vectorize the query
-            val queryVector: FloatArray = vectorizer.vectorize(userQuery)
-
-            if (queryVector.isNotEmpty()) {
-                searchVectorDB(queryVector)
-            } // else { }
-
+            try {
+                val answer = ragRepository.answer(userQuery)
+                onResult(answer)
+            } catch (e: Exception) {
+                onError(e)
+            }
         }
-    }
-
-    private fun searchVectorDB(queryVector: FloatArray) {
-
     }
 }

@@ -21,6 +21,7 @@ navigation = "2.8.8"
 kotlin = "2.1.0"
 objectbox = "5.4.2"
 onnxruntime = "1.19.2"
+okhttp = "4.12.0"
 
 [libraries]
 androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigation" }
@@ -45,9 +46,11 @@ androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview"
 mpandroidchart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpAndroidChart" }
 objectbox-android = { group = "io.objectbox", name = "objectbox-android", version.ref = "objectbox" }
 onnxruntime-android = { group = "com.microsoft.onnxruntime", name = "onnxruntime-android", version.ref = "onnxruntime" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 
 [bundles]
-network = ["retrofit-core", "retrofit-converter-gson"]
+network = ["retrofit-core", "retrofit-converter-gson", "okhttp", "okhttp-logging"]
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

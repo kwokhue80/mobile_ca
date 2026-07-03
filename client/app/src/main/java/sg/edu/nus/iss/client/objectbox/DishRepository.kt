@@ -4,8 +4,8 @@ import kotlin.jvm.java
 
 import io.objectbox.Box
 import io.objectbox.BoxStore
-import sg.edu.nus.iss.rag.Dish
-import sg.edu.nus.iss.rag.Dish_
+import sg.edu.nus.iss.client.objectbox.Dish
+import sg.edu.nus.iss.client.objectbox.Dish_
 
 class DishRepository(boxStore: BoxStore) {
 

@@ -1,34 +1,35 @@
 package sg.edu.nus.iss.client.openrouter
 
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
-import io.ktor.http.isSuccess
-import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import sg.edu.nus.iss.client.BuildConfig
+import java.util.concurrent.TimeUnit
 
 class OpenRouterClient {
 
-    private val client = HttpClient(CIO) {
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-            })
-        }
-        install(HttpTimeout) {
-            requestTimeoutMillis = 60_000
-            connectTimeoutMillis = 15_000
-            socketTimeoutMillis = 60_000
-        }
-    }
+    private val okHttpClient = OkHttpClient.Builder()
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .writeTimeout(60, TimeUnit.SECONDS)
+        .addInterceptor(
+            HttpLoggingInterceptor().apply {
+                level = if (BuildConfig.DEBUG) {
+                    HttpLoggingInterceptor.Level.BODY
+                } else {
+                    HttpLoggingInterceptor.Level.NONE
+                }
+            }
+        )
+        .build()
+
+    private val api: OpenRouterApi = Retrofit.Builder()
+        .baseUrl("https://openrouter.ai/api/v1/")
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+        .create(OpenRouterApi::class.java)
 
     suspend fun chatCompletion(
         prompt: String,
@@ -39,28 +40,15 @@ class OpenRouterClient {
             "OPENROUTER_API_KEY is missing. Check local.properties."
         }
 
-        val response: HttpResponse = client.post("https://openrouter.ai/api/v1/chat/completions") {
-            contentType(ContentType.Application.Json)
-            header("Authorization", "Bearer $apiKey")
-            setBody(
-                OpenRouterRequest(
-                    model = model,
-                    messages = listOf(OpenRouterMessage(role = "user", content = prompt))
-                )
+        val response = api.chatCompletion(
+            authorization = "Bearer $apiKey",
+            request = OpenRouterRequest(
+                model = model,
+                messages = listOf(OpenRouterMessage(role = "user", content = prompt))
             )
-        }
+        )
 
-        if (!response.status.isSuccess()) {
-            val errorBody = response.body<String>()
-            throw IllegalStateException("OpenRouter request failed (${response.status}): $errorBody")
-        }
-
-        val parsed: OpenRouterResponse = response.body()
-        return parsed.choices.firstOrNull()?.message?.content
+        return response.choices.firstOrNull()?.message?.content
             ?: throw IllegalStateException("OpenRouter returned no choices in response.")
-    }
-
-    fun close() {
-        client.close()
     }
 }
