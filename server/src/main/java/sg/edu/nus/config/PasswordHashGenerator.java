@@ -1,7 +1,5 @@
 package sg.edu.nus.config;
 
-import org.springframework.context.annotation.Configuration;
-
 /*
 *   AUTHOR: Amelia
 *   PURPOSE: Generate password hash for mock data

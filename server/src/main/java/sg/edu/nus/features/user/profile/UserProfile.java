@@ -1,5 +1,6 @@
 package sg.edu.nus.features.user.profile;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -8,8 +9,6 @@ import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
@@ -21,7 +20,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import sg.edu.nus.common.Auditable;
+import sg.edu.nus.common.Updatable;
 import sg.edu.nus.features.user.account.User;
 
 @Getter
@@ -30,22 +29,25 @@ import sg.edu.nus.features.user.account.User;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "profiles")
-public class UserProfile extends Auditable {
+@Table(name = "user_profiles")
+public class UserProfile extends Updatable {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
     @Column(name = "user_id")
-    private UUID id;
+    private UUID userId;
 
-    @Column(nullable = true)
+    @Column(name = "full_name", length = 100, nullable = false)
+    private String fullName;
+
+    @Column(name = "date_of_birth", nullable = false)
     private LocalDate dateOfBirth;
 
-    @Column(nullable = true)
+    @Column(name = "gender", length = 20, nullable = false)
     private String gender;
 
-    @Column(nullable = true)
-    private Double height;
+    @Column(name = "height_cm", precision = 5, scale = 2, nullable = false)
+    private BigDecimal heightCm;
 
     @OneToOne
     @MapsId // Share PK with User
