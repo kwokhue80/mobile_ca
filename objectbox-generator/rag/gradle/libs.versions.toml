@@ -18,7 +18,8 @@ ktor-client-cio = { module = "io.ktor:ktor-client-cio", version = "2.3.11" }
 ktor-client-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version = "2.3.11" }
 ktor-serialization = { module = "io.ktor:ktor-serialization-kotlinx-json", version = "2.3.11" }
 langchain4j-core = { module = "dev.langchain4j:langchain4j-core", version.ref = "langchain4j" }
-langchain4j-embeddings = { module = "dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2", version.ref = "langchain4j" }
+langchain4j-embeddings = { module = "dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2-q", version.ref = "langchain4j" }
+
 [plugins]
 #android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

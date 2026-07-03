@@ -9,8 +9,8 @@ import kotlin.math.sqrt
 
 class OnnxEmbeddingModel(
     context: Context,
-    modelAssetPath: String = "embedding/all-minilm-l6-v2.onnx",
-    tokenizerAssetPath: String = "embedding/all-minilm-l6-v2-tokenizer.json"
+    modelAssetPath: String = "embedding/all-minilm-l6-v2-q.onnx",
+    tokenizerAssetPath: String = "embedding/all-minilm-l6-v2-q-tokenizer.json"
 ) {
     private val tokenizer = BertWordPieceTokenizer(context, tokenizerAssetPath)
     private val env: OrtEnvironment = OrtEnvironment.getEnvironment()

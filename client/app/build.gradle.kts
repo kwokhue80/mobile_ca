@@ -89,7 +89,7 @@ dependencies {
     implementation(libs.objectbox.android)
     implementation(libs.onnxruntime.android)
 
-
+    androidTestImplementation(libs.androidx.test.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)

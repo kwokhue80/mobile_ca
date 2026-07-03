@@ -12,7 +12,10 @@ import java.io.FileOutputStream
 
 class RagApplication : Application() {
 
-    private lateinit var boxStore: BoxStore
+//    private lateinit var boxStore: BoxStore
+    // the line below is for testing the vector db
+    lateinit var boxStore: BoxStore
+        private set
     private lateinit var embeddingModel: OnnxEmbeddingModel
     private lateinit var openRouterClient: OpenRouterClient
     lateinit var ragRepository: RagRepository
