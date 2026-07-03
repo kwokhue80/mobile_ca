@@ -16,13 +16,25 @@ import sg.edu.nus.iss.client.databinding.FragmentMetricDetailBinding
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricDetailUiState
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricType
 import sg.edu.nus.iss.client.dashboard.detail.model.TimeRange
+import sg.edu.nus.iss.client.dashboard.goals.UserGoalsViewModel
+import sg.edu.nus.iss.client.dashboard.goals.model.ActivityGoalType
 import sg.edu.nus.iss.client.navigation.RouteManager
 import java.time.LocalDate
+
+private fun MetricType.toActivityGoalType(): ActivityGoalType = when (this) {
+    MetricType.DISTANCE -> ActivityGoalType.DISTANCE
+    MetricType.STEPS -> ActivityGoalType.STEPS
+    MetricType.CALORIES -> ActivityGoalType.CALORIES
+    MetricType.SLEEP -> ActivityGoalType.SLEEP
+    MetricType.HYDRATION -> ActivityGoalType.HYDRATION
+    MetricType.WEIGHT -> ActivityGoalType.WEIGHT
+}
 
 class MetricDetailFragment : Fragment() {
 
     companion object {
         private const val ARG_METRIC_TYPE = "arg_metric_type"
+        private const val BMI_HEIGHT_METERS = 1.70
 
         fun newInstance(metricType: MetricType): MetricDetailFragment {
             val fragment = MetricDetailFragment()
@@ -39,6 +51,7 @@ class MetricDetailFragment : Fragment() {
     private lateinit var metricType: MetricType
     private lateinit var viewModel: MetricDetailViewModel
     private lateinit var summaryRowAdapter: MetricSummaryRowAdapter
+    private var currentGoalValue: Double = 0.0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,9 +66,11 @@ class MetricDetailFragment : Fragment() {
 
         metricType = MetricType.valueOf(requireArguments().getString(ARG_METRIC_TYPE)!!)
         summaryRowAdapter = MetricSummaryRowAdapter(metricType)
+        currentGoalValue = metricType.defaultGoal
 
         val factory = MetricDetailViewModelFactory(metricType)
         viewModel = ViewModelProvider(this, factory)[MetricDetailViewModel::class.java]
+        val userGoalsViewModel = ViewModelProvider(requireActivity())[UserGoalsViewModel::class.java]
 
         binding.tvMetricTitle.text = metricType.displayName
 
@@ -79,6 +94,15 @@ class MetricDetailFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                userGoalsViewModel.goals.collect { goals ->
+                    currentGoalValue = goals[metricType.toActivityGoalType()] ?: metricType.defaultGoal
+                    viewModel.setGoal(currentGoalValue)
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state -> render(state) }
             }
         }
@@ -93,11 +117,15 @@ class MetricDetailFragment : Fragment() {
         binding.btnPrevPeriod.isEnabled = state.canGoPrevious
         binding.btnPrevPeriod.alpha = if (state.canGoPrevious) 1f else 0.4f
 
+        val isWeight = metricType == MetricType.WEIGHT
+
         val selectedBar = state.selectedBarIndex?.let { state.bars.getOrNull(it) }
         if (selectedBar != null) {
             binding.layoutSummarySelected.visibility = View.VISIBLE
             binding.layoutSummaryDefault.visibility = View.GONE
-            binding.tvSelectedValue.text = if (state.timeRange == TimeRange.SIX_MONTH) {
+            binding.tvSelectedValue.text = if (isWeight) {
+                "${metricType.formatValue(selectedBar.value)}${metricType.unit}"
+            } else if (state.timeRange == TimeRange.SIX_MONTH) {
                 "${metricType.formatValue(selectedBar.value)} ${metricType.unit} per day (avg)"
             } else {
                 "${metricType.formatValue(selectedBar.value)} ${metricType.unit}"
@@ -106,31 +134,84 @@ class MetricDetailFragment : Fragment() {
         } else {
             binding.layoutSummarySelected.visibility = View.GONE
             binding.layoutSummaryDefault.visibility = View.VISIBLE
-            binding.tvSummaryDefaultValue.text = if (state.timeRange == TimeRange.MONTH || state.timeRange == TimeRange.SIX_MONTH) {
+            val currentWeight = state.bars.lastOrNull { it.value > 0 }?.value ?: state.totalValue
+            binding.tvSummaryDefaultValue.text = if (isWeight) {
+                val avgSuffix = if (state.timeRange == TimeRange.DAY) "" else "(avg)"
+                "${metricType.formatValue(currentWeight)}${metricType.unit}$avgSuffix"
+            } else if (state.timeRange == TimeRange.MONTH || state.timeRange == TimeRange.SIX_MONTH) {
                 "${metricType.formatValue(state.totalValue)} ${metricType.unit} per day (avg)"
             } else {
                 "${metricType.formatValue(state.totalValue)} of ${metricType.formatValue(state.goalValue)} ${metricType.unit}"
             }
             binding.tvSummarySubtitle.text = state.subtitle
+            binding.tvSummarySubtitle.visibility = if (isWeight) View.GONE else View.VISIBLE
         }
 
         val hasSummaryRows = state.summaryRows.isNotEmpty()
         binding.rvSummaryRows.visibility = if (hasSummaryRows) View.VISIBLE else View.GONE
         binding.tvSummaryRowsHeader.visibility = if (hasSummaryRows) View.VISIBLE else View.GONE
+        binding.tvSummaryRowsHeader.text = if (isWeight) "Weight (avg)" else "Daily average"
         summaryRowAdapter.submitList(state.summaryRows)
 
-        MetricChartConfigurator.configure(
-            chart = binding.chartMetric,
-            overlay = binding.chartSelectionOverlay,
-            bars = state.bars,
-            showGoalLine = state.timeRange != TimeRange.DAY,
-            chartGoalValue = state.chartGoalValue,
-            baseColor = metricType.chartColor,
-            goalMetColor = metricType.chartGoalMetColor,
-            selectedBarIndex = state.selectedBarIndex,
-            onBarSelected = { index -> viewModel.selectBar(index) },
-            onSelectionCleared = { viewModel.clearSelection() }
-        )
+        val isWeightDay = isWeight && state.timeRange == TimeRange.DAY
+        binding.tvDailyGoal.visibility = View.VISIBLE
+        binding.tvDailyGoal.text = if (isWeight) {
+            "Goal: ${metricType.formatValue(currentGoalValue)} ${metricType.unit}"
+        } else {
+            "Daily goal: ${metricType.formatValue(currentGoalValue)} ${metricType.unit}"
+        }
+        binding.chartContainer.visibility = if (isWeightDay) View.GONE else View.VISIBLE
+        binding.chartMetric.visibility = if (isWeight) View.GONE else View.VISIBLE
+        binding.chartSelectionOverlay.visibility = if (isWeight) View.GONE else View.VISIBLE
+        binding.chartMetricLine.visibility = if (isWeight) View.VISIBLE else View.GONE
+        binding.cardBmi.visibility = if (isWeight) View.VISIBLE else View.GONE
+
+        if (isWeight) {
+            val currentWeight = selectedBar?.value
+                ?: state.bars.lastOrNull { it.value > 0 }?.value
+                ?: state.totalValue
+            val bmiValue = currentWeight / (BMI_HEIGHT_METERS * BMI_HEIGHT_METERS)
+            binding.tvBmiValue.text = "${"%.1f".format(bmiValue)}, ${bmiCategory(bmiValue)}"
+            binding.bmiGauge.setBmi(bmiValue.toFloat())
+        }
+
+        if (isWeightDay) {
+            // No chart for Weight's Day view; the text summary above is enough.
+        } else if (isWeight) {
+            MetricLineChartConfigurator.configure(
+                chart = binding.chartMetricLine,
+                bars = state.bars,
+                showGoalLine = state.timeRange != TimeRange.DAY,
+                chartGoalValue = state.chartGoalValue,
+                baseColor = metricType.chartColor,
+                goalMetColor = metricType.chartGoalMetColor,
+                selectedBarIndex = state.selectedBarIndex,
+                onBarSelected = { index -> viewModel.selectBar(index) },
+                onSelectionCleared = { viewModel.clearSelection() }
+            )
+        } else {
+            MetricChartConfigurator.configure(
+                chart = binding.chartMetric,
+                overlay = binding.chartSelectionOverlay,
+                bars = state.bars,
+                showGoalLine = state.timeRange != TimeRange.DAY,
+                chartGoalValue = state.chartGoalValue,
+                baseColor = metricType.chartColor,
+                goalMetColor = metricType.chartGoalMetColor,
+                selectedBarIndex = state.selectedBarIndex,
+                onBarSelected = { index -> viewModel.selectBar(index) },
+                onSelectionCleared = { viewModel.clearSelection() }
+            )
+        }
+    }
+
+    private fun bmiCategory(bmi: Double): String = when {
+        bmi < 18.5 -> "Underweight"
+        bmi < 25.0 -> "Normal Weight"
+        bmi < 30.0 -> "Overweight"
+        bmi < 35.0 -> "Obese"
+        bmi < 40.0 -> "Severely Obese"
+        else -> "Morbidly Obese"
     }
 
     private fun updateTabStyles(activeRange: TimeRange) {

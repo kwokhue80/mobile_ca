@@ -12,7 +12,7 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardDistance"
         android:layout_width="0dp"
-        android:layout_height="66dp"
+        android:layout_height="58dp"
         android:clickable="true"
         android:focusable="true"
         app:strokeWidth="0dp"
@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/cardSteps"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="30dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="9dp">
 
@@ -101,7 +101,7 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardSteps"
         android:layout_width="0dp"
-        android:layout_height="66dp"
+        android:layout_height="58dp"
         android:clickable="true"
         android:focusable="true"
         app:strokeWidth="0dp"
@@ -109,7 +109,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/cardDistance"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="30dp"
         android:layout_marginStart="9dp"
         android:layout_marginEnd="20dp">
 
@@ -190,7 +190,7 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardCalBurned"
         android:layout_width="0dp"
-        android:layout_height="66dp"
+        android:layout_height="58dp"
         android:clickable="true"
         android:focusable="true"
         app:strokeWidth="0dp"
@@ -277,7 +277,7 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardSleep"
         android:layout_width="0dp"
-        android:layout_height="66dp"
+        android:layout_height="58dp"
         android:clickable="true"
         android:focusable="true"
         app:strokeWidth="0dp"
@@ -364,7 +364,7 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardHydration"
         android:layout_width="0dp"
-        android:layout_height="66dp"
+        android:layout_height="58dp"
         android:clickable="true"
         android:focusable="true"
         app:strokeWidth="0dp"
@@ -451,7 +451,7 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardBadges"
         android:layout_width="0dp"
-        android:layout_height="66dp"
+        android:layout_height="58dp"
         android:clickable="true"
         android:focusable="true"
         app:strokeWidth="0dp"
@@ -472,7 +472,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:max="100"
-                android:progress="13"
+                android:progress="0"
                 android:progressBackgroundTint="#A6E2DD"
                 android:progressTint="#8327837B" />
 
@@ -492,8 +492,9 @@
                 <!-- 图标 -->
                 <ImageView
                     android:id="@+id/iconBadges"
-                    android:layout_width="45dp"
-                    android:layout_height="60dp"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:scaleType="centerCrop"
                     android:src="@drawable/badges_icon"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -525,7 +526,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
                         android:textStyle="bold"
-                        android:text="13 of 100"
+                        android:text="0 of 9"
                         android:textSize="24sp" />
                 </LinearLayout>
 

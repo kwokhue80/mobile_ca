@@ -10,11 +10,12 @@ import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
 
 class ActivityRecordPagerAdapter(
     private val onDeleteClick: (ActivityRecord) -> Unit,
-    private val onPageNumberClick: (Int) -> Unit
+    private val onPageNumberClick: (Int) -> Unit,
+    private val onItemClick: (ActivityRecord) -> Unit = {}
 ) : RecyclerView.Adapter<ActivityRecordPagerAdapter.PageViewHolder>() {
 
     companion object {
-        const val PAGE_SIZE = 8
+        const val PAGE_SIZE = 4
     }
 
     private var records: List<ActivityRecord> = emptyList()
@@ -36,7 +37,7 @@ class ActivityRecordPagerAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PageViewHolder {
         val binding = ItemActivityRecordPageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return PageViewHolder(binding, onDeleteClick, onPageNumberClick)
+        return PageViewHolder(binding, onDeleteClick, onPageNumberClick, onItemClick)
     }
 
     override fun onBindViewHolder(holder: PageViewHolder, position: Int) {
@@ -49,10 +50,11 @@ class ActivityRecordPagerAdapter(
     class PageViewHolder(
         private val binding: ItemActivityRecordPageBinding,
         onDeleteClick: (ActivityRecord) -> Unit,
-        onPageNumberClick: (Int) -> Unit
+        onPageNumberClick: (Int) -> Unit,
+        onItemClick: (ActivityRecord) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        private val recordsAdapter = ActivityRecordAdapter(onDeleteClick)
+        private val recordsAdapter = ActivityRecordAdapter(onDeleteClick, onItemClick)
         private val footerAdapter = ActivityPageFooterAdapter(onPageNumberClick)
 
         init {
