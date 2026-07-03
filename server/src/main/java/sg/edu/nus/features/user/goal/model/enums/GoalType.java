@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum GoalType {
     DISTANCE("km per day"),
-    STEPS("steps per day"),
+    // STEPS("steps per day"),
     CALORIES("kcal per day"),
     SLEEP("hours per day"),
     HYDRATION("ml per day"),
