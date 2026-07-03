@@ -2,6 +2,8 @@ package sg.edu.nus.iss.client.chat
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import sg.edu.nus.iss.client.chatbot.ChatViewModel
+import sg.edu.nus.iss.client.chatbot.LocalMiniLMVectorizer
 import sg.edu.nus.iss.client.databinding.FragmentChatBinding
 
 class ChatActivity: AppCompatActivity(){
