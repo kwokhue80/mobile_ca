@@ -7,7 +7,5 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class WellnessService {
-
-    private final WellnessRepository wellnessRepository;
     
 }

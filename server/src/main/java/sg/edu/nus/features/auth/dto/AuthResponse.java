@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sg.edu.nus.features.user.dto.UserResponse;
 
 /*
 *   AUTHOR: Amelia

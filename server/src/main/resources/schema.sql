@@ -1,6 +1,6 @@
 -- 1. Drop Tables In Reverse Order of Dependencies
 DROP TABLE IF EXISTS daily_wellness_summary;
-DROP TABLE IF EXISTS activity_logs;
+DROP TABLE IF EXISTS activity_records;
 DROP TABLE IF EXISTS mood_logs;
 DROP TABLE IF EXISTS exercise_logs;
 DROP TABLE IF EXISTS hydration_logs;
@@ -108,7 +108,7 @@ CREATE TABLE sleep_logs (
 CREATE TABLE food_logs (
     id							BIGINT			NOT NULL AUTO_INCREMENT,
     user_id						CHAR(36)		NOT NULL,
-    meal_type					VARCHAR(20),
+    meal_type					VARCHAR(20)     DEFAULT NULL,
     food_name					VARCHAR(255)	NOT NULL,
     calories_kcal				INT				NOT NULL,
     logged_at					DATETIME		NOT NULL,
@@ -116,8 +116,7 @@ CREATE TABLE food_logs (
 
     PRIMARY KEY (id),
     CONSTRAINT fk_food_logs_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT chk_food_calories CHECK (calories_kcal >= 0),
-    CONSTRAINT chk_food_protein CHECK (protein_g >= 0)
+    CONSTRAINT chk_food_calories CHECK (calories_kcal >= 0)
 );
 
 CREATE TABLE weight_logs (
@@ -149,7 +148,7 @@ CREATE TABLE exercise_logs (
     user_id						CHAR(36)		NOT NULL,
     exercise_type				VARCHAR(100)	NOT NULL,
     duration_minutes			INT				NOT NULL,
-    distance_km					DECIMAL(6,2),
+    distance_km					DECIMAL(6,2)    DEFAULT NULL,
     calories_burned_kcal		INT				NOT NULL,
     logged_at					DATETIME		NOT NULL,
     created_at					DATETIME		NOT NULL DEFAULT CURRENT_TIMESTAMP, -- not updatable
@@ -166,7 +165,7 @@ CREATE TABLE mood_logs (
     user_id						CHAR(36)		NOT NULL,
     logged_at					DATETIME		NOT NULL,
     mood_rating					INT				NOT NULL,
-    notes						TEXT,
+    notes						VARCHAR(255)    DEFAULT NULL,
     created_at					DATETIME		NOT NULL DEFAULT CURRENT_TIMESTAMP, -- not updatable
 
     PRIMARY KEY (id),
@@ -175,13 +174,13 @@ CREATE TABLE mood_logs (
 );
 
 -- 2.4 Homepage activity and dashboard summary
-CREATE TABLE activity_logs (
+CREATE TABLE activity_records (
     id							BIGINT			NOT NULL AUTO_INCREMENT,
     user_id						CHAR(36)		NOT NULL,
     source_log_id				BIGINT			NOT NULL, -- References specific log
     activity_type				VARCHAR(50)		NOT NULL, -- e.g. HYDRATION
     title						VARCHAR(100)	NOT NULL, -- e.g. Water logged
-    `description`				VARCHAR(255),             -- e.g. 500 ml (stored here for easy lookup)
+    `description`				VARCHAR(255)    DEFAULT NULL, -- e.g. 500 ml (stored here for easy lookup)
     recorded_at					DATETIME		NOT NULL,
     created_at					DATETIME		NOT NULL DEFAULT CURRENT_TIMESTAMP, -- not updatable
 
@@ -228,5 +227,5 @@ CREATE INDEX idx_hydration_user_time ON hydration_logs (user_id, logged_at DESC)
 CREATE INDEX idx_exercise_user_time ON exercise_logs (user_id, logged_at DESC);
 CREATE INDEX idx_mood_user_time ON mood_logs (user_id, logged_at DESC);
 
-CREATE INDEX idx_activity_user_time ON activity_logs (user_id, recorded_at DESC);
-CREATE INDEX idx_activity_user_type_time ON activity_logs (user_id, activity_type, recorded_at DESC);
+CREATE INDEX idx_activity_user_time ON activity_records (user_id, recorded_at DESC);
+CREATE INDEX idx_activity_user_type_time ON activity_records (user_id, activity_type, recorded_at DESC);
