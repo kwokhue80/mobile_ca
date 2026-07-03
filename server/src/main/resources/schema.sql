@@ -49,8 +49,8 @@ CREATE TABLE user_goals (
     updated_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     PRIMARY KEY (id),
-    CONSTRAINT fk_activity_goals_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT uk_activity_goals_user_type UNIQUE (user_id, goal_type) 
+    CONSTRAINT fk_user_goals_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT uk_user_goals_user_type UNIQUE (user_id, goal_type) 
 );
 
 CREATE TABLE chat_sessions (
