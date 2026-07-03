@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f427033a-ae63-498f-8d98-91c661e937cb" name="Changes" comment="" />
+    <list default="true" id="f427033a-ae63-498f-8d98-91c661e937cb" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../../client/app/src/main/java/sg/edu/nus/iss/client/chatbot/ChatActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../client/app/src/main/java/sg/edu/nus/iss/client/chatbot/ChatActivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../client/app/src/main/java/sg/edu/nus/iss/client/chatbot/ChatAdapter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../client/app/src/main/java/sg/edu/nus/iss/client/chatbot/ChatAdapter.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../client/app/src/main/res/layout/item_nessage_user.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../client/app/src/main/res/layout/item_message_user.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../server/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../../server/.gitignore" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -70,9 +75,9 @@
     "RunOnceActivity.readMode.enableVisualFormatting": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "rag",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/kwokheng/mobileCode/mobile_ca/objectbox-generator/rag",
+    "last_opened_file_path": "/Users/kwokheng/mobileCode/mobile_ca/objectbox-vectordb-generator/rag",
     "settings.editor.selected.configurable": "preferences.pluginManager"
   }
 }]]></component>
@@ -139,9 +144,7 @@
       <option name="ACTIVITY_CLASS" value="" />
       <option name="SEARCH_ACTIVITY_IN_GLOBAL_SCOPE" value="false" />
       <option name="SKIP_ACTIVITY_VALIDATION" value="false" />
-      <method v="2">
-        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-      </method>
+      <method v="2" />
     </configuration>
     <configuration name="RAGApplication" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="sg.edu.nus.iss.rag.RAGApplication" />

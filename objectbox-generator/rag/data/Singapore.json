@@ -1,0 +1,1970 @@
+[
+  {
+    "dish_name": "Hainanese Chicken Rice",
+    "portion_size": "1 plate (approximately 450-500g total)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 680,
+      "protein_g": 42,
+      "carbohydrates_g": 70,
+      "sugars_g": 4,
+      "total_fat_g": 22,
+      "saturated_fat_g": 7,
+      "dietary_fiber_g": 2.5,
+      "sodium_mg": 1200,
+      "cholesterol_mg": 130,
+      "micronutrients": {
+        "iron_mg": 3.5,
+        "calcium_mg": 50,
+        "phosphorus_mg": 320,
+        "zinc_mg": 3.5,
+        "niacin_b3_mg": 15,
+        "vitamin_b6_mg": 1.0,
+        "potassium_mg": 450,
+        "vitamin_c_mg": 10
+      }
+    },
+    "ingredients_notes": "Primary components include poached or steamed bone-in or boneless chicken (150-180g), fragrant chicken-fat rice cooked in broth (200-220g), chicken broth (100-120ml), cucumber slices (30-40g), chilli sauce (15-20g), and condiments including dark soy sauce and ginger paste (10-15g). Chicken is poached in a master stock with ginger, garlic, and pandan leaves then ice-bathed for silky skin. Rice is toasted in rendered chicken fat and cooked in poaching broth with garlic and ginger.",
+    "dietary_considerations": [
+      "High sodium content: 900-1200mg per plate represents 39-52% of the recommended daily limit of 2300mg",
+      "Contains gluten from dark soy sauce and light soy sauce",
+      "May contain sesame oil depending on recipe",
+      "Contains garlic and onion in rice and broth preparation",
+      "Not suitable for vegetarians or vegans due to chicken and chicken-based broth",
+      "Not suitable for low-carb or ketogenic diets due to high carbohydrate content from rice",
+      "Diabetic individuals should exercise caution due to high glycaemic index rice",
+      "Suitable for Halal diets when sourced from certified Halal stalls",
+      "Naturally dairy-free",
+      "Can be modified for gluten-free diets by requesting tamari or no soy sauce",
+      "Removing chicken skin reduces fat by approximately 4-6g and calories by 40-55 kcal",
+      "Excellent source of complete protein with all essential amino acids",
+      "Collagen-rich gelatin present in broth from poaching method"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore hawker centre preparation. Values are approximate ranges and may vary depending on the specific stall, chicken size, rice portion, and condiment usage. Data referenced from Singapore Health Promotion Board (HPB) nutritional databases, USDA FoodData Central, and established food science literature."
+  },
+  {
+    "dish_name": "Char Kway Teow",
+    "portion_size": "1 plate (approx. 320g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 720,
+      "protein_g": 26,
+      "carbohydrates_g": 82,
+      "sugars_g": 9,
+      "total_fat_g": 35,
+      "saturated_fat_g": 13,
+      "dietary_fiber_g": 3,
+      "sodium_mg": 1800,
+      "cholesterol_mg": 230,
+      "micronutrients": {
+        "iron_mg": 5.0,
+        "calcium_mg": 90,
+        "vitamin_b12_mcg": 4.0,
+        "zinc_mg": 4.0,
+        "vitamin_a_mcg_rae": 120,
+        "vitamin_c_mg": 12,
+        "phosphorus_mg": 260
+      }
+    },
+    "ingredients_notes": "Flat rice noodles (kway teow), Chinese lap cheong (pork sausage), cockles, prawns, bean sprouts, eggs, chives, dark soy sauce, light soy sauce, and lard or cooking oil. Traditional hawker-style preparation uses lard, contributing to higher saturated fat and caloric content.",
+    "dietary_considerations": [
+      "Contains shellfish (prawns and cockles) — major allergen",
+      "Contains gluten — soy sauces typically contain wheat",
+      "Contains eggs",
+      "Contains pork — lap cheong (Chinese sausage) and lard used in authentic preparation",
+      "High sodium — 1,400 to 1,800mg per plate represents 60 to 78 percent of the recommended daily sodium intake of 2,300mg",
+      "High caloric density — combination of refined carbohydrates, lard or oil, and sausage",
+      "High cholesterol — contributed by cockles, eggs, and lard",
+      "Refined carbohydrates — flat rice noodles have a high glycaemic index",
+      "Not suitable for Halal diets — contains pork and lard",
+      "Not suitable for vegetarian or vegan diets",
+      "Not suitable for low-sodium diets",
+      "Not suitable for low-fat diets",
+      "Not typically gluten-free due to soy sauce containing wheat",
+      "Good source of iron from cockles",
+      "Good source of Vitamin B12 from shellfish and egg",
+      "Moderate protein contribution from prawns, cockles, egg, and sausage",
+      "Versions prepared with vegetable oil instead of lard are slightly lower in saturated fat and calories, approximately 580 to 640 kcal"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore hawker-style preparation, cross-referenced with the Singapore Health Promotion Board (HPB) nutritional data, USDA FoodData Central, and established food science literature. Actual values may vary by hawker stall and preparation style."
+  },
+  {
+    "dish_name": "Laksa",
+    "portion_size": "1 plate (approximately 500–550g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 680,
+      "protein_g": 32,
+      "carbohydrates_g": 65,
+      "sugars_g": 8,
+      "total_fat_g": 38,
+      "saturated_fat_g": 26,
+      "dietary_fiber_g": 5,
+      "sodium_mg": 1500,
+      "cholesterol_mg": 150,
+      "micronutrients": {
+        "calcium_mg": 220,
+        "iron_mg": 5.0,
+        "vitamin_c_mg": 12,
+        "potassium_mg": 550,
+        "zinc_mg": 3.5,
+        "vitamin_b12_mcg": 3.0,
+        "phosphorus_mg": 380
+      }
+    },
+    "ingredients_notes": "Thick rice vermicelli or laksa noodles in a coconut milk-based broth built on a rempah spice paste of lemongrass, galangal, dried shrimp, candlenuts, and chilli. Typically garnished with prawns, fish cake, tofu puffs, cockles, and fresh laksa leaves (daun kesum). Shrimp paste (belacan) contributes significantly to sodium content.",
+    "dietary_considerations": [
+      "Very high saturated fat — coconut milk base may exceed 100% of recommended daily saturated fat intake for some individuals",
+      "High sodium — up to 1,500 mg per serving, representing approximately 60–65% of WHO recommended daily limit of 2,000 mg",
+      "Moderate cholesterol content from prawns and cockles",
+      "Contains shellfish allergen — prawns and cockles present",
+      "Contains fish allergen — fish cake and dried shrimp present",
+      "Contains soy allergen — tofu puffs present",
+      "Possible gluten presence — some fish cakes and soy-based ingredients may contain gluten",
+      "Possible tree nut presence — candlenuts used in rempah paste",
+      "Eggs occasionally present — half a hard-boiled egg sometimes added as garnish",
+      "Not suitable for vegetarians or vegans due to seafood and shrimp paste",
+      "Not suitable for low-sodium or low-fat diets",
+      "Generally Halal — verify cockles and preparation method",
+      "Dairy-free",
+      "Good high-protein option — 28 to 32g protein per serving",
+      "To reduce calorie and sodium intake by 15–25%, consider requesting less broth and avoiding finishing the soup"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore preparation methods. Values derived from the Singapore Health Promotion Board (HPB) Food Composition Database and USDA FoodData Central. Nutritional values may vary depending on the hawker stall, restaurant, or home recipe used."
+  },
+  {
+    "dish_name": "Chilli Crab",
+    "portion_size": "1 plate (approximately 500-600g including shell, ~250g edible crab meat with sauce)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 580,
+      "protein_g": 42,
+      "carbohydrates_g": 36,
+      "sugars_g": 18,
+      "total_fat_g": 26,
+      "saturated_fat_g": 7,
+      "dietary_fiber_g": 3,
+      "sodium_mg": 1800,
+      "cholesterol_mg": 220,
+      "micronutrients": {
+        "vitamin_c_mg": 50,
+        "vitamin_b12_mcg": 6,
+        "zinc_mg": 9,
+        "iron_mg": 5,
+        "calcium_mg": 160,
+        "selenium_mcg": 60,
+        "phosphorus_mg": 420,
+        "copper_mg": 1.8
+      }
+    },
+    "ingredients_notes": "Primary protein source is whole mud crab (Scylla serrata) or Sri Lankan crab. Sauce base includes fresh red chillies, chilli paste, sambal, tomato ketchup, and tomato paste. Beaten eggs are stirred into the sauce to create silky ribbons. Aromatics include garlic, ginger, shallots, and lemongrass. Seasoned with fermented shrimp paste (belacan), soy sauce, oyster sauce, and palm sugar or regular sugar. Sauce is thickened with a cornstarch slurry and cooked in vegetable or palm oil. Typically served with mantou buns (not included in nutritional values; add approximately 150-200 kcal per 2 buns).",
+    "dietary_considerations": [
+      "Contains shellfish (crustacean) - major allergen; not suitable for individuals with shellfish allergies",
+      "Contains eggs - present in the sauce",
+      "Contains soy - derived from soy sauce and oyster sauce",
+      "Contains gluten - oyster sauce and standard soy sauces contain wheat; not gluten-free in standard preparation",
+      "Contains shrimp/prawn paste (belacan) - additional shellfish allergen",
+      "High sodium content: 1400-1800mg per serving represents approximately 60-78% of the recommended daily sodium intake of 2300mg; caution advised for individuals managing hypertension, kidney disease, or cardiovascular conditions",
+      "Elevated dietary cholesterol from crab; individuals monitoring cholesterol intake should be mindful of portion size",
+      "Suitable for pescatarians",
+      "Not suitable for vegans or vegetarians",
+      "Not suitable for gluten-free diets under standard preparation",
+      "Dairy-free",
+      "Moderate suitability for keto or low-carb diets due to added sugars and carbohydrates in the sauce",
+      "Partial suitability for paleo diets; processed sauces such as ketchup and oyster sauce are generally excluded under strict paleo guidelines",
+      "Halal-suitable; crab is generally accepted under most Halal standards"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore preparation methods. Nutritional values may vary depending on restaurant, chef, crab size, and sauce quantity. All values are calculated excluding shell weight. Mantou buns served as an accompaniment are not included in the stated nutritional figures."
+  },
+  {
+    "dish_name": "Bak Kut Teh",
+    "portion_size": "1 plate (approx. 500–550g with broth)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 520,
+      "protein_g": 42,
+      "carbohydrates_g": 15,
+      "sugars_g": 5,
+      "total_fat_g": 32,
+      "saturated_fat_g": 12,
+      "dietary_fiber_g": 2,
+      "sodium_mg": 1800,
+      "cholesterol_mg": 130,
+      "micronutrients": {
+        "iron_mg": 4.5,
+        "zinc_mg": 7,
+        "phosphorus_mg": 320,
+        "potassium_mg": 500,
+        "calcium_mg": 120,
+        "vitamin_b12_mcg": 1.8,
+        "niacin_b3_mg": 8,
+        "vitamin_b6_mg": 0.7
+      },
+      "add_on_calories": {
+        "steamed_white_rice_1_bowl_kcal": 180,
+        "you_tiao_fried_dough_1_piece_kcal_min": 150,
+        "you_tiao_fried_dough_1_piece_kcal_max": 200,
+        "braised_tofu_puffs_3_pieces_kcal_min": 60,
+        "braised_tofu_puffs_3_pieces_kcal_max": 80,
+        "braised_mushrooms_2_to_3_pieces_kcal_min": 20,
+        "braised_mushrooms_2_to_3_pieces_kcal_max": 30
+      }
+    },
+    "ingredients_notes": "Core ingredients include pork ribs, garlic, white pepper, dark and light soy sauce, and optionally dried mushrooms and tofu puffs. Served with steamed white rice and you tiao (fried dough fritters). Singapore-style broth is clear and peppery, distinct from the darker herb-heavy Malaysian Klang style. Long bone-simmering leaches calcium and collagen into the broth.",
+    "dietary_considerations": [
+      "Very high sodium — soy sauce and seasoning may contribute 75–80% of the recommended daily sodium limit (2,000–2,300 mg); caution advised for those with hypertension or kidney concerns",
+      "Moderate to high saturated fat — particularly if spare ribs are used rather than lean back ribs",
+      "Moderate to high cholesterol — relevant for those managing cardiovascular health",
+      "Contains gluten — soy sauce typically contains wheat; use tamari or gluten-free soy sauce for gluten-free preparation",
+      "Contains soy — present in soy sauce and tofu puffs if included",
+      "No shellfish — typically absent from this dish",
+      "No nuts",
+      "No dairy",
+      "Not suitable for vegetarian or vegan diets",
+      "Not suitable for halal diets in traditional preparation due to pork content",
+      "Not suitable for low-sodium diets without significant modification",
+      "Suitable for dairy-free diets",
+      "Suitable for high-protein dietary goals",
+      "Full meal with rice and you tiao can total 800–900+ kcal"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore preparation methods, cross-referenced with USDA FoodData Central, Singapore Health Promotion Board (HPB) nutritional data, and established food composition tables. Actual values may vary by restaurant, recipe, and cut of pork used."
+  },
+  {
+    "dish_name": "Hokkien Mee",
+    "portion_size": "1 plate (approx. 400–450g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 650,
+      "protein_g": 32,
+      "carbohydrates_g": 72,
+      "sugars_g": 5,
+      "total_fat_g": 22,
+      "saturated_fat_g": 7,
+      "dietary_fiber_g": 3,
+      "sodium_mg": 1425,
+      "cholesterol_mg": 195,
+      "micronutrients": {
+        "iron_mg": 3.5,
+        "iron_percent_dv": 20,
+        "calcium_mg": 85,
+        "calcium_percent_dv": 8,
+        "vitamin_b12_mcg": 2.4,
+        "vitamin_b12_percent_dv": 100,
+        "zinc_mg": 3.8,
+        "zinc_percent_dv": 35,
+        "phosphorus_mg": 320,
+        "phosphorus_percent_dv": 26,
+        "vitamin_c_mg": 8,
+        "vitamin_c_percent_dv": 9,
+        "selenium_mcg": 38,
+        "selenium_percent_dv": 69
+      }
+    },
+    "ingredients_notes": "Yellow egg noodles and rice vermicelli stir-fried in prawn and pork broth, served with prawns, squid, pork belly slices, eggs, and bean sprouts. Accompanied by sambal chilli, calamansi lime, and crispy lard. Seasoned with soy sauce and cooked using wok hei technique.",
+    "dietary_considerations": [
+      "Contains shellfish — prawns are a primary ingredient (major allergen)",
+      "Contains molluscs — squid is commonly included",
+      "Contains gluten — yellow egg noodles are made with wheat flour",
+      "Contains eggs — used in the stir-fry",
+      "Contains soy — soy sauce used in seasoning",
+      "High sodium — approximately 1,350–1,500mg per plate (~58–65% of WHO daily recommended intake of 2,000mg)",
+      "Contains pork and lard — not suitable for halal diets",
+      "Not suitable for vegetarians or vegans",
+      "Not suitable for those with shellfish or mollusc allergies",
+      "Not suitable for coeliac disease or gluten intolerance unless modified",
+      "Saturated fat may be lower (~4–5g) if vegetable oil is substituted for lard",
+      "High in complete protein from multiple seafood and egg sources",
+      "Excellent source of Vitamin B12 and Selenium from prawns and squid"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore hawker-style preparation. Actual values may vary depending on the hawker stall, oil quantity used, portion size, and whether lard or vegetable oil is used. Values derived from USDA FoodData Central and Singapore HPB Nutrient Composition Database."
+  },
+  {
+    "dish_name": "Nasi Lemak",
+    "portion_size": "1 plate (standard serving, ~350-400g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 700,
+      "protein_g": 22,
+      "carbohydrates_g": 80,
+      "sugars_g": 8,
+      "total_fat_g": 32,
+      "saturated_fat_g": 15,
+      "dietary_fiber_g": 5,
+      "sodium_mg": 1050,
+      "cholesterol_mg": 215,
+      "micronutrients": {
+        "iron_mg": 4.5,
+        "calcium_mg": 100,
+        "vitamin_a_ug_rae": 150,
+        "vitamin_c_mg": 6,
+        "potassium_mg": 420,
+        "magnesium_mg": 60,
+        "phosphorus_mg": 260,
+        "zinc_mg": 2.5
+      }
+    },
+    "allergens": {
+      "shellfish_seafood": true,
+      "eggs": true,
+      "peanuts": true,
+      "gluten": "possible - verify sambal ingredients",
+      "dairy": false,
+      "soy": "possible - depending on sambal recipe"
+    },
+    "diet_suitability": {
+      "halal": true,
+      "gluten_free": "mostly - verify sambal ingredients",
+      "vegetarian": false,
+      "vegan": false,
+      "low_sodium": false,
+      "low_fat_heart_diet": false,
+      "diabetic_friendly": "moderate caution - high refined carbohydrates",
+      "keto_low_carb": false
+    },
+    "ingredients_notes": "Coconut milk rice cooked with pandan leaves, fried egg (1 whole), fried anchovies (ikan bilis), roasted peanuts, fresh cucumber slices, and sambal chili paste. Optional additions such as fried chicken wing, otah, or beef rendang are not included in this base nutritional estimate.",
+    "dietary_considerations": [
+      "High sodium content from sambal, anchovies, and seasoned rice - individuals managing hypertension should be mindful",
+      "High saturated fat from coconut milk used in rice preparation",
+      "Moderate-to-high calorie density - can increase by 200-400 kcal with optional additions such as fried chicken, rendang, or otah",
+      "Contains seafood allergen - anchovies (ikan bilis)",
+      "Contains egg allergen - fried egg",
+      "Contains peanut allergen - roasted peanuts",
+      "May contain gluten - verify sambal preparation",
+      "May contain soy - depending on sambal recipe",
+      "Not suitable for vegetarian or vegan diets",
+      "Not recommended for low-sodium diets",
+      "Not suitable for keto or low-carb diets",
+      "Diabetic individuals should exercise moderate caution due to high refined carbohydrate content",
+      "Coconut milk contains medium-chain triglycerides (MCTs) which are metabolised differently from long-chain saturated fats",
+      "Anchovies and peanuts provide valuable protein, iron, and healthy fats despite being calorie-dense"
+    ],
+    "data_source_note": "Estimated based on authentic Singaporean preparation methods and established food composition databases including USDA and HPB Singapore Food Composition. Actual values may vary depending on hawker stall preparation, portion size, and specific ingredients used."
+  },
+  {
+    "dish_name": "Satay",
+    "portion_size": "1 plate (approximately 8–10 skewers, ~300g including peanut sauce)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 580,
+      "protein_g": 42,
+      "carbohydrates_g": 32,
+      "sugars_g": 13,
+      "total_fat_g": 32,
+      "saturated_fat_g": 11,
+      "dietary_fiber_g": 3,
+      "sodium_mg": 950,
+      "cholesterol_mg": 115,
+      "micronutrients": {
+        "iron_mg": 4.5,
+        "zinc_mg": 5,
+        "niacin_b3_mg": 14,
+        "phosphorus_mg": 320,
+        "magnesium_mg": 60,
+        "vitamin_b6_mg": 0.8,
+        "potassium_mg": 500,
+        "calcium_mg": 45,
+        "vitamin_e_mg": 3
+      }
+    },
+    "ingredients_notes": "Thinly sliced chicken thigh or beef marinated with lemongrass, turmeric, galangal, coriander powder, coconut milk, and palm sugar, then charcoal-grilled on bamboo skewers. Served with a peanut dipping sauce made from ground roasted peanuts, dried chillies, shallots, garlic, lemongrass, coconut milk, tamarind, palm sugar, and shrimp paste (belacan). Accompanied by ketupat (compressed rice cake wrapped in coconut leaves), fresh cucumber, and raw onion wedges.",
+    "dietary_considerations": [
+      "Contains peanuts — major allergen",
+      "Contains shellfish — shrimp paste (belacan) used in peanut sauce",
+      "Potential gluten traces from marinades and sauces — not guaranteed gluten-free",
+      "Moderately high sodium — those managing hypertension should be mindful",
+      "Elevated saturated fat due to coconut milk in marinade and peanut sauce",
+      "Notable sugar content from palm sugar in marinade and peanut sauce",
+      "Typically Halal-certified at most Singapore stalls — pork-free",
+      "Not suitable for vegetarians or vegans — contains meat and shrimp paste",
+      "High protein content — suitable for active individuals"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore hawker-style preparation using a mixed chicken and beef satay plate with peanut sauce, ketupat, and sliced cucumber and onion. Actual values may vary depending on the stall, portion size, and specific recipe used."
+  },
+  {
+    "dish_name": "Roti Prata",
+    "portion_size": "1 plate (2 plain prata pieces + curry dipping sauce)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 420,
+      "protein_g": 11,
+      "carbohydrates_g": 52,
+      "sugars_g": 5,
+      "total_fat_g": 22,
+      "saturated_fat_g": 12,
+      "dietary_fiber_g": 2.0,
+      "sodium_mg": 620,
+      "cholesterol_mg": 75,
+      "micronutrients": {
+        "calcium_mg": 80,
+        "iron_mg": 3.5,
+        "potassium_mg": 160,
+        "phosphorus_mg": 110,
+        "vitamin_b1_thiamine_mg": 0.3,
+        "folate_mcg": 45
+      }
+    },
+    "ingredients_notes": "Primary ingredients include all-purpose plain flour, ghee (clarified butter) used in dough and on griddle, water, salt, and a small amount of sugar. Egg is added in egg prata variants. Condensed milk is sometimes incorporated for softness. Served with a curry dipping sauce, typically fish curry or mutton curry, which contributes additional sodium and fat.",
+    "dietary_considerations": [
+      "Contains gluten (wheat flour) — not suitable for coeliac disease or gluten intolerance",
+      "Contains dairy (ghee) — not suitable for dairy-free or vegan diets",
+      "Curry dipping sauce often contains fish — check for fish and shellfish allergies",
+      "High in saturated fat due to ghee — consume in moderation if managing cardiovascular health",
+      "Moderate to high sodium content, especially with curry — relevant for those managing hypertension",
+      "Generally Halal-certified at mamak stalls",
+      "Plain prata with vegetable curry is lacto-vegetarian friendly",
+      "Not vegan due to ghee and potential egg content",
+      "Energy-dense dish — low in dietary fiber and high in refined carbohydrates",
+      "Consider pairing with dhal curry for added fiber and plant-based protein"
+    ],
+    "data_source_note": "Estimated based on authentic Singaporean hawker-style preparation. Actual values may vary depending on the stall, portion size, amount of ghee used, and type of curry served."
+  },
+  {
+    "dish_name": "Mee Goreng",
+    "portion_size": "1 plate (approx. 350–400g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 620,
+      "protein_g": 26,
+      "carbohydrates_g": 80,
+      "sugars_g": 15,
+      "total_fat_g": 22,
+      "saturated_fat_g": 6,
+      "dietary_fiber_g": 6,
+      "sodium_mg": 1500,
+      "cholesterol_mg": 180,
+      "micronutrients": {
+        "iron_mg": 4,
+        "calcium_mg": 150,
+        "vitamin_c_mg": 20,
+        "vitamin_a_iu": 300,
+        "potassium_mg": 500,
+        "folate_mcg": 55
+      }
+    },
+    "allergens": {
+      "gluten": true,
+      "eggs": true,
+      "shellfish": true,
+      "soy": true,
+      "dairy": false,
+      "nuts": false
+    },
+    "diet_suitability": {
+      "halal": "Yes — when prepared at Mamak or Muslim stalls",
+      "vegetarian": "Possible — request no prawns or meat",
+      "vegan": "Possible — request no egg and no oyster sauce",
+      "gluten_free": "No — contains wheat noodles",
+      "low_sodium": "No — high sodium content",
+      "diabetic_friendly": "Caution — high refined carbohydrates and sugars"
+    },
+    "ingredients_notes": "Yellow wheat noodles stir-fried with eggs, tomatoes, green chillies, bean sprouts, tofu, and a sauce blend of tomato ketchup, chilli sauce, sweet soy sauce (kecap manis), and curry powder. Commonly includes prawns, mutton, or chicken. Typically garnished with a squeeze of lime.",
+    "dietary_considerations": [
+      "High sodium content — accounts for 50–65% of recommended daily intake per plate",
+      "High refined carbohydrates — caution advised for those managing blood sugar",
+      "Contains gluten from yellow wheat noodles",
+      "Contains eggs",
+      "Commonly contains shellfish (prawns)",
+      "Contains soy from tofu, kecap manis, and soy sauce",
+      "Calorie-dense and carbohydrate-heavy — best consumed as an occasional treat",
+      "Sauce contains added sugars from ketchup and kecap manis contributing to glycaemic load"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore preparation methods. Nutritional values may vary depending on the hawker stall, recipe, and specific ingredients used."
+  },
+  {
+    "dish_name": "Wonton Mee",
+    "portion_size": "1 plate (approximately 350–400g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 560,
+      "protein_g": 24,
+      "carbohydrates_g": 62,
+      "sugars_g": 8,
+      "total_fat_g": 18,
+      "saturated_fat_g": 5.5,
+      "dietary_fiber_g": 3,
+      "sodium_mg": 1600,
+      "cholesterol_mg": 95,
+      "micronutrients": {
+        "iron_mg": {
+          "amount": 3.5,
+          "percent_daily_value": 20,
+          "notes": "From egg noodles and pork"
+        },
+        "calcium_mg": {
+          "amount": 80,
+          "percent_daily_value": 8,
+          "notes": "From greens and noodles"
+        },
+        "vitamin_c_mg": {
+          "amount": 18,
+          "percent_daily_value": 20,
+          "notes": "From chye sim and bok choy"
+        },
+        "vitamin_b12_mcg": {
+          "amount": 1.2,
+          "percent_daily_value": 50,
+          "notes": "From pork and prawns"
+        },
+        "zinc_mg": {
+          "amount": 2.8,
+          "percent_daily_value": 25,
+          "notes": "From pork and wontons"
+        },
+        "potassium_mg": {
+          "amount": 420,
+          "notes": "From vegetables and meat"
+        }
+      }
+    },
+    "allergens": {
+      "gluten": true,
+      "shellfish": true,
+      "eggs": true,
+      "soy": true,
+      "sesame": true
+    },
+    "diet_suitability": {
+      "halal": false,
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "low_sodium": false,
+      "high_protein": true,
+      "dairy_free": true
+    },
+    "ingredients_notes": "Thin springy egg noodles tossed in a savoury-sweet char siu sauce, served with pork and prawn wontons, char siu (Chinese BBQ pork), and leafy greens (chye sim or bok choy). Finished with lard or vegetable oil, sesame oil, and a light soy-based sauce. Chilli sauce commonly served on the side.",
+    "dietary_considerations": [
+      "High sodium content: approximately 1,450–1,600 mg per plate, representing 60–70% of the recommended daily intake of 2,000 mg",
+      "Not suitable for halal diets due to presence of pork (char siu) and lard",
+      "Not suitable for vegetarian or vegan diets due to pork, prawns, eggs, and lard",
+      "Not suitable for gluten-free diets due to egg noodles, soy sauce, and oyster sauce",
+      "Contains shellfish allergen: prawns present in wontons",
+      "Contains egg allergen: egg noodles",
+      "Contains sesame allergen: sesame oil used in dressing",
+      "Contains soy allergen: soy-based sauces throughout",
+      "Traditional hawker versions use pork lard, increasing saturated fat content",
+      "Dry-style version is slightly higher in fat compared to soup-style; soup-style may have higher overall sodium from broth",
+      "Char siu portion varies by stall and affects both protein and sugar content due to honey or maltose glaze",
+      "Individuals managing hypertension or kidney conditions should consume with caution due to high sodium levels"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore hawker preparation methods for a standard 350–400g plate. Values may vary depending on the hawker stall, recipe, and portion size. Consult a registered dietitian for personalised dietary advice."
+  },
+  {
+    "dish_name": "Oyster Omelette",
+    "portion_size": "1 plate (approx. 300–350g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 520,
+      "protein_g": 25,
+      "carbohydrates_g": 42,
+      "sugars_g": 6,
+      "total_fat_g": 32,
+      "saturated_fat_g": 11,
+      "dietary_fiber_g": 2,
+      "sodium_mg": 1050,
+      "cholesterol_mg": 430,
+      "micronutrients": {
+        "zinc_mg": 18,
+        "iron_mg": 7,
+        "vitamin_b12_mcg": 12,
+        "selenium_mcg": 50,
+        "calcium_mg": 110,
+        "vitamin_d_mcg": 3,
+        "iodine_mcg": 90,
+        "vitamin_c_mg": 10,
+        "phosphorus_mg": 320
+      }
+    },
+    "ingredients_notes": "Key ingredients include fresh or brined small oysters (80–100g), 2–3 whole eggs, tapioca or potato starch slurry (40–50g dry equivalent), lard or vegetable oil (2–3 tbsp), fish sauce or light soy sauce (1–2 tsp), spring onions or coriander (small amount), and a tangy chilli dipping sauce (1–2 tbsp). The tapioca starch slurry creates the dish's signature crispy-edged, chewy texture.",
+    "dietary_considerations": [
+      "Contains shellfish (oysters) — major allergen; unsuitable for those with shellfish allergies",
+      "Contains eggs in significant quantity — unsuitable for those with egg allergies",
+      "May contain gluten — fish sauce and soy sauce may contain gluten; not suitable for coeliac disease unless gluten-free sauces are confirmed",
+      "Traditionally cooked with lard — not suitable for vegetarians, vegans, or those avoiding pork products",
+      "High sodium content (850–1,050 mg per plate) — approximately 35–45% of recommended daily intake; those managing hypertension or cardiovascular conditions should consume with caution",
+      "High dietary cholesterol (380–430 mg per plate) — primarily from eggs and oysters; individuals with hypercholesterolaemia should consume in moderation",
+      "Excellent source of zinc and vitamin B12 from oysters",
+      "Rich in selenium — an important antioxidant mineral",
+      "Halal status: oysters are generally considered halal; however, lard use must be verified with the specific hawker stall",
+      "Not suitable for kosher diets due to shellfish content and mixing of ingredients",
+      "Not suitable for vegetarian or vegan diets",
+      "Pescatarians may consume if lard is substituted with vegetable oil"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore hawker-style preparation. Actual values may vary depending on the hawker stall, oil quantity used, oyster size, and sauce portions. Values referenced against USDA FoodData Central, Singapore HPB Nutrient Composition Database, and food science literature."
+  },
+  {
+    "dish_name": "Carrot Cake (Chai Tow Kway)",
+    "portion_size": "1 plate (approx. 300g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 460,
+      "protein_g": 12,
+      "carbohydrates_g": 56,
+      "sugars_g": 8,
+      "total_fat_g": 22,
+      "saturated_fat_g": 6,
+      "dietary_fiber_g": 3,
+      "sodium_mg": 1100,
+      "cholesterol_mg": 210,
+      "micronutrients": {
+        "iron_mg": 2.0,
+        "calcium_mg": 80,
+        "vitamin_c_mg": 8,
+        "vitamin_b12_mcg": 0.8,
+        "phosphorus_mg": 180,
+        "potassium_mg": 250
+      }
+    },
+    "ingredients_notes": "Primary ingredients include steamed white radish (daikon) and rice flour cake, eggs (1-2 per plate), preserved radish (chai poh), garlic, spring onions, fish sauce or light soy sauce, and lard or vegetable oil. The black version additionally includes sweet dark soy sauce (kicap manis), which adds approximately 20-30 kcal and 3-5g of sugar. Despite the name, no carrots are used in this dish.",
+    "dietary_considerations": [
+      "High sodium content: approximately 900-1100mg per plate, representing 40-48% of the recommended daily intake of 2300mg",
+      "Contains eggs - not suitable for vegans or those with egg allergies",
+      "May contain traces of shellfish if cooked on shared hawker griddles",
+      "Generally low in gluten due to rice flour base, but soy sauce may contain wheat - not suitable for those with coeliac disease without vendor confirmation",
+      "Traditional preparation uses lard - not suitable for Muslims, vegetarians, or vegans",
+      "Some modern stalls substitute vegetable oil for lard - always confirm with vendor",
+      "Not typically suitable for vegetarians or vegans due to eggs, fish sauce, and lard; some vegetarian-friendly versions exist at specific stalls",
+      "Moderate-to-high caloric density driven by oil or lard content and starchy radish cake base",
+      "Moderately high glycaemic index due to rice flour and radish cake base - diabetics should consume in moderation",
+      "Black version contains additional sugar from sweet dark soy sauce compared to white version"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore hawker preparation methods. Values are most representative of the black version unless otherwise noted and may vary between individual stalls. Nutritional figures represent approximate ranges rather than exact values."
+  },
+  {
+    "dish_name": "Nasi Padang",
+    "portion_size": "1 plate (~450-500g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 850,
+      "protein_g": 38,
+      "carbohydrates_g": 85,
+      "sugars_g": 12,
+      "total_fat_g": 42,
+      "saturated_fat_g": 22,
+      "dietary_fiber_g": 6,
+      "sodium_mg": 1400,
+      "cholesterol_mg": 110,
+      "micronutrients": {
+        "iron_mg": 5.0,
+        "calcium_mg": 120,
+        "potassium_mg": 700,
+        "vitamin_a_ug_rae": 250,
+        "vitamin_c_mg": 25,
+        "magnesium_mg": 75,
+        "zinc_mg": 4.5
+      },
+      "component_breakdown": [
+        {
+          "component": "Steamed white rice",
+          "weight_g": 200,
+          "calories_kcal_approx": 260,
+          "notes": "Primary carbohydrate base"
+        },
+        {
+          "component": "Beef or Chicken Rendang",
+          "weight_g": 80,
+          "calories_kcal_min": 220,
+          "calories_kcal_max": 250,
+          "notes": "High fat content from coconut milk"
+        },
+        {
+          "component": "Sayur Lodeh",
+          "weight_g": 80,
+          "calories_kcal_min": 90,
+          "calories_kcal_max": 110,
+          "notes": "Coconut milk vegetable curry"
+        },
+        {
+          "component": "Sambal Goreng",
+          "weight_g": 60,
+          "calories_kcal_min": 120,
+          "calories_kcal_max": 150,
+          "notes": "Tempeh or tofu cooked in chilli paste"
+        },
+        {
+          "component": "Sambal chilli condiment",
+          "weight_g": null,
+          "calories_kcal_min": 20,
+          "calories_kcal_max": 30,
+          "notes": "High sodium condiment"
+        }
+      ]
+    },
+    "allergens": [
+      {
+        "allergen": "Shellfish",
+        "source": "Shrimp paste (belacan) used in sambals",
+        "risk_level": "Possible"
+      },
+      {
+        "allergen": "Gluten",
+        "source": "Soy-based sides may contain wheat",
+        "risk_level": "Possible"
+      },
+      {
+        "allergen": "Soy",
+        "source": "Tempeh, tofu, kecap manis (sweet soy sauce)",
+        "risk_level": "Present"
+      },
+      {
+        "allergen": "Tree Nuts",
+        "source": "Candlenuts occasionally used in spice pastes",
+        "risk_level": "Possible"
+      },
+      {
+        "allergen": "Eggs",
+        "source": "Sometimes included as a side dish",
+        "risk_level": "Possible"
+      }
+    ],
+    "dietary_suitability": {
+      "halal": true,
+      "vegetarian": "partial",
+      "vegan": false,
+      "gluten_free": "possible with care",
+      "dairy_free": true,
+      "low_carb_keto": false
+    },
+    "ingredients_notes": "Steamed white rice served with richly spiced side dishes including beef or chicken rendang, sayur lodeh (coconut milk vegetable curry), sambal goreng (tempeh or tofu in chilli paste), and sambal chilli condiment. Key cooking ingredients include coconut milk, chilli pastes, shrimp paste (belacan), aromatic spices, kecap manis, and candlenuts. Originally a Minangkabau dish from West Sumatra, widely adopted as a Singapore hawker staple.",
+    "dietary_considerations": [
+      "High sodium content: 1,100–1,400 mg per plate represents 48–61% of the recommended daily sodium intake of 2,300 mg; caution advised for individuals with hypertension",
+      "High saturated fat due to extensive use of coconut milk; frequent consumption may pose cardiovascular health concerns",
+      "Calorie-dense meal combining rice with rich coconut-based curries",
+      "Contains shrimp paste (belacan) — not suitable for shellfish-allergic individuals or strict vegetarians and vegans",
+      "May contain soy allergens from tempeh, tofu, and kecap manis",
+      "May contain gluten from soy sauce or wheat-based ingredients in certain sides",
+      "May contain tree nuts (candlenuts) in spice pastes",
+      "Typically halal-certified at Muslim-run hawker stalls",
+      "To reduce calories, opt for less rice and choose vegetable-based sides over rendang",
+      "To reduce sodium, limit sambal and gravy ladled over rice",
+      "Brown rice substitution recommended for added fiber and lower glycemic impact where available"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore hawker-style preparation. Values represent mid-range estimates for a standard plate with rice and three common sides: rendang, sayur lodeh, and sambal goreng. Actual nutritional content may vary significantly depending on stall, cook, and specific side dish selection. Individual components should be assessed separately for precise dietary tracking."
+  },
+  {
+    "dish_name": "Fish Head Curry",
+    "portion_size": "1 plate (approx. 400–500g serving, including curry gravy)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 580,
+      "protein_g": 42,
+      "carbohydrates_g": 22,
+      "sugars_g": 9,
+      "total_fat_g": 38,
+      "saturated_fat_g": 22,
+      "dietary_fiber_g": 6,
+      "sodium_mg": 1200,
+      "cholesterol_mg": 140,
+      "micronutrients": {
+        "calcium_mg": 220,
+        "iron_mg": 4.5,
+        "vitamin_c_mg": 25,
+        "vitamin_d_mcg": 12,
+        "potassium_mg": 850,
+        "phosphorus_mg": 420,
+        "omega3_fatty_acids_g": 1.8,
+        "vitamin_b12_mcg": 4.2,
+        "zinc_mg": 3.5,
+        "magnesium_mg": 70
+      }
+    },
+    "ingredients_notes": "Primary ingredients include Red Snapper fish head as the main protein source, coconut milk as the primary fat source, and a rempah spice paste made from dried chillies, shallots, garlic, ginger, galangal, and lemongrass. Tamarind paste provides sourness and Vitamin C. Vegetables include lady's fingers (okra), eggplant, and tomatoes contributing fibre and micronutrients. Fish sauce and salt are significant sodium contributors. Aromatics include curry leaves, fenugreek seeds, and mustard seeds. A curry powder blend of turmeric, coriander, cumin, and chilli is used throughout.",
+    "dietary_considerations": [
+      "High sodium content: 950–1,200 mg per plate, representing approximately 40–50% of the recommended daily intake of 2,000 mg — individuals with hypertension should be mindful",
+      "High saturated fat: Coconut milk contributes significantly to saturated fat content, not ideal for those managing cardiovascular risk if consumed frequently",
+      "Contains fish allergen: Major allergen present — not suitable for those with fish allergies",
+      "May contain shellfish derivatives: Some recipes use shellfish-derived fish sauce — verify with restaurant if shellfish allergy is a concern",
+      "Generally gluten-free in authentic preparation: Always verify with the restaurant as thickeners may introduce gluten",
+      "Not suitable for vegans or vegetarians: Contains fish and fish sauce",
+      "Pescatarian-friendly: Fish-based dish with no land animal meat",
+      "High protein: Approximately 38–42g per serving, beneficial for muscle maintenance",
+      "Rich in Omega-3 fatty acids: Red Snapper provides beneficial omega-3s supporting heart and brain health",
+      "Moderate-to-high caloric density: Primarily driven by coconut milk fat content — opt for less gravy to reduce calorie, sodium, and saturated fat intake",
+      "Nutritionally rewarding when consumed occasionally: Provides complete protein, Vitamin B12, Vitamin D, Omega-3 fatty acids, and antioxidant-rich spices such as turmeric (curcumin)"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore preparation methods using approximately 150–180g fish head meat, 150ml coconut milk-based gravy, and mixed vegetables per serving. Values exclude steamed rice. Nutritional values may vary depending on the restaurant, recipe, and exact portion served."
+  },
+  {
+    "dish_name": "Rojak",
+    "portion_size": "1 plate (approx. 300-350g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 385,
+      "protein_g": 11.5,
+      "carbohydrates_g": 52,
+      "sugars_g": 28,
+      "total_fat_g": 15,
+      "saturated_fat_g": 2.8,
+      "dietary_fiber_g": 5.5,
+      "sodium_mg": 820,
+      "cholesterol_mg": 35,
+      "micronutrients": {
+        "vitamin_c_mg": 45,
+        "vitamin_c_percent_dv": 50,
+        "iron_mg": 2.8,
+        "iron_percent_dv": 16,
+        "calcium_mg": 95,
+        "calcium_percent_dv": 10,
+        "potassium_mg": 480,
+        "potassium_percent_dv": 10,
+        "magnesium_mg": 42,
+        "magnesium_percent_dv": 10,
+        "vitamin_a_ug_rae": 180,
+        "vitamin_a_percent_dv": 20,
+        "zinc_mg": 1.4,
+        "zinc_percent_dv": 13
+      }
+    },
+    "ingredients_notes": "Key ingredients include water convolvulus (kangkong), bean sprouts, cucumber, pineapple, green mango, turnip (bangkwang), you tiao (fried dough fritters), fried tofu puffs, and optional cuttlefish. The dish is tossed in a thick sauce made from hae ko (fermented prawn paste), tamarind juice, palm sugar, chilli, and lime, then garnished with crushed toasted peanuts and sesame seeds.",
+    "dietary_considerations": [
+      "Contains shellfish and crustaceans - hae ko (fermented prawn paste) is a core ingredient",
+      "Contains gluten - you tiao (fried dough fritters) contain wheat flour",
+      "Contains peanuts - crushed peanuts used as standard topping",
+      "Contains soy - tofu puffs are present",
+      "Contains sesame - sesame seeds used as garnish",
+      "Not suitable for vegetarians - contains prawn paste and optionally cuttlefish",
+      "Not suitable for vegans",
+      "Not gluten-free",
+      "Typically not Halal - fermented prawn paste may contain non-halal elements; varies by stall",
+      "High sodium content (~820mg per plate) - not suitable for low-sodium diets",
+      "High sugar content (~28g per plate) - use caution for diabetic or blood glucose management",
+      "Calorie content may vary significantly depending on sauce quantity and ratio of fried to fresh ingredients"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore hawker-style preparation. Nutritional values are approximate and may vary by stall, recipe, and ingredient ratios. Based on a standard serving of approximately 320g and a 2,000 kcal per day reference diet for percentage daily values."
+  },
+  {
+    "dish_name": "Popiah",
+    "portion_size": "1 plate (2–3 rolls, approximately 200–250g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 320,
+      "protein_g": 15,
+      "carbohydrates_g": 42,
+      "sugars_g": 10,
+      "total_fat_g": 12,
+      "saturated_fat_g": 3,
+      "dietary_fiber_g": 6,
+      "sodium_mg": 850,
+      "cholesterol_mg": 80,
+      "micronutrients": {
+        "vitamin_c_mg": 25,
+        "iron_mg": 2.8,
+        "calcium_mg": 120,
+        "potassium_mg": 400,
+        "vitamin_a_ug_rae": 200,
+        "folate_ug": 50
+      }
+    },
+    "ingredients_notes": "Thin wheat flour crepe wrapped around braised turnip (jicama/bangkuang) and carrot cooked with dried shrimp, tofu, egg, bean sprouts, and sometimes prawns or pork. Assembled with sweet sauce, chilli sauce, and crushed peanuts and garlic.",
+    "dietary_considerations": [
+      "Contains shellfish — dried shrimp and/or fresh prawns commonly used",
+      "Contains gluten — popiah skin is made from wheat flour",
+      "Contains eggs — thinly fried egg is a standard filling component",
+      "Contains peanuts — crushed peanuts used as a key topping",
+      "Contains soy — tofu and soy-based sauces commonly used",
+      "Moderately high sodium (600–850 mg per plate), contributing approximately 26–37% of the recommended daily intake of 2300 mg",
+      "Not suitable for vegans due to egg, shrimp and sometimes pork",
+      "Not suitable for vegetarians in standard preparation — vegetarian versions exist",
+      "Not gluten-free due to wheat-based skin",
+      "Dairy-free",
+      "Relatively low in calories compared to most fried Singapore street foods",
+      "Sweet sauce adds sugar — those monitoring blood sugar should be mindful",
+      "Peanut topping increases fat content but contributes healthy unsaturated fats"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore preparation methods and standard hawker-style ingredient quantities. Actual values may vary depending on the hawker stall, recipe, and portion size."
+  },
+  {
+    "dish_name": "Kaya Toast",
+    "portion_size": "1 plate (2 slices)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 335,
+      "protein_g": 6,
+      "carbohydrates_g": 42,
+      "sugars_g": 18,
+      "total_fat_g": 15,
+      "saturated_fat_g": 9,
+      "dietary_fiber_g": 1.2,
+      "sodium_mg": 350,
+      "cholesterol_mg": 35,
+      "micronutrients": {
+        "calcium_mg": 70,
+        "iron_mg": 1.2,
+        "vitamin_a_iu": 90,
+        "vitamin_b1_thiamine_mg": 0.15,
+        "potassium_mg": 90
+      }
+    },
+    "ingredients_notes": "Thin-sliced white bread (charcoal or toaster grilled), kaya spread (coconut jam made from coconut milk, eggs, sugar and pandan leaves), and thick-cut cold salted butter. Kaya may be Hainanese-style (darker, caramelised) or Nyonya-style (greener, pandan-forward).",
+    "dietary_considerations": [
+      "Contains gluten — not suitable for coeliacs or gluten-intolerant individuals",
+      "Contains eggs — not suitable for egg-free or vegan diets",
+      "Contains dairy (butter) — not suitable for dairy-free or vegan diets",
+      "Contains coconut milk — note for individuals with coconut sensitivities",
+      "Moderately high sugar content (~18g) — monitor intake for diabetics or those managing blood sugar",
+      "Moderate sodium content (320–380mg) from salted butter and bread",
+      "Suitable for lacto-ovo vegetarians",
+      "Not suitable for vegans",
+      "Not suitable for gluten-free diets unless gluten-free bread is substituted",
+      "Low in protein and dietary fiber for a breakfast meal — pairs well with soft-boiled eggs for improved satiety",
+      "Refined white bread contributes to fast digestion and quicker return of hunger"
+    ],
+    "data_source_note": "Estimated based on authentic Singaporean kopitiam preparation. Values represent the toast portion only (2 slices with kaya and butter). Full kaya toast set with 2 soft-boiled eggs and kopi may total approximately 500–580 kcal. Figures may vary by establishment, bread thickness, and kaya recipe used."
+  },
+  {
+    "dish_name": "Mee Rebus",
+    "portion_size": "1 bowl (approx. 400–450g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 560,
+      "protein_g": 25,
+      "carbohydrates_g": 78,
+      "sugars_g": 15,
+      "total_fat_g": 20,
+      "saturated_fat_g": 7,
+      "dietary_fiber_g": 6,
+      "sodium_mg": 1500,
+      "cholesterol_mg": 210,
+      "micronutrients": {
+        "vitamin_a_ug_rae": 220,
+        "vitamin_c_mg": 22,
+        "iron_mg": 4.5,
+        "calcium_mg": 150,
+        "potassium_mg": 550,
+        "vitamin_b12_ug": 1.2,
+        "folate_ug": 70
+      }
+    },
+    "allergens": {
+      "gluten": true,
+      "eggs": true,
+      "shellfish_crustaceans": true,
+      "soy": true,
+      "dairy": false,
+      "nuts": false
+    },
+    "diet_suitability": {
+      "halal": true,
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "low_sodium": false,
+      "diabetic_friendly": "moderate_caution"
+    },
+    "ingredients_notes": "Yellow egg noodles served in a thick gravy made from sweet potato, beef or chicken stock, dried shrimp, and spices. Garnished with hard-boiled egg, fried tofu, bean sprouts, green chillies, fried shallots, and a squeeze of lime.",
+    "dietary_considerations": [
+      "High sodium content — 1,200 to 1,500 mg per bowl, representing 50 to 65 percent of the recommended daily intake",
+      "Not suitable for vegetarians or vegans due to dried shrimp and meat-based stock",
+      "Contains gluten from yellow egg noodles",
+      "Contains eggs as a garnish",
+      "Contains shellfish in the form of dried shrimp used in the gravy",
+      "Contains soy from fried tofu",
+      "Moderate caution advised for diabetics due to high carbohydrate load from noodles and sweet potato",
+      "Individuals with hypertension or kidney conditions should request less gravy to reduce sodium intake",
+      "Halal-suitable when prepared with chicken or beef stock, as widely available at hawker stalls"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore hawker-style preparation. Nutritional values may vary depending on the stall, recipe, and portion size."
+  },
+  {
+    "dish_name": "Lor Mee",
+    "portion_size": "1 bowl (approx. 400–450g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 580,
+      "protein_g": 32,
+      "carbohydrates_g": 65,
+      "sugars_g": 6,
+      "total_fat_g": 24,
+      "saturated_fat_g": 9,
+      "dietary_fiber_g": 3,
+      "sodium_mg": 1800,
+      "cholesterol_mg": 220,
+      "micronutrients": {
+        "iron_mg": 4,
+        "calcium_mg": 110,
+        "vitamin_b12_mcg": 2.5,
+        "zinc_mg": 4,
+        "vitamin_a_mcg_rae": 120,
+        "phosphorus_mg": 300
+      }
+    },
+    "ingredients_notes": "Thick flat yellow noodles in a dark, starchy, gelatinous gravy made from braising liquid, eggs, five-spice powder, and starch thickener. Topped with braised pork belly, ngoh hiang (five-spice meat rolls), fish cake, half a hard-boiled egg, and fried fritters. Served with a vinegar-garlic-chilli condiment. Some versions may include prawns.",
+    "dietary_considerations": [
+      "Very high sodium: 1,400–1,800 mg per bowl, representing 60–75% of the recommended daily intake of 2,000 mg. Not recommended for those with hypertension or kidney conditions.",
+      "Contains pork: Not suitable for halal diets unless sourced from a certified halal stall.",
+      "Contains gluten: Thick yellow noodles contain wheat flour; soy sauce and ngoh hiang wrappers also contain gluten. Not suitable for coeliac disease or gluten intolerance.",
+      "Contains egg: Hard-boiled egg and egg used in gravy thickener are standard components.",
+      "Potential shellfish allergen: Some versions include prawns or are prepared in shared environments with shellfish. Verify with the hawker stall.",
+      "Moderate to high saturated fat: Braised pork belly contributes significant saturated fat depending on the cut used.",
+      "Fried fritters: Inclusion of you tiao (fried dough fritters) adds approximately 50–80 kcal and increases fat content.",
+      "Moderate cholesterol: Combination of egg, pork belly, and ngoh hiang contributes meaningfully to dietary cholesterol.",
+      "Not suitable for vegetarian or vegan diets.",
+      "Typically dairy-free.",
+      "Typically nut-free.",
+      "Good protein source: Approximately 28–32g of protein per bowl from pork, fish cake, egg, and ngoh hiang.",
+      "Suitable for high-protein diets."
+    ],
+    "diet_suitability": {
+      "halal": "Usually not suitable — contains pork. Check for halal-certified stalls.",
+      "gluten_free": "Not suitable.",
+      "dairy_free": "Typically suitable.",
+      "nut_free": "Typically suitable.",
+      "vegetarian": "Not suitable.",
+      "vegan": "Not suitable.",
+      "low_sodium": "Not recommended.",
+      "high_protein": "Suitable."
+    },
+    "data_source_note": "Estimated based on authentic Singapore hawker-style preparation. Values derived from USDA Food Composition Database and Singapore Health Promotion Board (HPB) Food Composition Database, combined with culinary knowledge of traditional preparation methods. Nutritional values may vary between stalls depending on portion generosity, gravy quantity, toppings included, and specific recipes used."
+  },
+  {
+    "dish_name": "Prawn Mee (Hae Mee)",
+    "portion_size": "1 bowl (approx. 500–550g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 500,
+      "protein_g": 32,
+      "carbohydrates_g": 52,
+      "sugars_g": 5,
+      "total_fat_g": 14,
+      "saturated_fat_g": 4.5,
+      "dietary_fiber_g": 3,
+      "sodium_mg": 1550,
+      "cholesterol_mg": 195,
+      "micronutrients": {
+        "iron_mg": 3.5,
+        "iron_percent_dv": 20,
+        "calcium_mg": 90,
+        "calcium_percent_dv": 9,
+        "vitamin_c_mg": 12,
+        "vitamin_c_percent_dv": 13,
+        "zinc_mg": 3.8,
+        "zinc_percent_dv": 35,
+        "vitamin_b12_mcg": 1.8,
+        "vitamin_b12_percent_dv": 75,
+        "phosphorus_mg": 320,
+        "phosphorus_percent_dv": 26,
+        "potassium_mg": 480,
+        "potassium_percent_dv": 10,
+        "selenium_mcg": 38,
+        "selenium_percent_dv": 69
+      }
+    },
+    "allergens": {
+      "shellfish": true,
+      "gluten": true,
+      "eggs": true,
+      "soy": "possible",
+      "pork": true
+    },
+    "diet_suitability": {
+      "halal": false,
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": "only if rice vermicelli substituted for yellow noodles",
+      "low_sodium": false,
+      "high_protein": true,
+      "pescatarian": false
+    },
+    "ingredients_notes": "Rich prawn-pork broth made by slow-simmering prawn heads, shells, and pork ribs. Served with yellow egg noodles and/or rice vermicelli (bee hoon), topped with fresh prawns, sliced pork, pork ribs, hard-boiled egg, bean sprouts, and water kangkong (morning glory). Accompanied by sambal chilli on the side.",
+    "dietary_considerations": [
+      "High sodium content — approximately 1,450–1,650 mg per bowl, representing 65–70% of the recommended daily sodium intake of 2,300 mg",
+      "Not suitable for halal diets — contains pork ribs and sliced pork",
+      "Not suitable for vegetarian or vegan diets — contains prawns, pork, and egg",
+      "Not suitable for pescatarian diets — contains pork",
+      "Contains major shellfish allergen — prawns",
+      "Contains gluten — yellow egg noodles are wheat-based; gluten-free option available by requesting rice vermicelli only",
+      "Contains eggs — hard-boiled egg topping",
+      "May contain soy — some sambal or seasoning preparations may include soy-based ingredients",
+      "Suitable for high-protein diets — approximately 32g protein per bowl from prawns, pork, and egg",
+      "Moderate calorie density compared to fried hawker alternatives",
+      "Sodium can be reduced by requesting less broth or ordering dry prawn mee",
+      "Sambal chilli adds approximately 15–20 kcal per teaspoon and may slightly increase sodium"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore hawker-style preparation. Nutritional values are approximations and may vary depending on the stall, broth concentration, portion size, and specific ingredients used. Percentage daily values are based on a 2,000 kcal adult daily reference intake."
+  },
+  {
+    "dish_name": "Beef Rendang",
+    "portion_size": "1 bowl (~250g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 420,
+      "protein_g": 32,
+      "carbohydrates_g": 10,
+      "sugars_g": 5,
+      "total_fat_g": 28,
+      "saturated_fat_g": 18,
+      "dietary_fiber_g": 2.5,
+      "sodium_mg": 680,
+      "cholesterol_mg": 85,
+      "micronutrients": {
+        "iron_mg": 4.2,
+        "iron_percent_dv": 23,
+        "calcium_mg": 45,
+        "calcium_percent_dv": 5,
+        "potassium_mg": 520,
+        "potassium_percent_dv": 11,
+        "magnesium_mg": 38,
+        "magnesium_percent_dv": 9,
+        "zinc_mg": 5.8,
+        "zinc_percent_dv": 53,
+        "vitamin_b12_mcg": 1.8,
+        "vitamin_b12_percent_dv": 75,
+        "vitamin_c_mg": 6,
+        "vitamin_c_percent_dv": 7
+      }
+    },
+    "diet_suitability": {
+      "gluten_free": true,
+      "dairy_free": true,
+      "halal": true,
+      "paleo": true,
+      "keto_low_carb": true,
+      "vegetarian": false,
+      "vegan": false,
+      "low_fat": false,
+      "nut_allergy_safe": null
+    },
+    "allergens": [
+      "Tree nuts — candlenuts (buah keras) used in some recipes",
+      "Shellfish — belacan (shrimp paste) may be added in some preparations; always verify"
+    ],
+    "ingredients_notes": "Key ingredients include slow-braised beef chuck or brisket, full-fat coconut milk, kerisik (toasted desiccated coconut), lemongrass, galangal, ginger, turmeric, dried and fresh chilies, kaffir lime leaves, turmeric leaves, shallots, garlic, tamarind paste, palm sugar, and spices including coriander, cumin, and fennel seeds.",
+    "dietary_considerations": [
+      "High saturated fat (~18g per bowl) due to full-fat coconut milk and kerisik; those monitoring cardiovascular health or cholesterol should be mindful of portion sizes",
+      "Moderate sodium at ~680mg per bowl; may vary depending on preparation and added sauces",
+      "Calorie-dense relative to volume due to fat content from coconut milk and slow-reduction cooking method",
+      "May contain tree nuts (candlenuts) depending on recipe",
+      "May contain shellfish allergens if belacan (shrimp paste) is used; always verify with preparer"
+    ],
+    "data_source_note": "Estimated based on authentic Singaporean preparation methods. Values are approximate and may vary depending on the cook, restaurant, or specific recipe variation. Calculated for approximately 250g of beef rendang (meat and sauce, without rice)."
+  },
+  {
+    "dish_name": "Claypot Rice",
+    "portion_size": "1 bowl (approximately 400–450g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": {
+        "range": "620–680",
+        "midpoint_estimate": 650
+      },
+      "protein_g": {
+        "range": "28–32",
+        "midpoint_estimate": 30
+      },
+      "carbohydrates_g": {
+        "range": "75–82",
+        "midpoint_estimate": 78.5
+      },
+      "sugars_g": {
+        "range": "6–9",
+        "midpoint_estimate": 7.5
+      },
+      "total_fat_g": {
+        "range": "18–24",
+        "midpoint_estimate": 21
+      },
+      "saturated_fat_g": {
+        "range": "5–8",
+        "midpoint_estimate": 6.5
+      },
+      "dietary_fiber_g": {
+        "range": "1.5–2.5",
+        "midpoint_estimate": 2
+      },
+      "sodium_mg": {
+        "range": "1100–1500",
+        "midpoint_estimate": 1300
+      },
+      "cholesterol_mg": {
+        "range": "85–110",
+        "midpoint_estimate": 97.5
+      },
+      "micronutrients": {
+        "iron_mg": {
+          "range": "3.5–5",
+          "midpoint_estimate": 4.25,
+          "source": "Chicken, salted fish, soy sauce"
+        },
+        "calcium_mg": {
+          "range": "40–60",
+          "midpoint_estimate": 50,
+          "source": "Salted fish, bone-in chicken"
+        },
+        "phosphorus_mg": {
+          "range": "280–320",
+          "midpoint_estimate": 300,
+          "source": "Protein-rich ingredients"
+        },
+        "vitamin_b12_mcg": {
+          "range": "1.2–1.8",
+          "midpoint_estimate": 1.5,
+          "source": "Chicken, salted fish"
+        },
+        "zinc_mg": {
+          "range": "3–4",
+          "midpoint_estimate": 3.5,
+          "source": "Chicken, Chinese sausage"
+        },
+        "potassium_mg": {
+          "range": "350–420",
+          "midpoint_estimate": 385,
+          "source": "Chicken, mushrooms"
+        },
+        "vitamin_b3_niacin_mg": {
+          "range": "8–10",
+          "midpoint_estimate": 9,
+          "source": "Chicken"
+        }
+      }
+    },
+    "allergens": [
+      {
+        "allergen": "Gluten",
+        "source": "Soy sauce, oyster sauce"
+      },
+      {
+        "allergen": "Fish",
+        "source": "Salted fish"
+      },
+      {
+        "allergen": "Shellfish",
+        "source": "Oyster sauce"
+      },
+      {
+        "allergen": "Sulphites",
+        "source": "Chinese sausage (lap cheong)"
+      },
+      {
+        "allergen": "Sesame",
+        "source": "Sesame oil"
+      }
+    ],
+    "diet_suitability": {
+      "halal": false,
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "low_sodium": false,
+      "high_protein": true,
+      "dairy_free": true
+    },
+    "ingredients_notes": "Jasmine rice cooked with chicken pieces, Chinese sausage (lap cheong), salted fish, dark soy sauce, oyster sauce, sesame oil, and optionally mushrooms or vegetables. Served in a traditional clay pot that produces a signature crispy rice crust at the bottom.",
+    "dietary_considerations": [
+      "High sodium content (1,100–1,500 mg per bowl; approximately 48–65% of recommended daily intake of 2,300 mg)",
+      "Not suitable for halal diets — contains pork-based Chinese sausage (lap cheong)",
+      "Not suitable for vegetarian or vegan diets — contains chicken, salted fish, and oyster sauce",
+      "Not gluten-free — soy sauce and oyster sauce contain wheat",
+      "Not recommended for low-sodium diets",
+      "Contains fish allergen from salted fish",
+      "Contains shellfish allergen from oyster sauce",
+      "Contains sesame allergen from sesame oil",
+      "Contains sulphites from Chinese sausage",
+      "Individuals with hypertension or kidney conditions should consume with caution due to high sodium",
+      "Requesting less soy sauce or omitting salted fish can reduce sodium by approximately 200–400 mg",
+      "Adding leafy greens on the side can improve fiber, Vitamin C, and overall micronutrient profile",
+      "Good source of protein (~30g), providing a complete amino acid profile from rice and animal proteins combined"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore hawker-style preparation methods. Values represent a standard single-bowl serving of approximately 420g. Actual nutritional content may vary depending on the specific hawker stall, portion size, and recipe used."
+  },
+  {
+    "dish_name": "Yong Tau Foo",
+    "portion_size": "1 bowl (approx. 400–500g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 380,
+      "protein_g": 26,
+      "carbohydrates_g": 42,
+      "sugars_g": 6,
+      "total_fat_g": 12,
+      "saturated_fat_g": 3.5,
+      "dietary_fiber_g": 5,
+      "sodium_mg": 1300,
+      "cholesterol_mg": 70,
+      "micronutrients": {
+        "calcium_mg": 250,
+        "iron_mg": 3.5,
+        "vitamin_c_mg": 25,
+        "phosphorus_mg": 280,
+        "potassium_mg": 480,
+        "vitamin_b12_mcg": 2.0,
+        "zinc_mg": 2.5
+      }
+    },
+    "ingredients_notes": "Tofu and various items stuffed with fish paste including bitter gourd, eggplant, chili, and tofu puffs. Served with vegetables, fish balls, and bee hoon (rice vermicelli) in a clear soup broth. May be served with a sweet hoisin-based dipping sauce.",
+    "dietary_considerations": [
+      "High sodium content (900–1,300 mg per bowl; approximately 40–55% of recommended daily intake)",
+      "Contains fish and fish paste — not suitable for those with fish allergies",
+      "May contain shellfish — some versions include prawn paste",
+      "Contains soy — tofu and tofu puffs are soy-based",
+      "Contains gluten — soy sauce in broth and hoisin dipping sauce are not suitable for coeliac disease",
+      "May contain egg — some fish paste preparations include egg",
+      "Not suitable for vegans or vegetarians due to fish paste throughout",
+      "Generally suitable for pescatarians",
+      "Good low-calorie option relative to other hawker dishes",
+      "Good high-protein option",
+      "Moderate glycaemic impact — suitable for diabetics if noodle portions are limited",
+      "Gluten-free modification possible — request no soy sauce or hoisin sauce and choose rice vermicelli",
+      "Low-sodium modification possible — request less broth and avoid dipping sauces"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore hawker-style preparation of Yong Tau Foo with clear soup broth, 6–8 mixed items, and bee hoon (rice vermicelli). Actual values may vary depending on items selected, broth volume, portion size, and individual stall recipes."
+  },
+  {
+    "dish_name": "Zi Char",
+    "portion_size": "1 plate (~450g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 750,
+      "protein_g": 35,
+      "carbohydrates_g": 80,
+      "sugars_g": 10,
+      "total_fat_g": 30,
+      "saturated_fat_g": 9,
+      "dietary_fiber_g": 5,
+      "sodium_mg": 1800,
+      "cholesterol_mg": 180,
+      "micronutrients": {
+        "iron_mg": 5,
+        "calcium_mg": 120,
+        "vitamin_c_mg": 30,
+        "vitamin_a_ug_rae": 400,
+        "zinc_mg": 4,
+        "potassium_mg": 600,
+        "phosphorus_mg": 350
+      }
+    },
+    "ingredients_notes": "Proteins include prawns, chicken, pork, tofu, eggs, or fish. Carbohydrates from white rice, bee hoon (rice vermicelli), or kway teow (flat rice noodles). Vegetables include kangkong, cabbage, bean sprouts, and spring onions. Seasoned with oyster sauce, dark and light soy sauce, fish sauce, sambal chilli, belacan (fermented prawn paste), and sesame oil. Cooked with generous amounts of vegetable oil using high-heat wok frying. Aromatics include garlic, ginger, shallots, and dried chillies.",
+    "dietary_considerations": [
+      "High sodium: 1,200–1,800 mg per serving represents 50–75% of the recommended daily intake of 2,000 mg — caution advised for those with hypertension",
+      "Contains shellfish allergens: prawns and belacan (fermented prawn paste)",
+      "Contains gluten: soy sauce and oyster sauce",
+      "Contains eggs and sesame — not suitable for those with these allergies",
+      "May contain pork or lard — not suitable for halal or kosher diets unless specifically prepared otherwise",
+      "Generally not suitable for vegetarians or vegans due to meat, seafood, oyster sauce, and fish sauce — vegetarian options must be specifically requested",
+      "High glycaemic index load from white rice and rice noodles — relevant for diabetics or those managing blood sugar",
+      "High caloric density due to generous use of oil in wok cooking"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore Zi Char preparation methods. Values represent a representative single-plate serving of a classic zi char combination and may vary significantly depending on specific dishes ordered, the stall or restaurant, and actual portion sizes. For precise values, consult a registered dietitian or certified food tracking tool."
+  },
+  {
+    "dish_name": "Black Pepper Crab",
+    "portion_size": "1 plate (approximately 500-600g including shell, 250-300g edible crab meat with sauce)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 480,
+      "protein_g": 42,
+      "carbohydrates_g": 18,
+      "sugars_g": 8,
+      "total_fat_g": 28,
+      "saturated_fat_g": 13,
+      "dietary_fiber_g": 2.5,
+      "sodium_mg": 1200,
+      "cholesterol_mg": 220,
+      "micronutrients": {
+        "calcium_mg": 150,
+        "iron_mg": 5.0,
+        "zinc_mg": 9,
+        "vitamin_c_mg": 15,
+        "vitamin_b12_mcg": 6,
+        "selenium_mcg": 60,
+        "magnesium_mg": 70,
+        "phosphorus_mg": 420
+      }
+    },
+    "ingredients_notes": "Primary ingredients include whole Sri Lankan or mud crab (600-800g whole), freshly cracked black pepper, butter, dark soy sauce, oyster sauce, garlic, shallots, curry leaves, light soy sauce, sugar, and cornstarch for sauce thickening.",
+    "dietary_considerations": [
+      "Contains shellfish (crab) — not suitable for those with shellfish allergies",
+      "Contains gluten via soy sauce and oyster sauce — not suitable for coeliac disease unless gluten-free alternatives are used",
+      "Contains dairy (butter) — not suitable for dairy-free or vegan diets",
+      "High sodium: 950-1200mg per serving (40-52% of recommended daily intake) — caution advised for those managing hypertension",
+      "High dietary cholesterol: 180-220mg per serving — relevant for those with cardiovascular concerns",
+      "Moderate to high saturated fat primarily from butter",
+      "Excellent high-protein dish from crab meat",
+      "Exceptional source of zinc and Vitamin B12 supporting immune and neurological health",
+      "Not vegan or vegetarian",
+      "Not suitable for strict ketogenic diets due to moderate carbohydrate content from sauces",
+      "Gluten-free adaptable by substituting tamari and certified gluten-free oyster sauce"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore preparation methods, cross-referenced with USDA FoodData Central, Singapore Health Promotion Board (HPB) nutritional data, and established food composition tables. Actual values may vary by restaurant and recipe."
+  },
+  {
+    "dish_name": "Chicken Curry",
+    "portion_size": "1 plate (approximately 350-400g, including curry sauce and chicken pieces, served with rice)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 620,
+      "protein_g": 34,
+      "carbohydrates_g": 58,
+      "sugars_g": 6,
+      "total_fat_g": 26,
+      "saturated_fat_g": 14,
+      "dietary_fiber_g": 4,
+      "sodium_mg": 780,
+      "cholesterol_mg": 95,
+      "micronutrients": {
+        "iron_mg": 4.2,
+        "iron_percent_dv": 23,
+        "calcium_mg": 85,
+        "calcium_percent_dv": 8,
+        "potassium_mg": 620,
+        "potassium_percent_dv": 13,
+        "vitamin_c_mg": 12,
+        "vitamin_c_percent_dv": 13,
+        "vitamin_a_ug_rae": 180,
+        "vitamin_a_percent_dv": 20,
+        "magnesium_mg": 55,
+        "magnesium_percent_dv": 13,
+        "phosphorus_mg": 310,
+        "phosphorus_percent_dv": 25,
+        "zinc_mg": 2.8,
+        "zinc_percent_dv": 25
+      }
+    },
+    "ingredients_notes": "Bone-in chicken pieces (drumsticks, thighs, wings), full-fat coconut milk, rempah spice paste (shallots, garlic, ginger, galangal, lemongrass, dried chillies), Singapore-style curry powder (coriander, cumin, turmeric, fennel, chilli), curry leaves, pandan leaves, potatoes, fish sauce or light soy sauce, vegetable oil, served with steamed white rice or roti prata",
+    "dietary_considerations": [
+      "High saturated fat due to full-fat coconut milk — individuals monitoring cardiovascular health should be mindful",
+      "Moderate to high sodium at 780mg per serving — not recommended for individuals with hypertension without modification",
+      "Contains gluten — soy sauce used in preparation; not suitable for celiac disease without substitution",
+      "Contains fish — fish sauce used in preparation; not suitable for those with fish allergies",
+      "Not vegan or vegetarian — contains chicken and fish sauce",
+      "Calorie-dense meal — combination of coconut milk, oil, and rice; best suited for active individuals",
+      "Dairy-free — coconut milk used instead of dairy cream",
+      "High protein — supports muscle maintenance and repair",
+      "Gluten-free option available — substitute tamari for soy sauce",
+      "Lower calorie option available — request light coconut milk or smaller rice portion",
+      "Lower GI option available — substitute white rice with brown rice or cauliflower rice"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore preparation methods using approximately 150g steamed white rice and 180g chicken curry with coconut milk-based sauce. Values may vary depending on restaurant, home cook, portion size, and specific ingredients used. Consult a registered dietitian or use lab-tested data for precise values."
+  },
+  {
+    "dish_name": "Murtabak",
+    "portion_size": "1 plate (approx. 300–350g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 620,
+      "protein_g": 32,
+      "carbohydrates_g": 60,
+      "sugars_g": 6,
+      "total_fat_g": 32,
+      "saturated_fat_g": 13,
+      "dietary_fiber_g": 3,
+      "sodium_mg": 1100,
+      "cholesterol_mg": 260,
+      "micronutrients": {
+        "iron_mg": 5,
+        "calcium_mg": 100,
+        "vitamin_b12_mcg": 1.8,
+        "zinc_mg": 4,
+        "folate_mcg": 55,
+        "vitamin_a_mcg_rae": 150
+      }
+    },
+    "ingredients_notes": "Thin wheat-based dough stretched and folded around a filling of minced mutton or chicken, beaten eggs, onions, garlic, leek or spring onions, cumin, and mixed spices. Pan-fried on a flat griddle with generous amounts of ghee or margarine for a crispy layered exterior. Served with a cucumber and onion pickle in sweet-sour vinegar sauce and optionally a curry dipping sauce.",
+    "dietary_considerations": [
+      "High sodium — approximately 40–48% of recommended daily intake per serving",
+      "High cholesterol — approaches general guideline of 300mg per day",
+      "High in saturated fat due to ghee used during cooking",
+      "Contains gluten — wheat-based dough, not suitable for coeliac disease or gluten intolerance",
+      "Contains eggs — not suitable for egg-allergic individuals",
+      "Not vegetarian or vegan — contains meat and eggs; vegetarian versions exist but are non-traditional",
+      "Typically halal — traditionally prepared with mutton or chicken, suitable for Muslim dietary requirements when sourced from certified halal stalls",
+      "Calorie-dense — best enjoyed occasionally as part of a balanced diet",
+      "Opting for chicken over mutton can slightly reduce saturated fat content"
+    ],
+    "data_source_note": "Estimated based on authentic Singaporean preparation methods. Nutritional values may vary depending on the hawker stall, portion size, and specific recipe used."
+  },
+  {
+    "dish_name": "Tahu Goreng",
+    "portion_size": "1 plate (approx. 300–350g serving)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": {
+        "value": "420–450",
+        "unit": "kcal"
+      },
+      "protein_g": {
+        "value": 22,
+        "unit": "g"
+      },
+      "carbohydrates_g": {
+        "value": 32,
+        "unit": "g"
+      },
+      "sugars_g": {
+        "value": 14,
+        "unit": "g"
+      },
+      "total_fat_g": {
+        "value": 24,
+        "unit": "g"
+      },
+      "saturated_fat_g": {
+        "value": 4.5,
+        "unit": "g"
+      },
+      "dietary_fiber_g": {
+        "value": 5,
+        "unit": "g"
+      },
+      "sodium_mg": {
+        "value": "780–850",
+        "unit": "mg"
+      },
+      "cholesterol_mg": {
+        "value": "0–5",
+        "unit": "mg"
+      },
+      "micronutrients": {
+        "calcium_mg": {
+          "value": "250–300",
+          "unit": "mg",
+          "significance": "High — from tofu, especially if calcium-set"
+        },
+        "iron_mg": {
+          "value": "3.5–4.5",
+          "unit": "mg",
+          "significance": "Good — from tofu and bean sprouts"
+        },
+        "magnesium_mg": {
+          "value": "60–80",
+          "unit": "mg",
+          "significance": "Moderate — from peanuts and tofu"
+        },
+        "potassium_mg": {
+          "value": "450–500",
+          "unit": "mg",
+          "significance": "Moderate — from vegetables and peanuts"
+        },
+        "vitamin_c_mg": {
+          "value": "15–20",
+          "unit": "mg",
+          "significance": "Moderate — from bean sprouts and cucumber"
+        },
+        "vitamin_e_mg": {
+          "value": "3–4",
+          "unit": "mg",
+          "significance": "Moderate — from peanut sauce and frying oil"
+        },
+        "folate_b9_mcg": {
+          "value": "50–70",
+          "unit": "µg",
+          "significance": "Moderate — from bean sprouts"
+        },
+        "zinc_mg": {
+          "value": "1.5–2",
+          "unit": "mg",
+          "significance": "Moderate — from tofu and peanuts"
+        }
+      }
+    },
+    "ingredients_notes": "Deep-fried tofu served on a bed of bean sprouts, cucumber, and sometimes cabbage, topped with a thick sweet-savory peanut sauce made from ground peanuts, shrimp paste (belacan), chillies, and palm sugar (gula melaka). A popular hawker centre dish of Malay-Indonesian culinary heritage.",
+    "dietary_considerations": [
+      "Contains peanuts — major allergen; peanut sauce is a core component",
+      "Contains shellfish — belacan (shrimp paste) is typically used; not suitable for shellfish allergies",
+      "Contains soy — tofu is soy-based",
+      "May contain gluten — some vendors use soy sauce with wheat; verify if gluten-sensitive",
+      "Not suitable for vegans in traditional preparation due to shrimp paste",
+      "Not suitable for vegetarians in traditional preparation unless belacan is omitted on request",
+      "High sodium content (~780–850 mg per plate); not suitable for low-sodium diets",
+      "Moderate glycemic impact — peanut sauce contains palm sugar",
+      "Deep-frying increases fat content significantly compared to non-fried tofu preparations",
+      "Dairy-free",
+      "Good plant-based protein source"
+    ],
+    "data_source_note": "Estimated based on authentic Singaporean hawker-style preparation. Nutritional values may vary depending on the vendor, oil absorption during frying, and the quantity of peanut sauce applied. Values are approximated using established food composition databases (USDA, Singapore HPB Food Composition Database)."
+  },
+  {
+    "dish_name": "Kueh Pie Tee",
+    "portion_size": "1 plate (approximately 6 pieces / 180-200g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": "285-320",
+      "protein_g": "9-11",
+      "carbohydrates_g": "34-38",
+      "sugars_g": "6-8",
+      "total_fat_g": "12-15",
+      "saturated_fat_g": "3-4.5",
+      "dietary_fiber_g": "2.5-3.5",
+      "sodium_mg": "480-620",
+      "cholesterol_mg": "55-75",
+      "micronutrients": {
+        "vitamin_c_mg": "12-18",
+        "iron_mg": "1.2-1.8",
+        "calcium_mg": "45-65",
+        "vitamin_a_ug_rae": "80-120",
+        "potassium_mg": "220-280",
+        "zinc_mg": "0.8-1.2"
+      }
+    },
+    "ingredients_notes": "Thin crispy deep-fried pastry shells made from rice flour and plain flour, filled with shredded bangkuang (jicama/yam bean) and julienned carrots braised with dried shrimp (hae bi) and optional crab meat or pork. Topped with sliced hard-boiled egg, fresh prawns, and coriander leaves. Served with sweet chilli sauce and/or sambal belachan.",
+    "dietary_considerations": [
+      "Contains shellfish (prawns and dried shrimp) - not suitable for shellfish allergies",
+      "Contains gluten (wheat flour in pastry shells) - not suitable for coeliac disease or gluten intolerance",
+      "Contains egg - relevant for egg allergies",
+      "Moderate-to-high sodium content - monitor if on a low-sodium diet",
+      "Some versions contain pork - not suitable for halal or kosher diets unless verified",
+      "Not suitable for vegetarians or vegans in traditional form due to prawns, dried shrimp, and egg",
+      "Pastry shells are deep-fried - moderate consumption advised for heart health"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore Peranakan (Nyonya) preparation methods. Nutritional values may vary depending on specific recipe, shell thickness, filling ratio, and condiment quantities used."
+  },
+  {
+    "dish_name": "Bak Chor Mee (Minced Pork Noodles)",
+    "portion_size": "1 bowl (approx. 350–400g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 520,
+      "protein_g": 32,
+      "carbohydrates_g": 60,
+      "sugars_g": 6,
+      "total_fat_g": 20,
+      "saturated_fat_g": 6,
+      "dietary_fiber_g": 3,
+      "sodium_mg": 1400,
+      "cholesterol_mg": 150,
+      "micronutrients": {
+        "iron_mg": 4.5,
+        "vitamin_b12_mcg": 3.5,
+        "zinc_mg": 4,
+        "vitamin_c_mg": 8,
+        "calcium_mg": 60,
+        "phosphorus_mg": 300,
+        "niacin_b3_mg": 8
+      }
+    },
+    "allergens": {
+      "gluten": true,
+      "eggs": true,
+      "soy": true,
+      "shellfish": "possible — some versions include prawn dumplings",
+      "pork": true,
+      "sesame": true
+    },
+    "diet_suitability": {
+      "halal": false,
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "low_sodium": false,
+      "high_protein": true,
+      "dairy_free": true
+    },
+    "ingredients_notes": "Thin egg noodles (mee kia) or flat rice noodles (kway teow), seasoned minced pork, briefly blanched pork liver slices, pork balls or dumplings, soy-braised shiitake mushrooms, blanched bean sprouts, sauce base of black vinegar, chilli sauce, soy sauce, sesame oil and lard, crispy lard bits (pork cracklings), garnished with spring onions and fried shallots. Dry-tossed style is the more iconic preparation.",
+    "dietary_considerations": [
+      "Very high sodium content (1,100–1,400 mg per bowl), representing 48–61% of the recommended daily limit of 2,300 mg — caution advised for individuals with hypertension or kidney conditions",
+      "High cholesterol due to pork liver — individuals monitoring LDL levels should limit frequency of consumption",
+      "Contains lard in authentic preparations, contributing to saturated fat content — some modern hawkers substitute vegetable oil",
+      "Refined carbohydrates from egg noodles offer limited dietary fiber",
+      "Not suitable for halal, vegetarian, vegan, or gluten-free diets",
+      "Possible shellfish presence in versions that include prawn dumplings",
+      "Contains multiple common allergens: gluten, eggs, soy, sesame, and pork",
+      "Soup version is marginally lower in calories (380–430 kcal) but carries comparable sodium levels",
+      "Good source of Vitamin B12, exceeding 100% RDI per bowl due to pork offal content",
+      "To reduce sodium and fat intake, consider requesting less sauce and omitting the lard topping"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore hawker-style preparation. Nutritional values may vary depending on the specific hawker stall, portion size, and ingredient substitutions."
+  },
+  {
+    "dish_name": "Sliced Fish Bee Hoon",
+    "portion_size": "1 bowl (~500–550g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 420,
+      "protein_g": 36,
+      "carbohydrates_g": 42,
+      "sugars_g": 5,
+      "total_fat_g": 14,
+      "saturated_fat_g": 5,
+      "dietary_fiber_g": 3,
+      "sodium_mg": 1200,
+      "cholesterol_mg": 80,
+      "micronutrients": {
+        "calcium_mg": 180,
+        "iron_mg": 2.5,
+        "phosphorus_mg": 420,
+        "vitamin_b12_mcg": 3.5,
+        "vitamin_d_mcg": 6,
+        "potassium_mg": 650,
+        "vitamin_c_mg": 15,
+        "omega3_fatty_acids_g": 1.5
+      }
+    },
+    "ingredients_notes": "Thin rice vermicelli (bee hoon) served in a milky white fish broth made by frying ginger and fish bones before simmering. Topped with fresh sliced fish (typically batang/Spanish mackerel or snakehead fish). Often enriched with evaporated milk. Common accompaniments include lettuce, tomatoes, tofu, and fried shallots.",
+    "dietary_considerations": [
+      "High sodium content: 900–1,200 mg per bowl, accounting for 40–52% of recommended daily intake (2,300 mg/day) — consume broth in moderation if managing hypertension or kidney concerns",
+      "Contains fish allergen: primary protein source is batang (Spanish mackerel), snakehead, or threadfin fish",
+      "Contains soy allergen: tofu is commonly added",
+      "Contains dairy allergen: evaporated milk is typically used in the broth",
+      "May contain gluten: some stalls use soy sauce or marinades containing wheat — verify with stall",
+      "Not suitable for dairy-free diets due to evaporated milk in broth",
+      "Not suitable for low-carb or keto diets due to rice vermicelli",
+      "Suitable for high-protein diets: approximately 32–36g protein per bowl",
+      "Suitable for pescatarian diets",
+      "Generally halal — verify with individual stall",
+      "Conditionally gluten-free — verify sauces and marinades used with stall"
+    ],
+    "data_source_note": "Estimated based on authentic Singaporean hawker preparation methods. Values derived from USDA FoodData Central and Singapore Health Promotion Board (HPB) Nutrient Composition Database. Nutritional values may vary depending on the stall, fish type used, amount of evaporated milk added, and any additional condiments such as chili or soy sauce."
+  },
+  {
+    "dish_name": "Pandan Cake",
+    "portion_size": "1 slice (approx. 80g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 285,
+      "protein_g": 5.2,
+      "carbohydrates_g": 38.5,
+      "sugars_g": 24.0,
+      "total_fat_g": 12.8,
+      "saturated_fat_g": 9.4,
+      "dietary_fiber_g": 0.6,
+      "sodium_mg": 145,
+      "cholesterol_mg": 72,
+      "micronutrients": {
+        "calcium_mg": 38,
+        "calcium_dv_percent": 4,
+        "iron_mg": 0.8,
+        "iron_dv_percent": 4,
+        "potassium_mg": 120,
+        "potassium_dv_percent": 3,
+        "vitamin_a_iu": 65,
+        "vitamin_a_dv_percent": 1,
+        "phosphorus_mg": 72,
+        "phosphorus_dv_percent": 6
+      }
+    },
+    "ingredients_notes": "Key ingredients include freshly extracted pandan juice or paste for natural green colour and fragrance, coconut milk for richness and tropical sweetness, separated eggs (whipped whites for airy texture), cake or plain flour, caster sugar, vegetable or coconut oil, and baking powder. Commercial versions may use artificial pandan flavouring and green food dye.",
+    "dietary_considerations": [
+      "Contains gluten (wheat flour) — not suitable for coeliac disease or gluten intolerance",
+      "Contains eggs — not suitable for egg allergies or vegans",
+      "Contains coconut milk — check for tree nut cross-sensitivity",
+      "Typically dairy-free — uses coconut milk rather than cow's milk",
+      "Suitable for lacto-ovo vegetarians",
+      "Not suitable for vegans due to egg content",
+      "Moderately high sugar content (24g per slice) — monitor intake if diabetic or managing blood sugar",
+      "Relatively high saturated fat from coconut milk — consume in moderation",
+      "Saturated fat derives primarily from coconut milk MCTs, which may be metabolised differently than long-chain saturated fats",
+      "Slice size may vary between 70g and 110g at bakeries or hawker centres — adjust nutritional values proportionally",
+      "Commercial versions may contain artificial additives and food colouring"
+    ],
+    "data_source_note": "Estimated based on authentic Singaporean preparation methods and standard ingredient ratios. Actual values may vary depending on recipe, baker, and portion size. Percentage daily values based on a 2,000 kcal diet."
+  },
+  {
+    "dish_name": "Ice Kachang",
+    "portion_size": "1 bowl (approx. 350–400g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 280,
+      "protein_g": 5,
+      "carbohydrates_g": 65,
+      "sugars_g": 52,
+      "total_fat_g": 2,
+      "saturated_fat_g": 1,
+      "dietary_fiber_g": 5,
+      "sodium_mg": 120,
+      "cholesterol_mg": 5,
+      "micronutrients": {
+        "calcium_mg": 60,
+        "iron_mg": 1.5,
+        "potassium_mg": 200,
+        "vitamin_c_mg": 5,
+        "folate_mcg": 30
+      }
+    },
+    "ingredients_notes": "Shaved ice with coloured syrups (rose, pandan, sarsi or bandung), sweetened red beans (kacang merah), attap chee (palm seed jelly), grass jelly (cincau), sweet corn kernels, cendol (green pandan rice flour jelly strips), and evaporated or condensed milk drizzled on top. Optional toppings include ice cream, red rubies (water chestnuts in tapioca), and durian paste.",
+    "dietary_considerations": [
+      "High in free sugars — syrups and condensed milk may exceed WHO recommended daily limit of 25g in a single serving",
+      "Not recommended for diabetics or those managing blood sugar due to very high glycaemic load",
+      "Contains dairy if condensed or evaporated milk is added (standard preparation)",
+      "Generally vegetarian-friendly; can be made vegan if dairy milk is omitted or substituted",
+      "Typically gluten-free, though cross-contamination at hawker stalls is possible",
+      "Low overall allergen risk; attap chee (palm seed) may be unfamiliar to some digestive systems",
+      "Low satiety value due to minimal protein and healthy fats despite moderate calorie count",
+      "Calorie count can rise to 350–420 kcal if ice cream topping or heavy syrup is added",
+      "High water content from shaved ice contributes to hydration"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore hawker-style preparation. Values may vary depending on the stall, syrup quantity, use of condensed milk, and any optional toppings selected."
+  },
+  {
+    "dish_name": "Chendol",
+    "portion_size": "1 bowl (~350–400ml)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 370,
+      "protein_g": 5,
+      "carbohydrates_g": 58,
+      "sugars_g": 44,
+      "total_fat_g": 15,
+      "saturated_fat_g": 13,
+      "dietary_fiber_g": 4,
+      "sodium_mg": 80,
+      "cholesterol_mg": 0,
+      "micronutrients": {
+        "calcium_mg": 45,
+        "iron_mg": 2.5,
+        "potassium_mg": 320,
+        "magnesium_mg": 45,
+        "phosphorus_mg": 100,
+        "vitamin_c_mg": 4,
+        "folate_mcg": 40
+      },
+      "caloric_breakdown_by_component": {
+        "shaved_ice_kcal": 0,
+        "coconut_milk_kcal": 130,
+        "gula_melaka_syrup_kcal": 150,
+        "pandan_jelly_kcal": 40,
+        "red_beans_kcal": 55
+      }
+    },
+    "ingredients_notes": "Chendol consists of pandan-flavoured green rice flour jelly strips served over shaved ice, drenched in rich coconut milk and dark palm sugar (gula melaka) syrup. Common additions include red kidney beans. Optional additions at some stalls may include corn, grass jelly, attap chee (palm seeds), or durian, which would alter the nutritional profile.",
+    "dietary_considerations": [
+      "High sugar content: approximately 38–44g per bowl, primarily from gula melaka (palm sugar); high glycaemic dessert unsuitable for frequent consumption by individuals managing diabetes or blood sugar levels",
+      "High saturated fat: approximately 10–13g per bowl from coconut milk; those monitoring cardiovascular health should be mindful of portion frequency",
+      "Naturally gluten-free: traditional recipe uses rice flour for jelly strips; suitable for gluten-intolerant or coeliac individuals, though vendor verification is advised",
+      "Vegan and dairy-free: authentic preparation contains no animal products or dairy; suitable for vegans and lactose-intolerant individuals",
+      "Contains legumes (red beans): individuals with legume allergies should exercise caution",
+      "Nutritional profile may vary significantly if optional additions such as durian, attap chee, or corn are included"
+    ],
+    "data_source_note": "Estimated based on authentic Singaporean hawker-style preparation. Nutritional values may vary depending on the stall, recipe, and portion generosity."
+  },
+  {
+    "dish_name": "Ondeh Ondeh",
+    "portion_size": "1 bowl (approx. 6–8 pieces, ~150g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 285,
+      "protein_g": 2.5,
+      "carbohydrates_g": 48,
+      "sugars_g": 22,
+      "total_fat_g": 9.5,
+      "saturated_fat_g": 8.2,
+      "dietary_fiber_g": 3.0,
+      "sodium_mg": 55,
+      "cholesterol_mg": 0,
+      "micronutrients": {
+        "iron_mg": 1.8,
+        "calcium_mg": 12,
+        "potassium_mg": 180,
+        "magnesium_mg": 22,
+        "vitamin_c_mg": 2,
+        "phosphorus_mg": 45
+      }
+    },
+    "ingredients_notes": "Primary ingredients include glutinous rice flour as the dough base, fresh pandan leaf juice for natural green colouring and flavour, gula melaka (dark palm sugar) as the molten filling, freshly grated coconut as the outer coating, a pinch of salt, and water or coconut milk for dough binding.",
+    "dietary_considerations": [
+      "High in saturated fat due to grated coconut coating — consume in moderation for cardiovascular health",
+      "Moderate sugar content from gula melaka — not recommended for diabetics in large quantities",
+      "Cholesterol-free and entirely plant-based — suitable for vegans and vegetarians",
+      "Made with glutinous rice flour which is gluten-free despite its name — verify cross-contamination risks if commercially purchased",
+      "Contains tree nuts/coconut — avoid if allergic to coconut",
+      "No shellfish, no dairy, no eggs — safe for those with shellfish, dairy, or egg allergies"
+    ],
+    "data_source_note": "Estimated based on authentic Singaporean preparation methods. Nutritional values may vary depending on piece size, coconut freshness, and quantity of palm sugar used."
+  },
+  {
+    "dish_name": "Kueh Lapis",
+    "portion_size": "1 slice (~60g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 185,
+      "protein_g": 2.1,
+      "carbohydrates_g": 32.5,
+      "sugars_g": 18.0,
+      "total_fat_g": 5.8,
+      "saturated_fat_g": 4.9,
+      "dietary_fiber_g": 0.5,
+      "sodium_mg": 85,
+      "cholesterol_mg": 0,
+      "micronutrients": {
+        "calcium_mg": 18,
+        "iron_mg": 0.6,
+        "potassium_mg": 95,
+        "magnesium_mg": 12,
+        "phosphorus_mg": 30
+      }
+    },
+    "ingredients_notes": "Key ingredients include rice flour, tapioca starch or sago flour, full-fat coconut milk, white or caster sugar, pandan juice or extract, red or pink food colouring, salt, and water. Contains no eggs, dairy, or meat in its traditional steamed form.",
+    "dietary_considerations": [
+      "Vegan and vegetarian friendly in traditional steamed form",
+      "Typically gluten-free as it uses rice flour and tapioca starch; verify with vendor as some recipes may include wheat starch",
+      "High sugar content (~18g per slice); individuals managing diabetes or blood sugar should consume in moderation",
+      "High saturated fat (~4.9g) derived primarily from full-fat coconut milk; those monitoring cardiovascular health should be mindful of portion size",
+      "May contain artificial red or pink food colouring; natural pandan-coloured versions are available",
+      "Generally free from major allergens including nuts, shellfish, gluten, dairy, and eggs in traditional form",
+      "Cross-contamination possible in commercial kitchen environments"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore preparation methods and standard traditional ingredient ratios. Actual values may vary depending on recipe, ingredient brands, and slice size used by individual vendors or home cooks."
+  },
+  {
+    "dish_name": "Tau Huey (豆花)",
+    "portion_size": "1 bowl (~300ml / 300g)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 145,
+      "protein_g": 7.5,
+      "carbohydrates_g": 22,
+      "sugars_g": 19,
+      "total_fat_g": 3.5,
+      "saturated_fat_g": 0.5,
+      "dietary_fiber_g": 0.5,
+      "sodium_mg": 55,
+      "cholesterol_mg": 0,
+      "micronutrients": {
+        "calcium_mg": 200,
+        "iron_mg": 1.5,
+        "magnesium_mg": 30,
+        "potassium_mg": 180,
+        "isoflavones_mg": 25,
+        "vitamin_b1_thiamine_mg": 0.1
+      }
+    },
+    "ingredients_notes": "Primary ingredients include silken or soft tofu coagulated with gypsum powder (calcium sulfate) or glucono delta-lactone, sweet ginger syrup made from water, sugar, and fresh ginger. Optional additions include pandan leaves in syrup and a soya bean milk base.",
+    "dietary_considerations": [
+      "Vegan and vegetarian friendly — fully plant-based",
+      "Naturally gluten-free in traditional preparation",
+      "Contains soy — not suitable for individuals with soy allergies",
+      "Moderate to high sugar content (~19g) from added syrup — diabetics should monitor intake",
+      "Low sodium — generally suitable for heart-conscious diets",
+      "Dairy-free — contains no milk or dairy derivatives",
+      "Relatively low calorie dessert option",
+      "Contains soy isoflavones (phytoestrogens) — generally safe in normal dietary amounts",
+      "Calcium content is notably high when gypsum is used as coagulant, comparable to a small glass of milk",
+      "Reducing syrup quantity can lower sugar and calorie content by up to 30%"
+    ],
+    "data_source_note": "Estimated based on authentic Singapore hawker-style preparation. Nutritional values may vary depending on the volume of syrup added and the specific coagulant used by individual vendors."
+  },
+  {
+    "dish_name": "Sugarcane Juice",
+    "portion_size": "1 glass (approximately 240ml / 8 fl oz)",
+    "cuisine": "Singapore",
+    "nutrition": {
+      "calories_kcal": 180,
+      "protein_g": 0.4,
+      "carbohydrates_g": 44,
+      "sugars_g": 42,
+      "total_fat_g": 0.1,
+      "saturated_fat_g": 0,
+      "dietary_fiber_g": 0.5,
+      "sodium_mg": 15,
+      "cholesterol_mg": 0,
+      "micronutrients": {
+        "iron_mg": 0.4,
+        "calcium_mg": 40,
+        "magnesium_mg": 25,
+        "potassium_mg": 160,
+        "vitamin_c_mg": 4,
+        "phosphorus_mg": 20,
+        "zinc_mg": 0.2
+      }
+    },
+    "ingredients_notes": "Fresh pressed sugarcane stalks, crushed or cubed ice. Optional additions include calamansi lime juice, water chestnut, pandan leaf, or lemon. No animal products or major allergens present.",
+    "dietary_considerations": [
+      "High natural sugar content (~42g per glass) — not suitable for diabetics or those with insulin resistance",
+      "Vegan and plant-based friendly",
+      "Gluten-free — safe for coeliac disease or gluten sensitivity",
+      "Free from major common allergens including nuts, dairy, shellfish, eggs, soy, and wheat",
+      "Contains natural electrolytes (potassium, magnesium, calcium) — supports hydration",
+      "Calorie-dense for a beverage at ~180 kcal per glass — comparable to a standard can of soda",
+      "Traditional claims suggest benefits for liver health, digestion, and energy — limited clinical evidence"
+    ],
+    "data_source_note": "Estimated based on authentic Singaporean preparation of fresh unprocessed sugarcane juice (air tebu). Values may vary depending on sugarcane variety, ripeness, and optional additions such as calamansi lime."
+  }
+]
