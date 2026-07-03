@@ -170,7 +170,7 @@ CREATE TABLE mood_logs (
 
     PRIMARY KEY (id),
     CONSTRAINT fk_mood_logs_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT chk_mood_rating CHECK (mood_rating BETWEEN 1 AND 5)
+    CONSTRAINT chk_mood_rating CHECK (mood_rating BETWEEN 1 AND 10)
 );
 
 -- 2.4 Homepage activity and dashboard summary
@@ -212,7 +212,7 @@ CREATE TABLE daily_wellness_summary (
     CONSTRAINT chk_summary_exercise_minutes CHECK (total_exercise_minutes >= 0),
     CONSTRAINT chk_summary_sleep_minutes CHECK (sleep_minutes IS NULL OR sleep_minutes >= 0),
     CONSTRAINT chk_summary_sleep_quality CHECK (sleep_quality_score IS NULL OR sleep_quality_score BETWEEN 0 AND 100),
-    CONSTRAINT chk_summary_mood CHECK (mood_score IS NULL OR mood_score BETWEEN 1 AND 5),
+    CONSTRAINT chk_summary_mood CHECK (mood_score IS NULL OR mood_score BETWEEN 1 AND 10),
     CONSTRAINT chk_summary_weight CHECK (weight_kg IS NULL OR weight_kg > 0)
 );
 
