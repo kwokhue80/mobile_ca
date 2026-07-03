@@ -102,7 +102,7 @@ CREATE TABLE sleep_logs (
     PRIMARY KEY (id),
     CONSTRAINT fk_sleep_logs_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chk_sleep_time CHECK (end_time > start_time),
-    CONSTRAINT chk_sleep_quality CHECK (sleep_quality_score IS NULL OR sleep_quality_score BETWEEN 0 AND 100)
+    CONSTRAINT chk_sleep_quality CHECK (sleep_quality_score IS NULL OR sleep_quality_score BETWEEN 1 AND 10)
 );
 
 CREATE TABLE food_logs (
@@ -211,7 +211,7 @@ CREATE TABLE daily_wellness_summary (
     CONSTRAINT chk_summary_calories_burned CHECK (total_calories_burned >= 0),
     CONSTRAINT chk_summary_exercise_minutes CHECK (total_exercise_minutes >= 0),
     CONSTRAINT chk_summary_sleep_minutes CHECK (sleep_minutes IS NULL OR sleep_minutes >= 0),
-    CONSTRAINT chk_summary_sleep_quality CHECK (sleep_quality_score IS NULL OR sleep_quality_score BETWEEN 0 AND 100),
+    CONSTRAINT chk_summary_sleep_quality CHECK (sleep_quality_score IS NULL OR sleep_quality_score BETWEEN 1 AND 10),
     CONSTRAINT chk_summary_mood CHECK (mood_score IS NULL OR mood_score BETWEEN 1 AND 10),
     CONSTRAINT chk_summary_weight CHECK (weight_kg IS NULL OR weight_kg > 0)
 );
