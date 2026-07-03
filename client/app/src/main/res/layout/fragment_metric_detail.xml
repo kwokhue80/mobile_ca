@@ -233,6 +233,7 @@
         </LinearLayout>
 
         <FrameLayout
+            android:id="@+id/chartContainer"
             android:layout_width="match_parent"
             android:layout_height="220dp"
             android:layout_marginStart="8dp"
@@ -251,20 +252,98 @@
                 android:clickable="false"
                 android:focusable="false" />
 
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/chartMetricLine"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
         </FrameLayout>
 
-        <TextView
-            android:id="@+id/tvSummaryRowsHeader"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardBmi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="20dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="BMI"
+                        android:textColor="#1F1F1F"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvBmiValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="24.7, Normal Weight"
+                        android:textColor="#1F1F1F"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <sg.edu.nus.iss.client.dashboard.detail.BmiGaugeView
+                    android:id="@+id/bmiGauge"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:layout_marginTop="16dp" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:paddingEnd="16dp"
-            android:gravity="end"
-            android:text="Daily average"
-            android:textColor="#1F1F1F"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:visibility="gone" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvDailyGoal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingStart="20dp"
+                android:text="Daily goal: 8.05 km"
+                android:textColor="#1F1F1F"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvSummaryRowsHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingEnd="16dp"
+                android:gravity="end"
+                android:text="Daily average"
+                android:textColor="#1F1F1F"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+        </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvSummaryRows"

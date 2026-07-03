@@ -3,7 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/loginFragment">
+    app:startDestination="@id/homeFragment">
+
+    <action
+        android:id="@+id/action_global_activityDetailFragment"
+        app:destination="@id/activityDetailFragment" />
 
     <fragment
         android:id="@+id/loginFragment"
@@ -34,6 +38,15 @@
         <action
             android:id="@+id/action_homeFragment_to_metricDetailFragment"
             app:destination="@id/metricDetailFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_exerciseDaysDetailFragment"
+            app:destination="@id/exerciseDaysDetailFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_mentalHealthDetailFragment"
+            app:destination="@id/mentalHealthDetailFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_badgesFragment"
+            app:destination="@id/badgesFragment" />
     </fragment>
 
     <fragment
@@ -83,6 +96,30 @@
         android:label="Metric Detail">
         <argument
             android:name="arg_metric_type"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/exerciseDaysDetailFragment"
+        android:name="sg.edu.nus.iss.client.dashboard.detail.ExerciseDaysDetailFragment"
+        android:label="Exercise Days" />
+
+    <fragment
+        android:id="@+id/mentalHealthDetailFragment"
+        android:name="sg.edu.nus.iss.client.dashboard.detail.MentalHealthDetailFragment"
+        android:label="Mental Health" />
+
+    <fragment
+        android:id="@+id/badgesFragment"
+        android:name="sg.edu.nus.iss.client.dashboard.badges.BadgesFragment"
+        android:label="Badges" />
+
+    <fragment
+        android:id="@+id/activityDetailFragment"
+        android:name="sg.edu.nus.iss.client.dashboard.activity.ActivityDetailFragment"
+        android:label="Activity Detail">
+        <argument
+            android:name="arg_record_id"
             app:argType="string" />
     </fragment>
 

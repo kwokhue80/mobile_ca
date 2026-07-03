@@ -30,7 +30,8 @@ class DashboardFragment : Fragment() {
 
     private val activityPagerAdapter = ActivityRecordPagerAdapter(
         onDeleteClick = { record -> confirmDeleteRecord(record) },
-        onPageNumberClick = { page -> binding.viewPagerActivityRecords.setCurrentItem(page, true) }
+        onPageNumberClick = { page -> binding.viewPagerActivityRecords.setCurrentItem(page, true) },
+        onItemClick = { record -> RouteManager.toActivityDetail(this, record.id) }
     )
 
     override fun onCreateView(
