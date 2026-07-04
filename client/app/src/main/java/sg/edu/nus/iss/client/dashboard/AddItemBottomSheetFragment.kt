@@ -74,35 +74,32 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
 
         when (itemName) {
             "Sleep" -> setupSleepForm()
-            "Calories" -> setupFoodForm()
-            "Distance" -> setupDistanceForm()
+
+            // Calories 改成 Food；保留 Calories 是为了兼容旧入口
+            "Food", "Calories" -> setupFoodForm()
+
+            // Distance 和 Exercise Days 合并到 Activity；保留旧名字是为了兼容旧入口
+
+            "Activity", "Distance", "Exercise Days" -> setupDistanceForm()
+
+
             "Hydration" -> setupHydrationForm()
             "Weight" -> setupWeightForm()
-            "Steps" -> setupStepsForm()
-            "Exercise Days" -> setupExerciseDaysForm()
-            "Mental Health" -> setupMentalHealthForm()
-            "Badges" -> setupBadgesForm()
+
+            // Mental Health 改成 Mood；保留 Mental Health 是为了兼容旧入口
+            "Mood", "Mental Health" -> setupMentalHealthForm()
             else -> setupGenericMetricForm(itemName)
         }
     }
 
+
     /**
-     * Food Details form.
+     * Food form.
      *
-     * Database direction:
-     * - meal_type
-     * - food_name
-     * - calories
-     *
-     * Not included here:
-     * - protein_g
-     * - carbs_g
-     * - fat_g
-     *
-     * Reason: those fields were marked as not required in the UI/database discussion.
+     * Users manually enter meal type, food name, and calories.
      */
     private fun setupFoodForm() {
-        addSectionDescription("Enter food name and meal type. Calories can be auto-filled later from the local JSON food library.")
+        addSectionDescription("Record food name, meal type, and calories manually.")
 
         val mealTypeInput = addInput(
             label = "Meal Type",
@@ -118,38 +115,15 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
 
         val caloriesInput = addInput(
             label = "Calories (kcal)",
-            hint = "Auto-filled from JSON or enter manually",
-            inputType = decimalInputType()
+            hint = "e.g. 650",
+            inputType = InputType.TYPE_CLASS_NUMBER
         )
 
-        val lookupButton = addButton("Lookup Calories")
-        lookupButton.setOnClickListener {
-            val foodName = foodNameInput.text.toString().trim()
-
-            if (foodName.isEmpty()) {
-                foodNameInput.error = "Food name is required"
-                return@setOnClickListener
-            }
-
-            val calories = lookupCaloriesFromLocalFoodLibrary(foodName)
-
-            if (calories != null) {
-                caloriesInput.setText(calories.toString())
-                Toast.makeText(requireContext(), "Calories found: $calories kcal", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Food not found in local JSON yet. Please enter calories manually.",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
-
-        val saveButton = addButton("Save Food Details")
+        val saveButton = addButton("Save Food")
         saveButton.setOnClickListener {
             val mealType = mealTypeInput.text.toString().trim()
             val foodName = foodNameInput.text.toString().trim()
-            val calories = caloriesInput.text.toString().trim()
+            val caloriesText = caloriesInput.text.toString().trim()
 
             if (mealType.isEmpty()) {
                 mealTypeInput.error = "Meal type is required"
@@ -161,18 +135,24 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
                 return@setOnClickListener
             }
 
-            if (calories.isEmpty()) {
+            if (caloriesText.isEmpty()) {
                 caloriesInput.error = "Calories is required"
+                return@setOnClickListener
+            }
+
+            val calories = caloriesText.toIntOrNull()
+            if (calories == null || calories < 0) {
+                caloriesInput.error = "Please enter valid calories"
                 return@setOnClickListener
             }
 
             val payload = JSONObject().apply {
                 put("meal_type", mealType)
                 put("food_name", foodName)
-                put("calories", calories.toDouble())
+                put("calories_kcal", calories)
             }
 
-            savePayloadLocallyForNow("Food Details", payload)
+            savePayloadLocallyForNow("Food", payload)
         }
     }
 
@@ -231,25 +211,31 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         }
     }
 
+
     /**
-     * Exercise Details form for Distance.
+     * Activity form.
      *
-     * Database direction:
-     * - activity_type
-     * - distance_km
-     * - calories_burned
+     * This form combines the old Distance and Exercise Days concepts.
+     * Users record one activity with activity type, duration, optional distance,
+     * and optional calories burned.
      */
     private fun setupDistanceForm() {
-        addSectionDescription("Record exercise activity, distance, and optional calories burned.")
+        addSectionDescription("Record your physical activity, duration, optional distance, and optional calories burned.")
 
         val activityTypeInput = addInput(
             label = "Activity Type",
-            hint = "Walking / Running / Cycling",
+            hint = "Walking / Running / Cycling / Gym",
             inputType = InputType.TYPE_CLASS_TEXT
         )
 
+        val durationInput = addInput(
+            label = "Duration (minutes)",
+            hint = "e.g. 30",
+            inputType = InputType.TYPE_CLASS_NUMBER
+        )
+
         val distanceInput = addInput(
-            label = "Distance (km)",
+            label = "Distance (km, optional)",
             hint = "e.g. 3.2",
             inputType = decimalInputType()
         )
@@ -260,32 +246,53 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             inputType = decimalInputType()
         )
 
-        val saveButton = addButton("Save Exercise Details")
+        val saveButton = addButton("Save Activity")
         saveButton.setOnClickListener {
             val activityType = activityTypeInput.text.toString().trim()
-            val distance = distanceInput.text.toString().trim()
-            val caloriesBurned = caloriesBurnedInput.text.toString().trim()
+            val durationText = durationInput.text.toString().trim()
+            val distanceText = distanceInput.text.toString().trim()
+            val caloriesBurnedText = caloriesBurnedInput.text.toString().trim()
 
             if (activityType.isEmpty()) {
                 activityTypeInput.error = "Activity type is required"
                 return@setOnClickListener
             }
 
-            if (distance.isEmpty()) {
-                distanceInput.error = "Distance is required"
+            if (durationText.isEmpty()) {
+                durationInput.error = "Duration is required"
+                return@setOnClickListener
+            }
+
+            val durationMinutes = durationText.toIntOrNull()
+            if (durationMinutes == null || durationMinutes <= 0) {
+                durationInput.error = "Please enter a valid duration"
                 return@setOnClickListener
             }
 
             val payload = JSONObject().apply {
                 put("activity_type", activityType)
-                put("distance_km", distance.toDouble())
+                put("duration_minutes", durationMinutes)
 
-                if (caloriesBurned.isNotEmpty()) {
-                    put("calories_burned", caloriesBurned.toDouble())
+                if (distanceText.isNotEmpty()) {
+                    val distance = distanceText.toDoubleOrNull()
+                    if (distance == null || distance < 0) {
+                        distanceInput.error = "Please enter a valid distance"
+                        return@setOnClickListener
+                    }
+                    put("distance_km", distance)
+                }
+
+                if (caloriesBurnedText.isNotEmpty()) {
+                    val caloriesBurned = caloriesBurnedText.toDoubleOrNull()
+                    if (caloriesBurned == null || caloriesBurned < 0) {
+                        caloriesBurnedInput.error = "Please enter valid calories burned"
+                        return@setOnClickListener
+                    }
+                    put("calories_burned", caloriesBurned)
                 }
             }
 
-            savePayloadLocallyForNow("Exercise Details", payload)
+            savePayloadLocallyForNow("Activity", payload)
         }
     }
 
@@ -396,12 +403,18 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         }
     }
 
+    /**
+     * Mood form.
+     *
+     * This form replaces the old Mental Health form.
+     * Users record a mood score and optional notes.
+     */
     private fun setupMentalHealthForm() {
-        addSectionDescription("Record mental wellbeing score and optional notes.")
+        addSectionDescription("Record your mood score and optional notes.")
 
         val scoreInput = addInput(
-            label = "Mental Health Score",
-            hint = "1 = low, 10 = very good",
+            label = "Mood Score",
+            hint = "1 = very low, 10 = very good",
             inputType = InputType.TYPE_CLASS_NUMBER
         )
 
@@ -411,13 +424,13 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             inputType = InputType.TYPE_CLASS_TEXT
         )
 
-        val saveButton = addButton("Save Mental Health")
+        val saveButton = addButton("Save Mood")
         saveButton.setOnClickListener {
             val scoreText = scoreInput.text.toString().trim()
             val notes = notesInput.text.toString().trim()
 
             if (scoreText.isEmpty()) {
-                scoreInput.error = "Score is required"
+                scoreInput.error = "Mood score is required"
                 return@setOnClickListener
             }
 
@@ -428,13 +441,13 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             }
 
             val payload = JSONObject().apply {
-                put("metric_type", "mental_health")
+                put("metric_type", "mood")
                 put("metric_value", score)
                 put("unit", "score")
                 put("notes", notes)
             }
 
-            savePayloadLocallyForNow("Mental Health", payload)
+            savePayloadLocallyForNow("Mood", payload)
         }
     }
 
