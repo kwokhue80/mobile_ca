@@ -12,15 +12,15 @@ class ChatViewModel(private val ragRepository: RagRepository) : ViewModel() {
     fun processUserQuery(userQuery: String, onResult: (String) -> Unit, onError: (Throwable) -> Unit) {
         if (userQuery.isBlank()) return
 
+        // used for testing
+        android.util.Log.d("ChatViewModel", "Processing query: $userQuery")
+
         viewModelScope.launch {
             try {
                 // Only send the most recent messages, not the whole history
                 val recentHistory = messages.takeLast(10)
 
-                // Decide whether this query is worth checking against the local vector db
-                val shouldSearch = QueryRouter.shouldSearchVectorDb(userQuery)
-
-                val answer = ragRepository.answer(userQuery, recentHistory, shouldSearch)
+                val answer = ragRepository.answer(userQuery, recentHistory)
                 onResult(answer)
             } catch (e: Exception) {
                 onError(e)

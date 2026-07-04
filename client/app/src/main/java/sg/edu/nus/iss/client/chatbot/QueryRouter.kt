@@ -14,8 +14,14 @@ object QueryRouter {
 
     // Returns true when the query appears to reference a specific
     // food or dish, indicating a local vector DB search is worthwhile.
-    fun shouldSearchVectorDb(query: String): Boolean {
+    // Returns true if the query mentions a known dish name directly,
+    // or otherwise sounds food-related based on the keyword list above
+    fun shouldSearchVectorDb(query: String, knownDishNames: List<String>): Boolean {
         val lowerQuery = query.lowercase()
-        return foodKeywords.any { keyword -> lowerQuery.contains(keyword) }
+
+        val mentionsKnownDish = knownDishNames.any { dishName -> lowerQuery.contains(dishName.lowercase()) }
+        val mentionsFoodTopic = foodKeywords.any { keyword -> lowerQuery.contains(keyword) }
+
+        return mentionsKnownDish || mentionsFoodTopic
     }
 }
