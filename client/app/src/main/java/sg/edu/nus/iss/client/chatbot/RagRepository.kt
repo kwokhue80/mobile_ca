@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client.chatbot
 
+import sg.edu.nus.iss.client.backend.BackendConfig
 import sg.edu.nus.iss.client.backend.BackendRepository
 import sg.edu.nus.iss.client.embedding.OnnxEmbeddingModel
 import sg.edu.nus.iss.client.objectbox.Dish
