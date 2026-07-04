@@ -35,14 +35,15 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
-        dialog.behavior.isFitToContents = true // fit to bottom
+        dialog.behavior.isFitToContents = true
         dialog.behavior.skipCollapsed = true
         dialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
         return dialog
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = BottomSheetAddItemBinding.inflate(inflater, container, false)
@@ -64,7 +65,12 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         val basePaddingBottom = binding.root.paddingBottom
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val navBarInset = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-            v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, basePaddingBottom + navBarInset)
+            v.setPadding(
+                v.paddingLeft,
+                v.paddingTop,
+                v.paddingRight,
+                basePaddingBottom + navBarInset
+            )
             insets
         }
     }
@@ -79,24 +85,23 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             "Food", "Calories" -> setupFoodForm()
 
             // Distance 和 Exercise Days 合并到 Activity；保留旧名字是为了兼容旧入口
-
             "Activity", "Distance", "Exercise Days" -> setupDistanceForm()
-
 
             "Hydration" -> setupHydrationForm()
             "Weight" -> setupWeightForm()
 
             // Mental Health 改成 Mood；保留 Mental Health 是为了兼容旧入口
             "Mood", "Mental Health" -> setupMentalHealthForm()
+
             else -> setupGenericMetricForm(itemName)
         }
     }
-
 
     /**
      * Food form.
      *
      * Users manually enter meal type, food name, and calories.
+     * Payload is prepared in camelCase to match Spring Boot DTO / Entity naming.
      */
     private fun setupFoodForm() {
         addSectionDescription("Record food name, meal type, and calories manually.")
@@ -147,10 +152,10 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             }
 
             val payload = JSONObject().apply {
-                put("meal_type", mealType)
-                put("food_name", foodName)
-                put("calories_kcal", calories.toInt())
-                put("logged_at", getCurrentDateTimeForBackend())
+                put("mealType", normalizeMealType(mealType))
+                put("foodName", foodName)
+                put("caloriesKcal", calories)
+                put("loggedAt", getCurrentDateTimeForBackend())
             }
 
             savePayloadLocallyForNow("Food", payload)
@@ -160,12 +165,12 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
     /**
      * Sleep Details form.
      *
-     * CA-friendly version:
+     * Current CA-friendly version:
      * - sleep duration in hours
      * - quality score 1 to 5
      *
-     * Backend can later convert duration into sleep_start_datetime and sleep_end_datetime
-     * if the database requires exact datetime fields.
+     * Backend sleep_logs table uses start_time and end_time.
+     * This form may need backend conversion or later UI adjustment.
      */
     private fun setupSleepForm() {
         addSectionDescription("Record sleep duration and sleep quality score.")
@@ -204,14 +209,13 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             }
 
             val payload = JSONObject().apply {
-                put("sleep_duration_hours", durationText.toDouble())
-                put("quality_score", qualityScore)
+                put("sleepDurationHours", durationText.toDouble())
+                put("qualityScore", qualityScore)
             }
 
             savePayloadLocallyForNow("Sleep Details", payload)
         }
     }
-
 
     /**
      * Activity form.
@@ -219,13 +223,17 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
      * This form combines the old Distance and Exercise Days concepts.
      * Users record one activity with activity type, duration, optional distance,
      * and optional calories burned.
+     *
+     * Payload is prepared in camelCase to match Spring Boot DTO / Entity naming.
      */
     private fun setupDistanceForm() {
-        addSectionDescription("Record your physical activity, duration, optional distance, and optional calories burned.")
+        addSectionDescription(
+            "Record your physical activity, duration, optional distance, and optional calories burned."
+        )
 
         val activityTypeInput = addInput(
             label = "Activity Type",
-            hint = "Walking / Running / Cycling / Gym",
+            hint = "Walking / Running / Swimming / Cycling",
             inputType = InputType.TYPE_CLASS_TEXT
         )
 
@@ -244,7 +252,7 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         val caloriesBurnedInput = addInput(
             label = "Calories Burned (optional)",
             hint = "e.g. 180",
-            inputType = decimalInputType()
+            inputType = InputType.TYPE_CLASS_NUMBER
         )
 
         val saveButton = addButton("Save Activity")
@@ -281,19 +289,24 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
                 return@setOnClickListener
             }
 
-            val payload = JSONObject().apply {
-                put("exercise_type", activityType)
-                put("duration_minutes", durationMinutes)
-                put("calories_burned_kcal", caloriesBurned)
-                put("logged_at", getCurrentDateTimeForBackend())
+            var distanceKm: Double? = null
+            if (distanceText.isNotEmpty()) {
+                val parsedDistance = distanceText.toDoubleOrNull()
+                if (parsedDistance == null || parsedDistance < 0) {
+                    distanceInput.error = "Please enter a valid distance"
+                    return@setOnClickListener
+                }
+                distanceKm = parsedDistance
+            }
 
-                if (distanceText.isNotEmpty()) {
-                    val distance = distanceText.toDoubleOrNull()
-                    if (distance == null || distance < 0) {
-                        distanceInput.error = "Please enter a valid distance"
-                        return@setOnClickListener
-                    }
-                    put("distance_km", distance)
+            val payload = JSONObject().apply {
+                put("exerciseType", normalizeExerciseType(activityType))
+                put("durationMinutes", durationMinutes)
+                put("caloriesBurnedKcal", caloriesBurned)
+                put("loggedAt", getCurrentDateTimeForBackend())
+
+                if (distanceKm != null) {
+                    put("distanceKm", distanceKm)
                 }
             }
 
@@ -354,6 +367,10 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         }
     }
 
+    /**
+     * Kept for compatibility only.
+     * The Add Manually screen hides Steps, so users should not open this form now.
+     */
     private fun setupStepsForm() {
         addSectionDescription("Record daily step count.")
 
@@ -381,6 +398,10 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         }
     }
 
+    /**
+     * Kept for compatibility only.
+     * Exercise Days has been merged into Activity.
+     */
     private fun setupExerciseDaysForm() {
         addSectionDescription("Record how many days you exercised in the selected period.")
 
@@ -413,6 +434,8 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
      *
      * This form replaces the old Mental Health form.
      * Users record a mood score and optional notes.
+     *
+     * Payload is prepared in camelCase to match Spring Boot DTO / Entity naming.
      */
     private fun setupMentalHealthForm() {
         addSectionDescription("Record your mood score and optional notes.")
@@ -446,9 +469,9 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             }
 
             val payload = JSONObject().apply {
-                put("mood_rating", score)
+                put("moodRating", score)
                 put("notes", notes)
-                put("logged_at", getCurrentDateTimeForBackend())
+                put("loggedAt", getCurrentDateTimeForBackend())
             }
 
             savePayloadLocallyForNow("Mood", payload)
@@ -456,11 +479,13 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     /**
-     * Badges are usually generated by the app, not manually entered by users.
-     * This temporary form is kept only because the current Add Manually screen has a Badges button.
+     * Kept for compatibility only.
+     * Badges are usually generated automatically, not manually entered by users.
      */
     private fun setupBadgesForm() {
-        addSectionDescription("Badges are usually generated automatically. This temporary form can be adjusted later.")
+        addSectionDescription(
+            "Badges are usually generated automatically. This temporary form can be adjusted later."
+        )
 
         val badgeNameInput = addInput(
             label = "Badge Name",
@@ -485,8 +510,8 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             }
 
             val payload = JSONObject().apply {
-                put("metric_type", "badge")
-                put("metric_value", badgeName)
+                put("metricType", "badge")
+                put("metricValue", badgeName)
                 put("unit", "text")
                 put("notes", notes)
             }
@@ -541,8 +566,8 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         }
 
         val payload = JSONObject().apply {
-            put("metric_type", metricType)
-            put("metric_value", value.toDoubleOrNull() ?: value)
+            put("metricType", metricType)
+            put("metricValue", value.toDoubleOrNull() ?: value)
             put("unit", unit)
         }
 
@@ -550,27 +575,12 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     /**
-     * Temporary local lookup interface.
-     *
-     * Important:
-     * Do not add invented calorie values here.
-     * After teammate provides assets/food_calories.json, replace this method with JSON parsing.
-     */
-    private fun lookupCaloriesFromLocalFoodLibrary(foodName: String): Int? {
-        val foodCalories = emptyMap<String, Int>()
-
-        return foodCalories[foodName.trim().lowercase()]
-    }
-
-    /**
      * Temporary save behavior.
      *
-     * Later this should be replaced by:
-     * - Retrofit API call
-     * - POST /api/food-details
-     * - POST /api/sleep-details
-     * - POST /api/exercise-details
-     * - POST /api/wellness-records
+     * Later this should be replaced by Retrofit API calls, for example:
+     * POST /api/wellness/food
+     * POST /api/wellness/exercise
+     * POST /api/wellness/mood
      */
     private fun savePayloadLocallyForNow(formName: String, payload: JSONObject) {
         Toast.makeText(
@@ -647,12 +657,65 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
                 InputType.TYPE_NUMBER_FLAG_DECIMAL or
                 InputType.TYPE_NUMBER_FLAG_SIGNED
     }
+
     private fun getCurrentDateTimeForBackend(): String {
         val formatter = java.text.SimpleDateFormat(
             "yyyy-MM-dd'T'HH:mm:ss",
             java.util.Locale.getDefault()
         )
         return formatter.format(java.util.Date())
+    }
+
+    private fun normalizeMealType(input: String): String {
+        return when (input.trim().lowercase()) {
+            "breakfast" -> "BREAKFAST"
+            "brunch" -> "BRUNCH"
+            "morning snack" -> "MORNING_SNACK"
+            "morning tea" -> "MORNING_TEA"
+            "tea break" -> "TEA_BREAK"
+            "lunch" -> "LUNCH"
+            "afternoon snack" -> "AFTERNOON_SNACK"
+            "afternoon tea" -> "AFTERNOON_TEA"
+            "dinner" -> "DINNER"
+            "supper" -> "SUPPER"
+            "snack" -> "SNACK"
+            "dessert" -> "DESSERT"
+            "pre workout" -> "PRE_WORKOUT"
+            "post workout" -> "POST_WORKOUT"
+            "midnight meal" -> "MIDNIGHT_MEAL"
+            "beverage" -> "BEVERAGE"
+            else -> "OTHER"
+        }
+    }
+
+    private fun normalizeExerciseType(input: String): String {
+        return when (input.trim().lowercase()) {
+            "run", "running" -> "RUNNING"
+            "walk", "walking" -> "WALKING"
+            "swim", "swimming" -> "SWIMMING"
+            "hike", "hiking" -> "HIKING"
+            "cycle", "cycling", "bike", "biking" -> "CYCLING"
+            "jog", "jogging" -> "JOGGING"
+            "strength training" -> "STRENGTH_TRAINING"
+            "weightlifting", "weight lifting" -> "WEIGHTLIFTING"
+            "bodyweight training" -> "BODYWEIGHT_TRAINING"
+            "hiit" -> "HIIT"
+            "crossfit" -> "CROSSFIT"
+            "yoga" -> "YOGA"
+            "pilates" -> "PILATES"
+            "stretching" -> "STRETCHING"
+            "rowing" -> "ROWING"
+            "jump rope" -> "JUMP_ROPE"
+            "dancing" -> "DANCING"
+            "basketball" -> "BASKETBALL"
+            "football" -> "FOOTBALL"
+            "badminton" -> "BADMINTON"
+            "tennis" -> "TENNIS"
+            "volleyball" -> "VOLLEYBALL"
+            "martial arts" -> "MARTIAL_ARTS"
+            "climbing" -> "CLIMBING"
+            else -> "OTHER"
+        }
     }
 
     private fun dp(value: Int): Int {
