@@ -59,9 +59,9 @@ INSERT INTO chat_recommendations (id, message_id, recommendation_type, recommend
 -- Notes: values satisfy CHECK constraints in schema.
 -- -----------------------------------------------------
 INSERT INTO sleep_logs (id, user_id, start_time, end_time, sleep_quality_score) VALUES
-(4001, '11111111-1111-1111-1111-111111111111', '2026-07-01 23:10:00', '2026-07-02 06:30:00', 78),
-(4002, '22222222-2222-2222-2222-222222222222', '2026-07-01 00:20:00', '2026-07-01 06:05:00', 65),
-(4003, '11111111-1111-1111-1111-111111111111', '2026-07-02 23:40:00', '2026-07-03 07:00:00', 83);
+(4001, '11111111-1111-1111-1111-111111111111', '2026-07-01 23:10:00', '2026-07-02 06:30:00', 8),
+(4002, '22222222-2222-2222-2222-222222222222', '2026-07-01 00:20:00', '2026-07-01 06:05:00', 6),
+(4003, '11111111-1111-1111-1111-111111111111', '2026-07-02 23:40:00', '2026-07-03 07:00:00', 9);
 
 INSERT INTO food_logs (id, user_id, meal_type, food_name, calories_kcal, logged_at) VALUES
 (5001, '11111111-1111-1111-1111-111111111111', 'BREAKFAST', 'Oatmeal with banana', 380, '2026-07-02 08:05:00'),
@@ -91,10 +91,10 @@ INSERT INTO mood_logs (id, user_id, logged_at, mood_rating, notes) VALUES
 -- Section: homepage activity feed
 -- Notes: source_log_id maps to corresponding metric log IDs.
 -- -----------------------------------------------------
-INSERT INTO activity_logs (id, user_id, source_log_id, activity_type, title, `description`, recorded_at) VALUES
+INSERT INTO activity_records (id, user_id, source_log_id, activity_type, title, `description`, recorded_at) VALUES
 (10001, '11111111-1111-1111-1111-111111111111', 7001, 'HYDRATION', 'Water intake logged', '500 ml recorded', '2026-07-02 09:20:00'),
 (10002, '11111111-1111-1111-1111-111111111111', 8001, 'EXERCISE',  'Evening run logged', '5.20 km in 35 minutes', '2026-07-02 18:20:00'),
-(10003, '11111111-1111-1111-1111-111111111111', 4001, 'SLEEP',     'Night sleep recorded', '440 minutes, quality 78', '2026-07-02 06:30:00'),
+(10003, '11111111-1111-1111-1111-111111111111', 4001, 'SLEEP',     'Night sleep recorded', '440 minutes, quality 8', '2026-07-02 06:30:00'),
 (10004, '22222222-2222-2222-2222-222222222222', 9002, 'MOOD',      'Mood check-in logged', 'Rating 3 with short-sleep note', '2026-07-02 22:10:00');
 
 -- -----------------------------------------------------
@@ -114,6 +114,6 @@ INSERT INTO daily_wellness_summary (
 	mood_score,
 	weight_kg
 ) VALUES
-(11001, '11111111-1111-1111-1111-111111111111', '2026-07-02', 1800, 1680, 460, 60, 440, 78, 4, 58.40),
-(11002, '22222222-2222-2222-2222-222222222222', '2026-07-02', 1400, 1540, 420, 45, 345, 65, 3, 73.20);
+(11001, '11111111-1111-1111-1111-111111111111', '2026-07-02', 1800, 1680, 460, 60, 440, 8, 4, 58.40),
+(11002, '22222222-2222-2222-2222-222222222222', '2026-07-02', 1400, 1540, 420, 45, 345, 6, 3, 73.20);
 
