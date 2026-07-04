@@ -34,7 +34,7 @@ public class UserProfile extends Updatable {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
-    @Column(name = "user_id")
+    @Column(name = "user_id", length = 36, nullable = false)
     private UUID userId;
 
     @Column(name = "full_name", length = 100, nullable = false)
@@ -49,9 +49,9 @@ public class UserProfile extends Updatable {
     @Column(name = "height_cm", precision = 5, scale = 2, nullable = false)
     private BigDecimal heightCm;
 
-    @OneToOne
+    @OneToOne(optional = false)
     @MapsId // Share PK with User
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
     
 }
