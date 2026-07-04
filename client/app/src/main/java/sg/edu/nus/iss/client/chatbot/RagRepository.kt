@@ -1,53 +1,63 @@
 package sg.edu.nus.iss.client.chatbot
 
 import sg.edu.nus.iss.client.embedding.OnnxEmbeddingModel
+import sg.edu.nus.iss.client.objectbox.Dish
 import sg.edu.nus.iss.client.objectbox.DishRepository
 import sg.edu.nus.iss.client.openrouter.OpenRouterClient
-import java.util.Locale
 
 class RagRepository(
     private val embeddingModel: OnnxEmbeddingModel,
     private val dishRepository: DishRepository,
     private val openRouterClient: OpenRouterClient
 ) {
-
-    suspend fun answer(query: String, topK: Int = 3): String {
+    suspend fun answer(
+        query: String,
+        conversationHistory: List<ChatMessage> = emptyList(), topK: Int = 3
+    ): String {
         val queryVector = embeddingModel.embed(query)
         val topChunks = dishRepository.retrieve(queryVector, topK)
 
         // this line is for testing
         android.util.Log.d("RagRepository", "Retrieved dishes: ${topChunks.map { it.first.name }}")
 
-        val context = topChunks.mapIndexed { i, (doc, score) ->
-            "Dish Context Profile ${i + 1} (Source File: ${doc.sourceFile}, Cosine Distance: ${
-                String.format(Locale.US, "%.4f", score)
-            }):\n${doc.content}"
-        }.joinToString("\n\n")
-
-        val prompt = buildPrompt(query, context)
-
+        val context = buildContext(topChunks)
+        val prompt = buildPrompt(query, context, conversationHistory)
         return openRouterClient.chatCompletion(prompt)
     }
 
-    private fun buildPrompt(query: String, context: String): String = """
+    private fun buildContext(topChunks: List<Pair<Dish, Double>>): String {
+        return topChunks.mapIndexed { i, (dish, score) ->
+            "Dish ${i + 1} (${dish.name}):\n${dish.content}"
+        }.joinToString("\n\n")
+    }
+    private fun buildPrompt(
+        query: String,
+        context: String,
+        conversationHistory: List<ChatMessage>
+    ): String {
+        // Turn the message list into a simple readable transcript
+        val historyText = conversationHistory.joinToString("\n") { msg ->
+            if (msg.isUser) "User: ${msg.text}" else "Assistant: ${msg.text}"
+        }
+
+        return """
         Role:
-        You are an expert, supportive fitness and wellness AI assistant. Your purpose is to help users manage their dietary tracking by answering food analysis, calorie, macro-nutrition, allergy, and recipe questions accurately.
+        You are a supportive fitness and wellness AI assistant helping users track diet and nutrition.
 
         Task:
-        Answer the user's inquiry directly using the verified Singapore, Thai and Vietnamese food profiles provided in the Context below. Before providing the hard numbers on calories, protein, carbs, and fats, give a brief overview of the dish and its nutritional highlights. Before providing the macro-nutrition breakdown, state the serving size. If the food profile requested is absent or if you cannot logically infer the answer from the Context, tell the user politely that you do not have nutritional records for that item.
+        Answer the user's question using ONLY the food data in the Context below. If the item isn't in the Context, politely say you don't have nutritional records for it.
 
         Rules:
-        - Give answers tailored to fitness tracking metrics (calories, protein, carbs, fats).
-        - Stay clean, concise, clear, and beginner-friendly.
-        - Do not invent numbers or nutritional values. Only use the data provided in the Context.
-        - State the data source notes at the very end of your answer for transparency. Do not mention the source file, nor the cosine distance score, nor the chunk index in your answer. Also do not make any mention of "food profile" in your answer.
-        - Use the notes in Dietary Considerations to provide gentle cautionary advice if the dish is high in sodium, sugar, or saturated fat. Offer practical tips for healthier consumption.
-
-        Output style and format:
-        - Be empathetic, friendly and encouraging in your tone.
-        - If a dish is high in sodium, sugar, or saturated fat, provide a gentle cautionary note and offer a practical tip, eg. "Asking for less gravy or sauce can help reduce sodium intake."
-        - Format macro items nicely with clean typography.
-        - Avoid mentioning inner mechanics like system scores, distance values, chunks, or technical indices.
+        - Keep your answer SHORT: 3-4 sentences maximum, or a few short bullet points.
+        - State calories, protein, carbs, and fat clearly and briefly.
+        - Do not invent numbers. Only use data from the Context.
+        - If the dish is high in sodium, sugar, or saturated fat, add ONE brief cautionary tip.
+        - Do not mention source files, distance scores, chunk numbers, or the word "food profile."
+        - Be warm and friendly, but concise — no long explanations.
+        - If the user asks about the CHATBOT's own identity (e.g. "who are you", "tell me about yourself", "what is your name"), respond with a short note about your role as a wellness chatbot with no name.
+        - If the user asks about THEMSELVES (e.g. "what is my name", "what did I say earlier") — look at the "Conversation so far" section below and answer using what they've actually told you. Never confuse a question about the user with a question about yourself.
+        Conversation so far:
+        $historyText
 
         Context:
         $context
@@ -56,4 +66,5 @@ class RagRepository(
 
         Answer:
     """.trimIndent()
+    }
 }

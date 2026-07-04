@@ -1,6 +1,7 @@
 package sg.edu.nus.iss.client
 
 import android.app.Application
+import android.util.Log
 import io.objectbox.BoxStore
 import sg.edu.nus.iss.client.chatbot.RagRepository
 import sg.edu.nus.iss.client.embedding.OnnxEmbeddingModel
@@ -36,9 +37,16 @@ class RagApplication : Application() {
 
         val dishRepository = DishRepository(boxStore)
         ragRepository = RagRepository(embeddingModel, dishRepository, openRouterClient)
+
+        // this code counts the number of vectors in the vector db
+        val vectorBox = boxStore.boxFor(sg.edu.nus.iss.client.objectbox.Dish::class.java)
+        val vectorCount = vectorBox.count()
+
+        Log.d("RagApplication", "Number of vectors in DB: $vectorCount")
     }
 
     private fun objectBoxDirectory(): File = File(filesDir, "objectbox-generator")
+
 
     private fun copyPrebuiltDatabaseIfNeeded() {
         val destDir = objectBoxDirectory()

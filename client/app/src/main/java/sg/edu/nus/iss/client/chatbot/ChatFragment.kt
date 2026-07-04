@@ -5,7 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import sg.edu.nus.iss.client.RagApplication
 import sg.edu.nus.iss.client.databinding.FragmentChatBinding
 
@@ -14,9 +15,8 @@ class ChatFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var adapter: ChatAdapter
-    private val messages = mutableListOf<ChatMessage>()
 
-    private val viewModel: ChatViewModel by viewModels {
+    private val viewModel: ChatViewModel by activityViewModels {
         val app = requireActivity().application as RagApplication
         ChatViewModelFactory(app.ragRepository)
     }
@@ -32,33 +32,39 @@ class ChatFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = ChatAdapter(messages)
+        adapter = ChatAdapter(viewModel.messages)
         binding.recyclerViewChat.adapter = adapter
 
-        val layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
+        val layoutManager = LinearLayoutManager(requireContext())
         layoutManager.stackFromEnd = true
         binding.recyclerViewChat.layoutManager = layoutManager
+
+        // redraws any messages already in the notebook previously
+        adapter.notifyDataSetChanged()
+        if (viewModel.messages.isNotEmpty()) {
+            binding.recyclerViewChat.scrollToPosition(viewModel.messages.size - 1)
+        }
 
         binding.btnSend.setOnClickListener {
             val userText = binding.editTextMessage.text.toString().trim()
             if (userText.isNotEmpty()) {
                 binding.editTextMessage.text.clear()
 
-                messages.add(ChatMessage(userText, isUser = true))
-                adapter.notifyItemInserted(messages.size - 1)
-                binding.recyclerViewChat.scrollToPosition(messages.size - 1)
+                viewModel.messages.add(ChatMessage(userText, isUser = true))
+                adapter.notifyItemInserted(viewModel.messages.size - 1)
+                binding.recyclerViewChat.scrollToPosition(viewModel.messages.size - 1)
 
                 viewModel.processUserQuery(
                     userQuery = userText,
                     onResult = { answer ->
-                        messages.add(ChatMessage(answer, isUser = false))
-                        adapter.notifyItemInserted(messages.size - 1)
-                        binding.recyclerViewChat.scrollToPosition(messages.size - 1)
+                        viewModel.messages.add(ChatMessage(answer, isUser = false))
+                        adapter.notifyItemInserted(viewModel.messages.size - 1)
+                        binding.recyclerViewChat.scrollToPosition(viewModel.messages.size - 1)
                     },
                     onError = { error ->
-                        messages.add(ChatMessage("Sorry, something went wrong: ${error.message}", isUser = false))
-                        adapter.notifyItemInserted(messages.size - 1)
-                        binding.recyclerViewChat.scrollToPosition(messages.size - 1)
+                        viewModel.messages.add(ChatMessage("Sorry, something went wrong: ${error.message}", isUser = false))
+                        adapter.notifyItemInserted(viewModel.messages.size - 1)
+                        binding.recyclerViewChat.scrollToPosition(viewModel.messages.size - 1)
                     }
                 )
             }
