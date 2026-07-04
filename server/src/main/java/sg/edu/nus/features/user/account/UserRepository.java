@@ -11,8 +11,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 */
 public interface UserRepository extends JpaRepository<User, UUID> {
 
-    public Optional<User> findByEmailAddress(String emailAddress);
+    // READ
+    Optional<User> findByEmailAddress(String emailAddress);
 
-    public boolean existsByEmailAddress(String emailAddress);
+    boolean existsByEmailAddress(String emailAddress);
 
 }
