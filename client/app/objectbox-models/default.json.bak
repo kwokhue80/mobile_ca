@@ -38,46 +38,10 @@
         }
       ],
       "relations": []
-    },
-    {
-      "id": "2:6958333947559867569",
-      "lastPropertyId": "5:7058349282152884084",
-      "name": "ChatMessageEntity",
-      "properties": [
-        {
-          "id": "1:8008497571052268988",
-          "name": "id",
-          "type": 6,
-          "flags": 1
-        },
-        {
-          "id": "2:6093649764636102747",
-          "name": "text",
-          "type": 9
-        },
-        {
-          "id": "3:4709355406028569881",
-          "name": "isUser",
-          "type": 1
-        },
-        {
-          "id": "4:8785105820078852474",
-          "name": "timestamp",
-          "type": 6
-        },
-        {
-          "id": "5:7058349282152884084",
-          "name": "embedding",
-          "indexId": "2:3482640165354260883",
-          "type": 28,
-          "flags": 8
-        }
-      ],
-      "relations": []
     }
   ],
-  "lastEntityId": "2:6958333947559867569",
-  "lastIndexId": "2:3482640165354260883",
+  "lastEntityId": "1:9161492259333427815",
+  "lastIndexId": "1:2373504995506128986",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,

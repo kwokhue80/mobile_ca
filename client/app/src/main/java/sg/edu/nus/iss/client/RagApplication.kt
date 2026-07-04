@@ -11,7 +11,6 @@ import sg.edu.nus.iss.client.backend.BackendRepository
 import sg.edu.nus.iss.client.chatbot.RagRepository
 import sg.edu.nus.iss.client.embedding.OnnxEmbeddingModel
 import sg.edu.nus.iss.client.objectbox.DishRepository
-import sg.edu.nus.iss.client.objectbox.MyObjectBox
 import sg.edu.nus.iss.client.openrouter.OpenRouterClient
 import java.io.File
 import java.io.FileOutputStream
