@@ -149,7 +149,8 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             val payload = JSONObject().apply {
                 put("meal_type", mealType)
                 put("food_name", foodName)
-                put("calories_kcal", calories)
+                put("calories_kcal", calories.toInt())
+                put("logged_at", getCurrentDateTimeForBackend())
             }
 
             savePayloadLocallyForNow("Food", payload)
@@ -269,9 +270,22 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
                 return@setOnClickListener
             }
 
+            val caloriesBurned = if (caloriesBurnedText.isEmpty()) {
+                0
+            } else {
+                caloriesBurnedText.toIntOrNull()
+            }
+
+            if (caloriesBurned == null || caloriesBurned < 0) {
+                caloriesBurnedInput.error = "Please enter valid calories burned"
+                return@setOnClickListener
+            }
+
             val payload = JSONObject().apply {
-                put("activity_type", activityType)
+                put("exercise_type", activityType)
                 put("duration_minutes", durationMinutes)
+                put("calories_burned_kcal", caloriesBurned)
+                put("logged_at", getCurrentDateTimeForBackend())
 
                 if (distanceText.isNotEmpty()) {
                     val distance = distanceText.toDoubleOrNull()
@@ -280,15 +294,6 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
                         return@setOnClickListener
                     }
                     put("distance_km", distance)
-                }
-
-                if (caloriesBurnedText.isNotEmpty()) {
-                    val caloriesBurned = caloriesBurnedText.toDoubleOrNull()
-                    if (caloriesBurned == null || caloriesBurned < 0) {
-                        caloriesBurnedInput.error = "Please enter valid calories burned"
-                        return@setOnClickListener
-                    }
-                    put("calories_burned", caloriesBurned)
                 }
             }
 
@@ -441,10 +446,9 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             }
 
             val payload = JSONObject().apply {
-                put("metric_type", "mood")
-                put("metric_value", score)
-                put("unit", "score")
+                put("mood_rating", score)
                 put("notes", notes)
+                put("logged_at", getCurrentDateTimeForBackend())
             }
 
             savePayloadLocallyForNow("Mood", payload)
@@ -642,6 +646,13 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         return InputType.TYPE_CLASS_NUMBER or
                 InputType.TYPE_NUMBER_FLAG_DECIMAL or
                 InputType.TYPE_NUMBER_FLAG_SIGNED
+    }
+    private fun getCurrentDateTimeForBackend(): String {
+        val formatter = java.text.SimpleDateFormat(
+            "yyyy-MM-dd'T'HH:mm:ss",
+            java.util.Locale.getDefault()
+        )
+        return formatter.format(java.util.Date())
     }
 
     private fun dp(value: Int): Int {
