@@ -8,6 +8,7 @@ class ChatViewModel(private val ragRepository: RagRepository) : ViewModel() {
 
     // "messages" holds every message for the app session
     val messages = mutableListOf<ChatMessage>()
+
     fun processUserQuery(userQuery: String, onResult: (String) -> Unit, onError: (Throwable) -> Unit) {
         if (userQuery.isBlank()) return
 
@@ -16,7 +17,10 @@ class ChatViewModel(private val ragRepository: RagRepository) : ViewModel() {
                 // Only send the most recent messages, not the whole history
                 val recentHistory = messages.takeLast(10)
 
-                val answer = ragRepository.answer(userQuery, recentHistory)
+                // Decide whether this query is worth checking against the local vector db
+                val shouldSearch = QueryRouter.shouldSearchVectorDb(userQuery)
+
+                val answer = ragRepository.answer(userQuery, recentHistory, shouldSearch)
                 onResult(answer)
             } catch (e: Exception) {
                 onError(e)
