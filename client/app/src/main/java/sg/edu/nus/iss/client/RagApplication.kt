@@ -3,6 +3,11 @@ package sg.edu.nus.iss.client
 import android.app.Application
 import android.util.Log
 import io.objectbox.BoxStore
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import sg.edu.nus.iss.client.backend.BackendApi
+import sg.edu.nus.iss.client.backend.BackendRepository
 import sg.edu.nus.iss.client.chatbot.RagRepository
 import sg.edu.nus.iss.client.embedding.OnnxEmbeddingModel
 import sg.edu.nus.iss.client.objectbox.DishRepository
@@ -13,8 +18,6 @@ import java.io.FileOutputStream
 
 class RagApplication : Application() {
 
-//    private lateinit var boxStore: BoxStore
-    // the line below is for testing the vector db
     lateinit var boxStore: BoxStore
         private set
     private lateinit var embeddingModel: OnnxEmbeddingModel
@@ -36,7 +39,19 @@ class RagApplication : Application() {
         openRouterClient = OpenRouterClient()
 
         val dishRepository = DishRepository(boxStore)
-        ragRepository = RagRepository(embeddingModel, dishRepository, openRouterClient)
+
+        // Placeholder address for the FastAPI server. Update this once
+        // the server is actually running somewhere reachable.
+        val backendRetrofit = Retrofit.Builder()
+            .baseUrl("http://10.0.2.2:8000/") // 10.0.2.2 points to "localhost" on a computer, when running from an emulator
+            .client(OkHttpClient())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val backendApi = backendRetrofit.create(BackendApi::class.java)
+        val backendRepository = BackendRepository(backendApi)
+
+        ragRepository = RagRepository(embeddingModel, dishRepository, openRouterClient, backendRepository)
 
         // this code counts the number of vectors in the vector db
         val vectorBox = boxStore.boxFor(sg.edu.nus.iss.client.objectbox.Dish::class.java)
