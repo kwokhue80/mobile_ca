@@ -9,8 +9,6 @@ class ChatHistoryRepository(store: BoxStore) {
 
     private val box: Box<ChatMessageEntity> = store.boxFor(ChatMessageEntity::class.java)
 
-    // Returns the most recent messages in order from oldest to newest,
-    // suitable for populating the chat display after app restart.
     fun getRecentMessages(limit: Int = 30): List<ChatMessage> {
         val query = box.query()
             .order(ChatMessageEntity_.timestamp, QueryBuilder.DESCENDING)
@@ -20,21 +18,30 @@ class ChatHistoryRepository(store: BoxStore) {
         return recent.reversed().map { it.toChatMessage() }
     }
 
-    // Stores a new message and removes the oldest entry once the limit is passed.
     fun saveMessage(message: ChatMessageEntity, limit: Int = 30) {
         box.put(message)
         if (box.count() > limit) {
             val query = box.query()
-                .order(ChatMessageEntity_.timestamp) // ascending by default
+                .order(ChatMessageEntity_.timestamp)
                 .build()
             val oldest = query.findFirst()
             query.close()
             oldest?.let { box.remove(it) }
         }
     }
+
+    // Finds past messages whose embedding is closest in meaning to the
+    // given query embedding
+    fun searchMessages(queryEmbedding: FloatArray, limit: Int = 5): List<ChatMessage> {
+        val query = box.query(
+            ChatMessageEntity_.embedding.nearestNeighbors(queryEmbedding, limit)
+        ).build()
+        val results = query.find()
+        query.close()
+        return results.map { it.toChatMessage() }
+    }
 }
 
-// Converts a stored entity back into the plain display model used by the UI
 fun ChatMessageEntity.toChatMessage(): ChatMessage {
     return ChatMessage(text = text, isUser = isUser)
 }
