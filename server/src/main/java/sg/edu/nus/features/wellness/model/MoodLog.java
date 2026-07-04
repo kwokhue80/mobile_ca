@@ -37,7 +37,7 @@ public class MoodLog extends Creatable {
 	@Column(name = "logged_at", nullable = false)
 	private LocalDateTime loggedAt;
 
-    @Min(0)
+    @Min(1)
     @Max(10)
 	@Column(name = "mood_rating", nullable = false)
 	private Integer moodRating;

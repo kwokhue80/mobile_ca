@@ -34,8 +34,9 @@ public class ChatSession extends Updatable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Builder.Default
     @Column(name = "title", length = 255)
-    private String title;
+    private String title = "New Chat";
 
     @Builder.Default
     @Column(name = "is_active", nullable = false)

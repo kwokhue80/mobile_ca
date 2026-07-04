@@ -1,2 +1,13 @@
 /.metadata/
 /.vscode/
+
+# Gradle local build caches and locks
+.gradle/
+**/objectbox-generator/rag/.gradle/
+
+# Kotlin compiler daemon sessions
+.kotlin/
+**/objectbox-generator/rag/.kotlin/
+
+# Android/Gradle build outputs
+**/build/
