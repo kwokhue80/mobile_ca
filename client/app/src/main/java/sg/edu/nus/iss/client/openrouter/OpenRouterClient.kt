@@ -33,7 +33,7 @@ class OpenRouterClient {
 
     suspend fun chatCompletion(
         prompt: String,
-        model: String = "google/gemma-4-26b-a4b-it:free"
+        model: String = "google/gemini-2.5-flash-lite"
     ): String {
         val apiKey = BuildConfig.OPENROUTER_API_KEY
         require(apiKey.isNotBlank()) {

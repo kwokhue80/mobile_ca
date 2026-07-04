@@ -15,6 +15,9 @@ class RagRepository(
         val queryVector = embeddingModel.embed(query)
         val topChunks = dishRepository.retrieve(queryVector, topK)
 
+        // this line is for testing
+        android.util.Log.d("RagRepository", "Retrieved dishes: ${topChunks.map { it.first.name }}")
+
         val context = topChunks.mapIndexed { i, (doc, score) ->
             "Dish Context Profile ${i + 1} (Source File: ${doc.sourceFile}, Cosine Distance: ${
                 String.format(Locale.US, "%.4f", score)
