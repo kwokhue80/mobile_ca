@@ -35,13 +35,20 @@ data class  LoginRequest(val emailAddress: String, val password: String)
 data class LoginResponse(val token: String)
 
 data class WellnessRecord(
-    val recordDate: String,
-    val sleepHours: Double,
-    val moodRating: Int,
-    val exerciseActivity: String,
-    val exerciseDurationMinutes: Int,
-    val stressLevel: Int,
-    val waterIntakeLiters: Double
+    val recordDate: String,                     // Format: "yyyy-MM-dd HH:mm:ss"
+    val sleepMinutes: Int? = null,              // Sleep duration in minutes
+    val sleepQualityRating: Int? = null,        // Sleep quality rating (1-5)
+    val mealType: String? = null,               // Meal type (e.g., breakfast, lunch, dinner)
+    val mealDescription: String? = null,        // Meal description
+    val mealCaloriesKcal: Int? = null,          // Meal calories in kilocalories
+    val weightKg: Double? = null,               // Weight in kilograms
+    val waterIntakeMl: Int? = null,             // Water intake in milliliters
+    val exerciseType: String? = null,           // Exercise activity description
+    val exerciseDurationMinutes: Int? = null,   // Exercise duration in minutes
+    val exerciseDistanceKm: Double? = null,     // Exercise distance in kilometers
+    val exerciseCaloriesBurnedKcal: Int? = null,// Exercise calories burned
+    val moodRating: Int? = null,                // Consolidated mood and stress
+
 )
 
 data class RecommendationResponse(val recommendation: String, val generatedAt: String)
