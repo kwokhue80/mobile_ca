@@ -10,17 +10,26 @@ import java.util.Collections;
 
 public class UserPrincipal implements UserDetails {
 
+    private static final String DEFAULT_ROLE = "ROLE_USER";
+
     private final String id;
     private final String emailAddress;
     private final String password;
     private final boolean enabled;
+    private final Collection<? extends GrantedAuthority> authorities;
 
     // Map of database User entity to this Principal
     public UserPrincipal(User user) {
+        this(user, DEFAULT_ROLE);
+    }
+
+    public UserPrincipal(User user, String role) {
         this.id = user.getId().toString();
         this.emailAddress = user.getEmailAddress();
         this.password = user.getPasswordHash();
         this.enabled = user.getEnabled();
+        String effectiveRole = (role == null || role.isBlank()) ? DEFAULT_ROLE : role;
+        this.authorities = Collections.singletonList(new SimpleGrantedAuthority(effectiveRole));
     }
 
     /**
@@ -51,8 +60,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Assign a Default User Role to satisfy Spring Security's requirements.
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        return authorities;
     }
 
     @Override
