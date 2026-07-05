@@ -12,7 +12,7 @@ import sg.edu.nus.features.user.account.UserRepository;
 import sg.edu.nus.features.wellness.dto.WellnessLogRequest;
 import sg.edu.nus.features.wellness.dto.WellnessRecordPayload;
 import sg.edu.nus.features.wellness.model.WellnessLog;
-import sg.edu.nus.security.UserPrincipal;
+
 
 @RestController
 @RequestMapping("/api/wellness")
@@ -43,9 +43,9 @@ public class WellnessController {
     @PostMapping("/records")
     public ResponseEntity<Void> saveRecord(
             @RequestBody WellnessRecordPayload payload,
-            @AuthenticationPrincipal UserPrincipal principal
+            @AuthenticationPrincipal String email
     ) {
-        User currentUser = userRepository.findByEmailAddress(principal.getUsername())
+        User currentUser = userRepository.findByEmailAddress(email)
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found in database"));
 
         orchestratorService.processMonolithicRecord(currentUser, payload);
