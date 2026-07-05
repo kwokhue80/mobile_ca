@@ -1,11 +1,7 @@
 package sg.edu.nus.iss.client.objectbox
 
-import kotlin.jvm.java
-
 import io.objectbox.Box
 import io.objectbox.BoxStore
-import sg.edu.nus.iss.client.objectbox.Dish
-import sg.edu.nus.iss.client.objectbox.Dish_
 
 class DishRepository(boxStore: BoxStore) {
 
@@ -24,5 +20,9 @@ class DishRepository(boxStore: BoxStore) {
             .findWithScores()
 
         return results.map { Pair(it.get(), it.score) }
+    }
+
+    fun getAllDishNames(): List<String> {
+        return dishBox.all.map { it.name }
     }
 }
