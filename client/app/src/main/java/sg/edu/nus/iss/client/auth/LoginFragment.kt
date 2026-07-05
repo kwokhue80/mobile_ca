@@ -74,10 +74,27 @@ class LoginFragment : Fragment() {
                         is LoginUiState.Loading -> {
                             Toast.makeText(requireContext(), "Logging in...", Toast.LENGTH_SHORT).show()
                         }
+//                        is LoginUiState.Success -> {
+//                            pendingTokenToSave = state.token
+//                            authenticateToEncrypt()
+//                            viewModel.resetState()
+//                        }
                         is LoginUiState.Success -> {
-                            pendingTokenToSave = state.token
-                            authenticateToEncrypt()
+                            // Save JWT token directly after successful login.
+                            // AuthInterceptor will read this token and add:
+                            // Authorization: Bearer <token>
+                            sessionManager.saveEncryptedAuthToken(state.token, null)
+
+                            android.util.Log.d("LoginFragment", "Login success. Token saved.")
+
+                            Toast.makeText(
+                                requireContext(),
+                                "Login successful",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
                             viewModel.resetState()
+                            navigateToMainActivity()
                         }
                         is LoginUiState.Error -> {
                             Toast.makeText(
