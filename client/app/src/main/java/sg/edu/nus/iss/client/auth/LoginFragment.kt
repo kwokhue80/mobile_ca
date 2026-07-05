@@ -52,7 +52,7 @@ class LoginFragment : Fragment() {
 
         binding.btnLogin.setOnClickListener {
             android.util.Log.d("LoginFragment", "Login button clicked")
-            Toast.makeText(requireContext(), "Processing Login...", Toast.LENGTH_SHORT).show()
+            // Toast.makeText(requireContext(), "Processing Login...", Toast.LENGTH_SHORT).show()
             val email = binding.etEmailAddress.text.toString()
             val password = binding.etPassword.text.toString()
             if (email.isBlank() || password.isBlank()) {

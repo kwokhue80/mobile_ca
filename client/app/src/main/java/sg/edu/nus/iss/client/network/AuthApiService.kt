@@ -19,11 +19,16 @@ interface AuthApiService {
         @Body loginRequest: LoginRequest
     ): Response<LoginResponse>
 
+    // User logout
+    @POST("api/auth/logout")
+    suspend fun logout(): Response<LogoutResponse>
+
     @POST("api/wellness/records")
     suspend fun saveRecord(
         @Body wellnessRecord: WellnessRecord
     ): Response<Void>
 
+data class LogoutResponse(val token: String?)
     @GET("api/wellness/recommendations/latest")
     suspend fun getLatestRecommendation(): Response<RecommendationResponse>
 }

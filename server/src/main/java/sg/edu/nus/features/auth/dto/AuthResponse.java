@@ -7,17 +7,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 /*
 *   AUTHOR: Amelia
 *   PURPOSE: Auth response DTO from backend
 *   {
-*       "accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyM0B0ZXN0LmNvbSIsInVzZXJJZCI6ImU5YzQ4ZGJhLTNhNzUtNDlkZS1iYzBhLTIzNTBmYWQ2NmJlNyIsImlhdCI6MTc4Mjg3NTA3OSwiZXhwIjoxNzgyOTYxNDc5fQ.3U5OrNaZJSsUWpI7IQZSQ4PnqwhICHrleR6gPkdvmAk",
-*       "user": {
-*           "id": "e9c48dba-3a75-49de-bc0a-2350fad66be7",
-*           "emailAddress": "user3@test.com",
-*           "enabled": true
-*       }
+*       "accessToken": "..."
 *   }
 */
 @Getter
@@ -25,6 +21,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString // For logging
 public class AuthResponse {
 
     @JsonProperty("token")
