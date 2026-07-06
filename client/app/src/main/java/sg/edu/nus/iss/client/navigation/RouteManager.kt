@@ -19,8 +19,9 @@ object RouteManager {
 
     // To login fragment (on logout)
     fun toLogin(host: Fragment) {
-        // Navigate to login and clear backstack
-        host.findNavController().navigate(R.id.loginFragment)
+        val navController = host.findNavController()
+        navController.popBackStack(R.id.homeFragment, true)
+        navController.navigate(R.id.loginFragment)
     }
 
     // To home fragment
