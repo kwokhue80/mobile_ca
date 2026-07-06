@@ -53,7 +53,7 @@ class RagRepository(
         }
 
         val answer = if (BackendConfig.USE_BACKEND) {
-            backendRepository.answer(query, context, localMatchFound, conversationHistory)
+            backendRepository.answer(query, conversationHistory, relevantPastMessages)
         } else {
             val prompt = buildPrompt(query, context, conversationHistory, relevantPastMessages)
             openRouterClient.chatCompletion(prompt)
