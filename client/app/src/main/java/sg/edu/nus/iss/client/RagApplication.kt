@@ -52,7 +52,13 @@ class RagApplication : Application() {
         val backendApi = backendRetrofit.create(BackendApi::class.java)
         val backendRepository = BackendRepository(backendApi)
 
-        ragRepository = RagRepository(embeddingModel, dishRepository, openRouterClient, backendRepository)
+        ragRepository = RagRepository(
+            embeddingModel,
+            dishRepository,
+            chatHistoryRepository,
+            openRouterClient,
+            backendRepository
+        )
 
         val vectorBox = boxStore.boxFor(sg.edu.nus.iss.client.objectbox.Dish::class.java)
         val vectorCount = vectorBox.count()

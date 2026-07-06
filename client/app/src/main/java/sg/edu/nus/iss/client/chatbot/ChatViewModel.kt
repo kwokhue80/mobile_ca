@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.chathistory.ChatHistoryRepository
-import sg.edu.nus.iss.client.chathistory.ChatMessageEntity
 import sg.edu.nus.iss.client.chathistory.FeatureFlags
 
 class ChatViewModel(
@@ -27,12 +26,7 @@ class ChatViewModel(
     fun processUserQuery(userQuery: String, onResult: (String) -> Unit, onError: (Throwable) -> Unit) {
         if (userQuery.isBlank()) return
 
-        // used for testing
         android.util.Log.d("ChatViewModel", "Processing query: $userQuery")
-
-        if (FeatureFlags.ENABLE_CHAT_HISTORY_PERSISTENCE) {
-            chatHistoryRepository.saveMessage(ChatMessageEntity(text = userQuery, isUser = true))
-        }
 
         viewModelScope.launch {
             try {
@@ -40,10 +34,6 @@ class ChatViewModel(
                 val recentHistory = messages.takeLast(10)
 
                 val answer = ragRepository.answer(userQuery, recentHistory)
-
-                if (FeatureFlags.ENABLE_CHAT_HISTORY_PERSISTENCE) {
-                    chatHistoryRepository.saveMessage(ChatMessageEntity(text = answer, isUser = false))
-                }
 
                 onResult(answer)
             } catch (e: Exception) {
