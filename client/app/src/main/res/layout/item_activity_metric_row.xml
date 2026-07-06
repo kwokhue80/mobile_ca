@@ -14,6 +14,7 @@
         android:paddingBottom="14dp">
 
         <FrameLayout
+            android:id="@+id/iconCircle"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:background="@drawable/bg_row_icon_circle">

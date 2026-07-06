@@ -18,4 +18,17 @@ enum class ExerciseType(
 
     val accentColor: Int get() = Color.parseColor(accentColorHex)
     val accentBackground: Int get() = Color.parseColor(accentBackgroundHex)
+
+    companion object {
+        // Looks up the ExerciseType for a saved ActivityRecord.type (its displayName).
+        fun fromDisplayName(displayName: String): ExerciseType? =
+            entries.firstOrNull { it.displayName == displayName }
+
+        // Icon for a saved ActivityRecord.type, falling back to a generic icon for types
+        // that predate this enum or don't match any entry.
+        @DrawableRes
+        fun iconResFor(displayName: String): Int =
+            fromDisplayName(displayName)?.iconRes ?: R.drawable.ic_activity_default
+    }
+
 }
