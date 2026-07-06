@@ -5,6 +5,8 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Query
+import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
 
 interface AuthApiService {
 
@@ -29,7 +31,11 @@ interface AuthApiService {
         @Body wellnessRecord: WellnessRecord
     ): Response<Void>
 
-data class LogoutResponse(val token: String?)
+    @GET("api/dashboard/daily")
+    suspend fun getDailyDashboard(
+        @Query("date") date: String     // Format: "yyyy-MM-dd"
+    ): Response<DashboardDailyResponse>
+
     @GET("api/wellness/recommendations/latest")
     suspend fun getLatestRecommendation(): Response<RecommendationResponse>
 
@@ -43,6 +49,8 @@ data class LogoutResponse(val token: String?)
         @Body request: UserProfileUpdateRequest
     ): Response<UserProfileResponse>
 }
+
+data class LogoutResponse(val token: String?)
 
 data class RegisterRequest(val emailAddress: String, val password: String)
 data class RegisterResponse(val token: String)
@@ -64,7 +72,6 @@ data class WellnessRecord(
     val exerciseDistanceKm: Double? = null,     // Exercise distance in kilometers
     val exerciseCaloriesBurnedKcal: Int? = null,// Exercise calories burned
     val moodRating: Int? = null,                // Consolidated mood and stress
-
 )
 
 data class RecommendationResponse(val recommendation: String, val generatedAt: String)
@@ -83,4 +90,22 @@ data class UserProfileUpdateRequest(
     val dateOfBirth: String,   // Format: "yyyy-MM-dd"
     val gender: String,
     val heightCm: Double
+)
+
+data class DashboardDailyResponse(
+    val dailyWellnessSummary: DailyWellnessSummary,
+    val activityRecords: List<ActivityRecord>
+)
+
+data class DailyWellnessSummary(
+    val id: Long? = null,
+    val summaryDate: String,
+    val totalWaterMl: Int,
+    val totalCaloriesIntake: Int,
+    val totalCaloriesBurned: Int,
+    val totalExerciseMinutes: Int,
+    val sleepMinutes: Int? = null,
+    val sleepQualityScore: Int? = null,
+    val moodScore: Int? = null,
+    val weightKg: Double? = null
 )
