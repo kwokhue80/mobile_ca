@@ -119,9 +119,10 @@ public class WellnessOrchestratorService {
                 .build();
             food = foodRepo.save(food);
 
-            saveActivityRecord(currentUser, food.getId(), "NUTRITION", "Meal Logged (" + payload.getMealType() + ")", 
-            	    (payload.getMealDescription() != null ? payload.getMealDescription() : "Logged Meal") + " - " + payload.getMealCaloriesKcal() + " kcal", 
-            	    recordDate);
+//             saveActivityRecord(currentUser, food.getId(), "NUTRITION", "Meal Logged (" + payload.getMealType() + ")", 
+//             	    (payload.getMealDescription() != null ? payload.getMealDescription() : "Logged Meal") + " - " + payload.getMealCaloriesKcal() + " kcal", 
+//             	    recordDate);
+            saveActivityRecord(currentUser, food.getId(), "FOOD", "Meal Logged (" + payload.getMealType() + ")", payload.getMealCaloriesKcal() + " kcal", recordDate);
 
             summary.setTotalCaloriesIntake(summary.getTotalCaloriesIntake() + payload.getMealCaloriesKcal());
         }

@@ -110,6 +110,16 @@ object RouteManager {
         host.findNavController().navigate(R.id.action_homeFragment_to_badgesFragment)
     }
 
+    // To user profile
+    fun toProfile(host: Fragment) {
+        host.findNavController().navigate(R.id.action_homeFragment_to_profileFragment)
+    }
+
+    // To edit profile
+    fun toEditProfile(host: Fragment) {
+        host.findNavController().navigate(R.id.action_profileFragment_to_editProfileFragment)
+    }
+
     // To activity detail
     fun toActivityDetail(host: Fragment, recordId: String) {
         val bundle = Bundle().apply {

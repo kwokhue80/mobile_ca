@@ -1,11 +1,14 @@
 package sg.edu.nus.iss.client.dashboard.history
 
+import android.graphics.Color
+import android.graphics.PorterDuff
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import sg.edu.nus.iss.client.R
 import sg.edu.nus.iss.client.databinding.ItemHistoryHeaderBinding
 import sg.edu.nus.iss.client.databinding.ItemHistoryRecordBinding
+import sg.edu.nus.iss.client.dashboard.activity.model.ExerciseType
 import sg.edu.nus.iss.client.dashboard.history.model.HistoryListItem
 import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
 import sg.edu.nus.iss.client.dashboard.util.ActivityDateFormatter
@@ -17,6 +20,8 @@ class HistoryListAdapter(
     companion object {
         private const val VIEW_TYPE_HEADER = 0
         private const val VIEW_TYPE_RECORD = 1
+        private val DEFAULT_ACCENT_COLOR = Color.parseColor("#1F1F1F")
+        private val DEFAULT_ACCENT_BACKGROUND = Color.parseColor("#EEF1F5")
     }
 
     private var items: List<HistoryListItem> = emptyList()
@@ -62,14 +67,17 @@ class HistoryListAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: HistoryListItem.Record) {
             val record = item.record
-            binding.iconActivityType.setImageResource(
-                when (record.type) {
-                    "Walk" -> R.drawable.ic_activity_walk
-                    "Run" -> R.drawable.ic_activity_run
-                    "Swim" -> R.drawable.ic_activity_swim
-                    else -> R.drawable.ic_activity_default
-                }
+            val exerciseType = ExerciseType.fromDisplayName(record.type)
+
+            binding.iconActivityType.setImageResource(exerciseType?.iconRes ?: ExerciseType.iconResFor(record.type))
+            binding.iconActivityType.setColorFilter(
+                exerciseType?.accentColor ?: DEFAULT_ACCENT_COLOR,
+                PorterDuff.Mode.SRC_IN
             )
+            (binding.iconContainer.background.mutate() as GradientDrawable).setColor(
+                exerciseType?.accentBackground ?: DEFAULT_ACCENT_BACKGROUND
+            )
+            
             binding.tvActivityType.text = record.type
             binding.tvActivityMeta.text =
                 "${ActivityDateFormatter.formatTimeOnly(record.timestamp)} · ${record.durationMinutes} min"
