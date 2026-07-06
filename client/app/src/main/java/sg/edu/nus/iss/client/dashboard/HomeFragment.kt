@@ -23,6 +23,7 @@ import sg.edu.nus.iss.client.databinding.FragmentHomeBinding
 import sg.edu.nus.iss.client.navigation.RouteManager
 import sg.edu.nus.iss.client.network.AuthApiService
 import sg.edu.nus.iss.client.network.RetrofitClient
+import sg.edu.nus.iss.client.util.BiometricHelper
 import sg.edu.nus.iss.client.util.SessionManager
 
 class HomeFragment : Fragment() {
@@ -32,6 +33,7 @@ class HomeFragment : Fragment() {
     private lateinit var sessionManager: SessionManager
     private lateinit var authApiService: AuthApiService
     private lateinit var logoutViewModel: LogoutViewModel
+    private lateinit var biometricHelper: BiometricHelper
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,6 +47,7 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         
         // Init session manager, api service, logout view model
+        biometricHelper = BiometricHelper(this)
         sessionManager = SessionManager(requireContext())
         authApiService = RetrofitClient.getApiService(requireContext())
         logoutViewModel = ViewModelProvider(
@@ -93,7 +96,7 @@ class HomeFragment : Fragment() {
         }
 
         // Observe logout state while view is visible
-        // On completion, clear session and return to login.
+        // On completion, clear session and return to log in.
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 logoutViewModel.uiState.collect { state ->
@@ -101,7 +104,7 @@ class HomeFragment : Fragment() {
                         is LogoutUiState.Idle -> Unit
                         is LogoutUiState.Loading -> {}
 
-                        // On logout success, clear session and return to login
+                        // On logout success, clear session and return to log in
                         is LogoutUiState.Success -> {
                             sessionManager.clearSession()
                             Toast.makeText(requireContext(), getString(R.string.logout_success), Toast.LENGTH_SHORT).show()
@@ -109,8 +112,8 @@ class HomeFragment : Fragment() {
                             logoutViewModel.resetState()
                         }
 
-                        // On logout error, clear session and return to login
-                        // REASON: Prioritising user experience + security; JWT has expiry on backend too
+                        // On logout error, clear session and return to log in
+                        // REASON: Prioritizing user experience + security; JWT has expiry on backend too
                         is LogoutUiState.Error -> {
                             sessionManager.clearSession()
                             Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
@@ -128,8 +131,17 @@ class HomeFragment : Fragment() {
         val popupMenu = PopupMenu(requireContext(), anchor)
         popupMenu.menuInflater.inflate(R.menu.profile_menu, popupMenu.menu)
 
+        // Set the Initial Checkbox State of the Biometric Login
+        val biometricItem = popupMenu.menu.findItem(R.id.action_toggle_biometric)
+        biometricItem.isChecked = sessionManager.isBiometricEnabled()
+
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
+                // On toggling biometric login, update session manager
+                R.id.action_toggle_biometric -> {
+                    handleBiometricToggle(!item.isChecked)
+                    true
+                }
                 // On select logout, clear session and send logout request to server
                 R.id.action_logout -> {
                     confirmLogout()
@@ -138,8 +150,66 @@ class HomeFragment : Fragment() {
                 else -> false
             }
         }
-
         popupMenu.show()
+    }
+
+    // Manage biometric login state
+    private fun handleBiometricToggle(enable: Boolean) {
+        if (enable) {
+            // "ON" State
+            val status = biometricHelper.canAuthenticate()
+            if (status == androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS) {
+                try {
+                    val cipher = sessionManager.getInitializedCipherForEncryption()
+                    val cryptoObject = androidx.biometric.BiometricPrompt.CryptoObject(cipher)
+
+                    biometricHelper.showBiometricPrompt(
+                        cryptoObject = cryptoObject,
+                        onSuccess = { unlockedCipher ->
+                            val token = sessionManager.getDecryptedTokenFromMemory()
+                            if (token != null && unlockedCipher != null) {
+                                sessionManager.saveEncryptedAuthToken(token, unlockedCipher)
+                                sessionManager.setBiometricEnabled(true)
+                                Toast.makeText(
+                                    requireContext(),
+                                    getString(R.string.token_encrypted),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        },
+                        onError = { err ->
+                            Toast.makeText(
+                                requireContext(),
+                                "${getString(R.string.biometric_error_unsupported)}: $err",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    )
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        requireContext(),
+                        "${getString(R.string.biometric_error_unsupported)}: $e",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.biometric_error_no_hardware),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        } else {
+            // "OFF" State
+            sessionManager.setBiometricEnabled(false)
+            sessionManager.saveEncryptedAuthToken(sessionManager.getDecryptedTokenFromMemory() ?: "", null)
+
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.biometric_disabled),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     // Alert on select logout

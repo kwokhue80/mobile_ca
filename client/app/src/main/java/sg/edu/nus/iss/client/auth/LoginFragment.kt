@@ -15,17 +15,15 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.R
 import sg.edu.nus.iss.client.databinding.FragmentLoginBinding
+import sg.edu.nus.iss.client.navigation.RouteManager
 import sg.edu.nus.iss.client.network.AuthApiService
 import sg.edu.nus.iss.client.network.RetrofitClient
 import sg.edu.nus.iss.client.util.BiometricHelper
 import sg.edu.nus.iss.client.util.SessionManager
-import sg.edu.nus.iss.client.navigation.RouteManager
 
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
-    private var pendingTokenToSave: String? = null
-
     private lateinit var sessionManager: SessionManager
     private lateinit var authApiService: AuthApiService
 
@@ -85,16 +83,15 @@ class LoginFragment : Fragment() {
                             // Authorization: Bearer <token>
                             sessionManager.saveEncryptedAuthToken(state.token, null)
 
-                            android.util.Log.d("LoginFragment", "Login success. Token saved.")
-
-                            Toast.makeText(
-                                requireContext(),
-                                "Login successful",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                            viewModel.resetState()
-                            navigateToMainActivity()
+                            // If the user previously enabled biometrics, prompt them
+                            // to secure this brand NEW token with their fingerprint right now.
+                            if (sessionManager.isBiometricEnabled()) {
+                                promptToSecureNewToken()
+                            } else {
+                                Toast.makeText(requireContext(), "Login successful", Toast.LENGTH_SHORT).show()
+                                viewModel.resetState()
+                                navigateToMainActivity()
+                            }
                         }
                         is LoginUiState.Error -> {
                             Toast.makeText(
@@ -108,63 +105,18 @@ class LoginFragment : Fragment() {
                 }
             }
         }
-    }
-
-    private fun authenticateToEncrypt() {
-        val biometricStatus = biometricHelper.canAuthenticate() // Set bio as optional
-        if (biometricStatus == BiometricManager.BIOMETRIC_SUCCESS) {
-            try {
-                val cipher = sessionManager.getInitializedCipherForEncryption()
-                val cryptoObject = BiometricPrompt.CryptoObject(cipher)
-
-                biometricHelper.showBiometricPrompt(
-                    cryptoObject = cryptoObject,
-                    onSuccess = { unlockedCipher ->
-                        if (unlockedCipher != null) {
-                            pendingTokenToSave?.let { token ->
-                                sessionManager.saveEncryptedAuthToken(token, unlockedCipher)
-                                pendingTokenToSave = null
-                                Toast.makeText(
-                                    requireContext(),
-                                    getString(R.string.token_encrypted),
-                                    Toast.LENGTH_SHORT)
-                                    .show()
-                                navigateToMainActivity()
-                            }
-                        }
-                    },
-                    onError = { errorMessage ->
-                        Toast.makeText(
-                            requireContext(),
-                            "${getString(R.string.auth_error)}: $errorMessage",
-                            Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                )
-            } catch (e: Exception) {
-                Toast.makeText(
-                    requireContext(),
-                    "${getString(R.string.token_error)}: ${e.message}",
-                    Toast.LENGTH_SHORT)
-                    .show()
-            }
-        } else { // Biometrics not available/enrolled
-            Toast.makeText(
-                requireContext(),
-                "Biometrics not available. Saving session unencrypted.",
-                Toast.LENGTH_SHORT)
-                .show()
-            
-            pendingTokenToSave?.let { token ->
-                sessionManager.saveEncryptedAuthToken(token, null)
-                pendingTokenToSave = null
-            }
-
-            navigateToMainActivity()
+        if (sessionManager.isBiometricEnabled()) {
+            checkBiometricSupportAndAuthenticate()
         }
     }
 
     private fun checkBiometricSupportAndAuthenticate() {
+        // 1. Check if the user has opted in via the HomeFragment toggle
+        if (!sessionManager.isBiometricEnabled()) {
+            Toast.makeText(requireContext(), "Biometric login is not enabled for this account.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val biometricStatus = biometricHelper.canAuthenticate()
         if (biometricStatus == BiometricManager.BIOMETRIC_SUCCESS) {
             try {
@@ -176,41 +128,63 @@ class LoginFragment : Fragment() {
                     onSuccess = { unlockedCipher ->
                         if (unlockedCipher != null) {
                             sessionManager.getDecryptedAuthToken(unlockedCipher)
-                            Toast.makeText(
-                                requireContext(),
-                                getString(R.string.token_decrypted),
-                                Toast.LENGTH_SHORT)
-                                .show()
+                            Toast.makeText(requireContext(), getString(R.string.token_decrypted), Toast.LENGTH_SHORT).show()
                             navigateToMainActivity()
                         }
                     },
                     onError = { errorMessage ->
-                        Toast.makeText(
-                            requireContext(),
-                            "${getString(R.string.auth_error)}: $errorMessage",
-                            Toast.LENGTH_SHORT)
-                            .show()
+                        Toast.makeText(requireContext(), "${getString(R.string.auth_error)}: $errorMessage", Toast.LENGTH_SHORT).show()
                     }
                 )
+            } catch (e: android.security.keystore.KeyPermanentlyInvalidatedException) {
+                Toast.makeText(requireContext(), "Biometrics changed for security. Please login with your password.", Toast.LENGTH_LONG).show()
+            } catch (e: IllegalStateException) {
+                Toast.makeText(requireContext(), "Session expired. Please log in with a password to refresh.", Toast.LENGTH_LONG).show()
             } catch (e: Exception) {
-                Toast.makeText(
-                    requireContext(),
-                    // getString(R.string.biometric_error_hw_unavailable),
-                    "Please login with password instead: ${e.message}", // Debug
-                    Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         } else {
-            val message = when(biometricStatus) { // Biometrics not available/enrolled
+            val message = when(biometricStatus) {
                 BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> getString(R.string.biometric_error_none_enrolled)
                 BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> getString(R.string.biometric_error_no_hardware)
                 else -> getString(R.string.biometric_error_hw_unavailable)
             }
-            Toast.makeText(
-                requireContext(),
-                message,
-                Toast.LENGTH_SHORT)
-                .show()
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun promptToSecureNewToken() {
+        val status = biometricHelper.canAuthenticate()
+        if (status == BiometricManager.BIOMETRIC_SUCCESS) {
+            try {
+                val cipher = sessionManager.getInitializedCipherForEncryption()
+                val cryptoObject = BiometricPrompt.CryptoObject(cipher)
+
+                biometricHelper.showBiometricPrompt(
+                    cryptoObject = cryptoObject,
+                    onSuccess = { unlockedCipher ->
+                        val token = sessionManager.getDecryptedTokenFromMemory()
+                        if (token != null && unlockedCipher != null) {
+                            sessionManager.saveEncryptedAuthToken(token, unlockedCipher)
+                        }
+                        Toast.makeText(requireContext(), "Login successful", Toast.LENGTH_SHORT).show()
+                        viewModel.resetState()
+                        navigateToMainActivity()
+                    },
+                    onError = {
+                        // If they cancel the prompt, let them in anyway using the standard token
+                        Toast.makeText(requireContext(), "Login successful", Toast.LENGTH_SHORT).show()
+                        viewModel.resetState()
+                        navigateToMainActivity()
+                    }
+                )
+            } catch (e: Exception) {
+                viewModel.resetState()
+                navigateToMainActivity()
+            }
+        } else {
+            viewModel.resetState()
+            navigateToMainActivity()
         }
     }
 
