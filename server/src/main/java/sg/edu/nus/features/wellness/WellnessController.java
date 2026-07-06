@@ -1,7 +1,7 @@
 package sg.edu.nus.features.wellness;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,34 +12,38 @@ import lombok.extern.slf4j.Slf4j;
 import sg.edu.nus.features.user.account.User;
 import sg.edu.nus.features.user.account.UserRepository;
 import sg.edu.nus.features.wellness.dto.WellnessRecordPayload;
-import sg.edu.nus.security.UserPrincipal;
-
 
 @Slf4j
 @RestController
 @RequestMapping("/api/wellness")
 @RequiredArgsConstructor
 public class WellnessController {
-    
+
     private final WellnessOrchestratorService orchestratorService;
     private final UserRepository userRepository;
 
     @PostMapping("/records")
     public ResponseEntity<Void> saveRecord(
             @RequestBody WellnessRecordPayload payload,
-            @AuthenticationPrincipal UserPrincipal principal) {
+            Authentication authentication) {
 
-        log.info("Received wellness record payload from user ID: {}", principal.getUsername());
+        if (authentication == null || authentication.getName() == null) {
+            throw new RuntimeException("User is not authenticated");
+        }
 
-        // Fetch the fully managed User entity from the database using the ID from the JWT
-        User currentUser = userRepository.findByEmailAddress(principal.getUsername())
-            .orElseThrow(() -> new RuntimeException("Authenticated user not found in database"));
+        // JwtAuthenticationFilter stores the email as authentication name.
+        String emailAddress = authentication.getName();
 
-        // Pass to the orchestrator for transaction-safe processing
+        log.info("Received wellness record payload from user email: {}", emailAddress);
+        log.info("Payload recordDate: {}", payload.getRecordDate());
+
+        User currentUser = userRepository.findByEmailAddress(emailAddress)
+                .orElseThrow(() -> new RuntimeException("Authenticated user not found in database"));
+
         orchestratorService.processMonolithicRecord(currentUser, payload);
-        
-        log.info("Successfully processed wellness record for user ID: {}", principal.getId());
-        
+
+        log.info("Successfully processed wellness record for user ID: {}", currentUser.getId());
+
         return ResponseEntity.ok().build();
     }
 }
