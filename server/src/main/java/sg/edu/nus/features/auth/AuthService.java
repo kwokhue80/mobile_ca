@@ -1,8 +1,11 @@
 package sg.edu.nus.features.auth;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import sg.edu.nus.features.auth.dto.AuthResponse;
 import sg.edu.nus.features.auth.dto.LoginRequest;
@@ -11,6 +14,7 @@ import sg.edu.nus.features.user.account.User;
 import sg.edu.nus.features.user.account.UserMapper;
 import sg.edu.nus.features.user.account.UserService;
 import sg.edu.nus.security.JwtService;
+import sg.edu.nus.security.TokenBlacklistService;
 
 /*
 *   AUTHOR: Amelia
@@ -24,6 +28,7 @@ public class AuthService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     // Registration
     public AuthResponse register(RegisterRequest request) {
@@ -85,6 +90,33 @@ public class AuthService {
             // .user(respUser)
             .build();
 
+    }
+
+    // Logout for stateless JWT flow with token revocation
+    public AuthResponse logout(String token) {
+        SecurityContextHolder.clearContext();
+
+        if (token != null && !token.isBlank()) {
+            try {
+                Claims claims = jwtService.authenticateToken(token);
+                tokenBlacklistService.revokeToken(token, claims.getExpiration());
+            } catch (Exception ignored) {
+                // Keep logout idempotent even when token parsing fails.
+            }
+        }
+
+        return AuthResponse.builder()
+            .token(null)
+            .build();
+    }
+
+    // Gets token from auth header
+    public String resolveTokenFromAuthorizationHeader(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+        return null;
     }
 
 }

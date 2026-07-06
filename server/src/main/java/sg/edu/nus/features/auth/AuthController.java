@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import sg.edu.nus.features.auth.dto.AuthResponse;
@@ -33,8 +34,17 @@ public class AuthController {
 
     // Login user and return HTTP 200
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
+    }
+
+    // Logout user and return HTTP 200
+    @PostMapping("/logout")
+    public ResponseEntity<AuthResponse> logout(HttpServletRequest request) {
+        String token = authService.resolveTokenFromAuthorizationHeader(request);
+        AuthResponse response = authService.logout(token); // Revoke token
+        System.out.println(">>> Logout successful: " + response.toString());
         return ResponseEntity.ok(response);
     }
 

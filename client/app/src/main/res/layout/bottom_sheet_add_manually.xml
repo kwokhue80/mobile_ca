@@ -4,99 +4,53 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:background="@drawable/bg_bottom_sheet"
+    android:orientation="vertical"
     android:paddingStart="20dp"
     android:paddingEnd="20dp"
     android:paddingTop="12dp"
-    android:paddingBottom="28dp">
+    android:paddingBottom="20dp">
 
-    <!-- 拖拽手柄 -->
     <View
+        android:id="@+id/dragHandle"
         android:layout_width="36dp"
         android:layout_height="4dp"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="4dp"
         android:background="@drawable/bg_drag_handle" />
 
     <TextView
+        android:id="@+id/tvAddManuallyTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="16dp"
-        android:text="Add manually"
         android:fontFamily="sans-serif-medium"
+        android:text="Add wellness record"
         android:textColor="#1F1F1F"
         android:textSize="20sp"
         android:textStyle="bold" />
 
-    <!-- 第一行 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAddDistance"
+            android:id="@+id/btnAddFood"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="start|center_vertical"
             android:layout_marginEnd="8dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
-            android:text="Distance"
-            android:textAllCaps="false"
-            android:fontFamily="sans-serif-medium"
-            android:textColor="#1F1F1F"
-            android:textSize="14sp"
-            app:backgroundTint="#C7D0CF"
-            app:cornerRadius="24dp"
-            app:icon="@drawable/distance_icon"
-            app:iconGravity="textStart"
-            app:iconPadding="6dp"
-            app:iconTint="#1F1F1F" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAddSteps"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="start|center_vertical"
-            android:layout_marginEnd="8dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
-            android:text="Steps"
-            android:textAllCaps="false"
             android:fontFamily="sans-serif-medium"
-            android:textColor="#1F1F1F"
-            android:textSize="14sp"
-            app:backgroundTint="#C7D0CF"
-            app:cornerRadius="24dp"
-            app:icon="@drawable/steps_icon"
-            app:iconGravity="textStart"
-            app:iconPadding="6dp"
-            app:iconTint="#1F1F1F" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAddCalories"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:gravity="start|center_vertical"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:paddingTop="12dp"
             android:paddingBottom="12dp"
-            android:text="Calories"
+            android:text="Food"
             android:textAllCaps="false"
-            android:fontFamily="sans-serif-medium"
             android:textColor="#1F1F1F"
             android:textSize="14sp"
             app:backgroundTint="#C7D0CF"
@@ -106,30 +60,21 @@
             app:iconPadding="6dp"
             app:iconTint="#1F1F1F" />
 
-    </LinearLayout>
-
-    <!-- 第二行 -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:orientation="horizontal">
-
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddSleep"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="start|center_vertical"
             android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="start|center_vertical"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:paddingTop="12dp"
             android:paddingBottom="12dp"
             android:text="Sleep"
             android:textAllCaps="false"
-            android:fontFamily="sans-serif-medium"
             android:textColor="#1F1F1F"
             android:textSize="14sp"
             app:backgroundTint="#C7D0CF"
@@ -145,15 +90,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:fontFamily="sans-serif-medium"
             android:gravity="start|center_vertical"
-            android:layout_marginEnd="8dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:paddingTop="12dp"
             android:paddingBottom="12dp"
             android:text="Hydration"
             android:textAllCaps="false"
-            android:fontFamily="sans-serif-medium"
             android:textColor="#1F1F1F"
             android:textSize="14sp"
             app:backgroundTint="#C7D0CF"
@@ -163,32 +107,8 @@
             app:iconPadding="6dp"
             app:iconTint="#1F1F1F" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAddBadges"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="start|center_vertical"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
-            android:text="Badges"
-            android:textAllCaps="false"
-            android:fontFamily="sans-serif-medium"
-            android:textColor="#1F1F1F"
-            android:textSize="14sp"
-            app:backgroundTint="#C7D0CF"
-            app:cornerRadius="24dp"
-            app:icon="@drawable/badges_icon"
-            app:iconGravity="textStart"
-            app:iconPadding="6dp"
-            app:iconTint="#1F1F1F" />
-
     </LinearLayout>
 
-    <!-- 第三行 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -200,16 +120,16 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="start|center_vertical"
             android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="start|center_vertical"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:paddingTop="12dp"
             android:paddingBottom="12dp"
             android:text="Weight"
             android:textAllCaps="false"
-            android:fontFamily="sans-serif-medium"
             android:textColor="#1F1F1F"
             android:textSize="14sp"
             app:backgroundTint="#C7D0CF"
@@ -220,20 +140,20 @@
             app:iconTint="#1F1F1F" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAddExerciseDays"
+            android:id="@+id/btnAddExercise"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="start|center_vertical"
             android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="start|center_vertical"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:paddingTop="12dp"
             android:paddingBottom="12dp"
-            android:text="Exercise Days"
+            android:text="Exercise"
             android:textAllCaps="false"
-            android:fontFamily="sans-serif-medium"
             android:textColor="#1F1F1F"
             android:textSize="14sp"
             app:backgroundTint="#C7D0CF"
@@ -244,19 +164,19 @@
             app:iconTint="#1F1F1F" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAddMentalHealth"
+            android:id="@+id/btnAddMood"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:fontFamily="sans-serif-medium"
             android:gravity="start|center_vertical"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:paddingTop="12dp"
             android:paddingBottom="12dp"
-            android:text="Mental Health"
+            android:text="Mood"
             android:textAllCaps="false"
-            android:fontFamily="sans-serif-medium"
             android:textColor="#1F1F1F"
             android:textSize="14sp"
             app:backgroundTint="#C7D0CF"

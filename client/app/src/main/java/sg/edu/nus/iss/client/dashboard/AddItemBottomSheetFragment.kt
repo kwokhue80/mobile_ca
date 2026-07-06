@@ -3,6 +3,7 @@ package sg.edu.nus.iss.client.dashboard
 import android.app.Dialog
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,36 +14,110 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import org.json.JSONObject
+import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.databinding.BottomSheetAddItemBinding
+import sg.edu.nus.iss.client.network.RetrofitClient
+import sg.edu.nus.iss.client.network.WellnessRecord
+import java.time.Duration
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
+
     private var _binding: BottomSheetAddItemBinding? = null
     private val binding get() = _binding!!
 
     companion object {
         private const val ARG_ITEM_NAME = "item_name"
+        private const val TAG = "WellnessRecord"
+
+        /*
+         * Backend WellnessRecordPayload.java expects:
+         * yyyy-MM-dd HH:mm:ss
+         */
+        private val RECORD_DATE_FORMATTER: DateTimeFormatter =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.US)
+
+        /*
+         * User-friendly input format for Sleep Start Time and Wake Up Time.
+         * Example: 2026-07-05 23:00
+         */
+        private val USER_INPUT_DATE_FORMATTER: DateTimeFormatter =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.US)
+
+        private val MEAL_TYPES = setOf(
+            "BREAKFAST",
+            "BRUNCH",
+            "MORNING_SNACK",
+            "MORNING_TEA",
+            "TEA_BREAK",
+            "LUNCH",
+            "AFTERNOON_SNACK",
+            "AFTERNOON_TEA",
+            "DINNER",
+            "SUPPER",
+            "SNACK",
+            "DESSERT",
+            "PRE_WORKOUT",
+            "POST_WORKOUT",
+            "MIDNIGHT_MEAL",
+            "BEVERAGE",
+            "OTHER"
+        )
+
+        private val EXERCISE_TYPES = setOf(
+            "RUNNING",
+            "WALKING",
+            "SWIMMING",
+            "HIKING",
+            "CYCLING",
+            "JOGGING",
+            "STRENGTH_TRAINING",
+            "WEIGHTLIFTING",
+            "BODYWEIGHT_TRAINING",
+            "HIIT",
+            "CROSSFIT",
+            "YOGA",
+            "PILATES",
+            "STRETCHING",
+            "ROWING",
+            "JUMP_ROPE",
+            "DANCING",
+            "BASKETBALL",
+            "FOOTBALL",
+            "BADMINTON",
+            "TENNIS",
+            "VOLLEYBALL",
+            "MARTIAL_ARTS",
+            "CLIMBING",
+            "OTHER"
+        )
 
         fun newInstance(itemName: String): AddItemBottomSheetFragment {
             return AddItemBottomSheetFragment().apply {
-                arguments = Bundle().apply { putString(ARG_ITEM_NAME, itemName) }
+                arguments = Bundle().apply {
+                    putString(ARG_ITEM_NAME, itemName)
+                }
             }
         }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
-        dialog.behavior.isFitToContents = true // fit to bottom
+        dialog.behavior.isFitToContents = true
         dialog.behavior.skipCollapsed = true
         dialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
         return dialog
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = BottomSheetAddItemBinding.inflate(inflater, container, false)
@@ -53,18 +128,21 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val itemName = arguments?.getString(ARG_ITEM_NAME).orEmpty()
-        binding.tvAddItemTitle.text = "Add $itemName"
 
-        binding.btnClose.setOnClickListener {
-            dismiss()
-        }
+        binding.tvAddItemTitle.text = "Add $itemName"
+        binding.btnClose.setOnClickListener { dismiss() }
 
         setupFormByItemName(itemName)
 
         val basePaddingBottom = binding.root.paddingBottom
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val navBarInset = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-            v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, basePaddingBottom + navBarInset)
+            v.setPadding(
+                v.paddingLeft,
+                v.paddingTop,
+                v.paddingRight,
+                basePaddingBottom + navBarInset
+            )
             insets
         }
     }
@@ -73,496 +151,446 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         binding.contentContainer.removeAllViews()
 
         when (itemName) {
+            "Food" -> setupFoodForm()
             "Sleep" -> setupSleepForm()
-            "Calories" -> setupFoodForm()
-            "Distance" -> setupDistanceForm()
             "Hydration" -> setupHydrationForm()
             "Weight" -> setupWeightForm()
-            "Steps" -> setupStepsForm()
-            "Exercise Days" -> setupExerciseDaysForm()
-            "Mental Health" -> setupMentalHealthForm()
-            "Badges" -> setupBadgesForm()
-            else -> setupGenericMetricForm(itemName)
+            "Exercise" -> setupExerciseForm()
+            "Mood" -> setupMoodForm()
+            else -> setupUnsupportedForm(itemName)
         }
     }
 
-    /**
-     * Food Details form.
-     *
-     * Database direction:
-     * - meal_type
-     * - food_name
-     * - calories
-     *
-     * Not included here:
-     * - protein_g
-     * - carbs_g
-     * - fat_g
-     *
-     * Reason: those fields were marked as not required in the UI/database discussion.
-     */
     private fun setupFoodForm() {
-        addSectionDescription("Enter food name and meal type. Calories can be auto-filled later from the local JSON food library.")
+        addSectionDescription(
+            "Food will be saved into food_logs through POST /api/wellness/records."
+        )
 
         val mealTypeInput = addInput(
             label = "Meal Type",
-            hint = "Breakfast / Lunch / Dinner / Snack",
+            hint = "BREAKFAST / LUNCH / DINNER / SNACK / OTHER",
             inputType = InputType.TYPE_CLASS_TEXT
         )
 
         val foodNameInput = addInput(
-            label = "Food Name",
+            label = "Food Name / Description",
             hint = "e.g. chicken rice",
             inputType = InputType.TYPE_CLASS_TEXT
         )
 
         val caloriesInput = addInput(
             label = "Calories (kcal)",
-            hint = "Auto-filled from JSON or enter manually",
-            inputType = decimalInputType()
+            hint = "e.g. 650",
+            inputType = InputType.TYPE_CLASS_NUMBER
         )
 
-        val lookupButton = addButton("Lookup Calories")
-        lookupButton.setOnClickListener {
-            val foodName = foodNameInput.text.toString().trim()
+        val saveButton = addButton("Save Food")
 
-            if (foodName.isEmpty()) {
-                foodNameInput.error = "Food name is required"
-                return@setOnClickListener
-            }
-
-            val calories = lookupCaloriesFromLocalFoodLibrary(foodName)
-
-            if (calories != null) {
-                caloriesInput.setText(calories.toString())
-                Toast.makeText(requireContext(), "Calories found: $calories kcal", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Food not found in local JSON yet. Please enter calories manually.",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
-
-        val saveButton = addButton("Save Food Details")
         saveButton.setOnClickListener {
-            val mealType = mealTypeInput.text.toString().trim()
+            val mealType = normalizeEnumInput(mealTypeInput.text.toString())
             val foodName = foodNameInput.text.toString().trim()
-            val calories = caloriesInput.text.toString().trim()
+            val calories = caloriesInput.text.toString().trim().toIntOrNull()
 
             if (mealType.isEmpty()) {
                 mealTypeInput.error = "Meal type is required"
                 return@setOnClickListener
             }
 
+            if (mealType !in MEAL_TYPES) {
+                mealTypeInput.error = "Use BREAKFAST, LUNCH, DINNER, SNACK, or OTHER"
+                return@setOnClickListener
+            }
+
             if (foodName.isEmpty()) {
                 foodNameInput.error = "Food name is required"
                 return@setOnClickListener
             }
 
-            if (calories.isEmpty()) {
-                caloriesInput.error = "Calories is required"
+            if (calories == null || calories <= 0) {
+                caloriesInput.error = "Calories must be a positive number"
                 return@setOnClickListener
             }
 
-            val payload = JSONObject().apply {
-                put("meal_type", mealType)
-                put("food_name", foodName)
-                put("calories", calories.toDouble())
-            }
+            val record = baseRecord().copy(
+                mealType = mealType,
+                mealDescription = foodName,
+                mealCaloriesKcal = calories
+            )
 
-            savePayloadLocallyForNow("Food Details", payload)
+            saveWellnessRecord(
+                formName = "Food",
+                record = record,
+                saveButton = saveButton
+            )
         }
     }
 
-    /**
-     * Sleep Details form.
+    /*
+     * Sleep Form - Frontend Scheme B
      *
-     * CA-friendly version:
-     * - sleep duration in hours
-     * - quality score 1 to 5
+     * User enters:
+     * 1. Sleep Start Time
+     * 2. Wake Up Time
+     * 3. Sleep Quality Rating
      *
-     * Backend can later convert duration into sleep_start_datetime and sleep_end_datetime
-     * if the database requires exact datetime fields.
+     * Frontend calculates:
+     * sleepMinutes = Wake Up Time - Sleep Start Time
+     *
+     * Frontend sends to backend:
+     * recordDate = Wake Up Time
+     * sleepMinutes = calculated minutes
+     * sleepQualityRating = user rating
+     *
+     * Backend can continue using its existing logic:
+     * end_time = recordDate
+     * start_time = recordDate - sleepMinutes
      */
     private fun setupSleepForm() {
-        addSectionDescription("Record sleep duration and sleep quality score.")
-
-        val durationInput = addInput(
-            label = "Sleep Duration (hours)",
-            hint = "e.g. 7.5",
-            inputType = decimalInputType()
+        addSectionDescription(
+            "Enter sleep start and wake-up time. The app will calculate sleep duration automatically."
         )
 
-        val qualityInput = addInput(
-            label = "Sleep Quality Score",
-            hint = "1 = poor, 5 = excellent",
-            inputType = InputType.TYPE_CLASS_NUMBER
-        )
-
-        val saveButton = addButton("Save Sleep Details")
-        saveButton.setOnClickListener {
-            val durationText = durationInput.text.toString().trim()
-            val qualityText = qualityInput.text.toString().trim()
-
-            if (durationText.isEmpty()) {
-                durationInput.error = "Sleep duration is required"
-                return@setOnClickListener
-            }
-
-            if (qualityText.isEmpty()) {
-                qualityInput.error = "Quality score is required"
-                return@setOnClickListener
-            }
-
-            val qualityScore = qualityText.toIntOrNull()
-            if (qualityScore == null || qualityScore !in 1..5) {
-                qualityInput.error = "Please enter a score from 1 to 5"
-                return@setOnClickListener
-            }
-
-            val payload = JSONObject().apply {
-                put("sleep_duration_hours", durationText.toDouble())
-                put("quality_score", qualityScore)
-            }
-
-            savePayloadLocallyForNow("Sleep Details", payload)
-        }
-    }
-
-    /**
-     * Exercise Details form for Distance.
-     *
-     * Database direction:
-     * - activity_type
-     * - distance_km
-     * - calories_burned
-     */
-    private fun setupDistanceForm() {
-        addSectionDescription("Record exercise activity, distance, and optional calories burned.")
-
-        val activityTypeInput = addInput(
-            label = "Activity Type",
-            hint = "Walking / Running / Cycling",
+        val startTimeInput = addInput(
+            label = "Sleep Start Time",
+            hint = "yyyy-MM-dd HH:mm, e.g. 2026-07-05 23:00",
             inputType = InputType.TYPE_CLASS_TEXT
         )
 
-        val distanceInput = addInput(
-            label = "Distance (km)",
-            hint = "e.g. 3.2",
-            inputType = decimalInputType()
+        val wakeUpTimeInput = addInput(
+            label = "Wake Up Time",
+            hint = "yyyy-MM-dd HH:mm, e.g. 2026-07-06 07:00",
+            inputType = InputType.TYPE_CLASS_TEXT
         )
 
-        val caloriesBurnedInput = addInput(
-            label = "Calories Burned (optional)",
-            hint = "e.g. 180",
-            inputType = decimalInputType()
+        val qualityInput = addInput(
+            label = "Sleep Quality Rating",
+            hint = "1 = poor, 10 = excellent",
+            inputType = InputType.TYPE_CLASS_NUMBER
         )
 
-        val saveButton = addButton("Save Exercise Details")
+        val saveButton = addButton("Save Sleep")
+
         saveButton.setOnClickListener {
-            val activityType = activityTypeInput.text.toString().trim()
-            val distance = distanceInput.text.toString().trim()
-            val caloriesBurned = caloriesBurnedInput.text.toString().trim()
+            val startTimeText = startTimeInput.text.toString().trim()
+            val wakeUpTimeText = wakeUpTimeInput.text.toString().trim()
+            val quality = qualityInput.text.toString().trim().toIntOrNull()
 
-            if (activityType.isEmpty()) {
-                activityTypeInput.error = "Activity type is required"
+            val startTime = parseUserDateTime(startTimeText)
+            val wakeUpTime = parseUserDateTime(wakeUpTimeText)
+
+            if (startTime == null) {
+                startTimeInput.error = "Use format yyyy-MM-dd HH:mm"
                 return@setOnClickListener
             }
 
-            if (distance.isEmpty()) {
-                distanceInput.error = "Distance is required"
+            if (wakeUpTime == null) {
+                wakeUpTimeInput.error = "Use format yyyy-MM-dd HH:mm"
                 return@setOnClickListener
             }
 
-            val payload = JSONObject().apply {
-                put("activity_type", activityType)
-                put("distance_km", distance.toDouble())
-
-                if (caloriesBurned.isNotEmpty()) {
-                    put("calories_burned", caloriesBurned.toDouble())
-                }
+            if (!wakeUpTime.isAfter(startTime)) {
+                wakeUpTimeInput.error = "Wake up time must be after sleep start time"
+                return@setOnClickListener
             }
 
-            savePayloadLocallyForNow("Exercise Details", payload)
+            val sleepMinutes = Duration.between(startTime, wakeUpTime).toMinutes().toInt()
+
+            if (sleepMinutes <= 0) {
+                wakeUpTimeInput.error = "Sleep duration must be greater than 0 minutes"
+                return@setOnClickListener
+            }
+
+            if (quality == null || quality !in 1..10) {
+                qualityInput.error = "Please enter a rating from 1 to 10"
+                return@setOnClickListener
+            }
+
+            val recordDateForBackend = wakeUpTime.format(RECORD_DATE_FORMATTER)
+
+            Log.d(TAG, "Sleep startTime = $startTimeText")
+            Log.d(TAG, "Sleep wakeUpTime = $wakeUpTimeText")
+            Log.d(TAG, "Calculated sleepMinutes = $sleepMinutes")
+            Log.d(TAG, "Backend recordDate = $recordDateForBackend")
+
+            val record = WellnessRecord(
+                recordDate = recordDateForBackend,
+                sleepMinutes = sleepMinutes,
+                sleepQualityRating = quality
+            )
+
+            saveWellnessRecord(
+                formName = "Sleep",
+                record = record,
+                saveButton = saveButton
+            )
         }
     }
 
     private fun setupHydrationForm() {
-        addSectionDescription("Record water intake.")
-
-        val amountInput = addInput(
-            label = "Amount",
-            hint = "e.g. 500",
-            inputType = decimalInputType()
+        addSectionDescription(
+            "Hydration will be saved into hydration_logs. Backend expects waterIntakeMl."
         )
 
-        val unitInput = addInput(
-            label = "Unit",
-            hint = "ml / glass / bottle",
-            inputType = InputType.TYPE_CLASS_TEXT
+        val waterInput = addInput(
+            label = "Water Intake (ml)",
+            hint = "e.g. 500",
+            inputType = InputType.TYPE_CLASS_NUMBER
         )
 
         val saveButton = addButton("Save Hydration")
+
         saveButton.setOnClickListener {
-            saveGenericMetric(
-                metricType = "hydration",
-                valueInput = amountInput,
-                unitInput = unitInput,
-                displayName = "Hydration"
+            val waterMl = waterInput.text.toString().trim().toIntOrNull()
+
+            if (waterMl == null || waterMl <= 0) {
+                waterInput.error = "Water intake must be a positive number"
+                return@setOnClickListener
+            }
+
+            val record = baseRecord().copy(
+                waterIntakeMl = waterMl
+            )
+
+            saveWellnessRecord(
+                formName = "Hydration",
+                record = record,
+                saveButton = saveButton
             )
         }
     }
 
     private fun setupWeightForm() {
-        addSectionDescription("Record current body weight.")
+        addSectionDescription(
+            "Weight will be saved into weight_logs. Backend expects weightKg."
+        )
 
         val weightInput = addInput(
-            label = "Weight",
+            label = "Weight (kg)",
             hint = "e.g. 82.5",
             inputType = decimalInputType()
         )
 
-        val unitInput = addInput(
-            label = "Unit",
-            hint = "kg",
-            inputType = InputType.TYPE_CLASS_TEXT
-        )
-        unitInput.setText("kg")
-
         val saveButton = addButton("Save Weight")
+
         saveButton.setOnClickListener {
-            saveGenericMetric(
-                metricType = "weight",
-                valueInput = weightInput,
-                unitInput = unitInput,
-                displayName = "Weight"
+            val weightKg = weightInput.text.toString().trim().toDoubleOrNull()
+
+            if (weightKg == null || weightKg <= 0.0) {
+                weightInput.error = "Weight must be a positive number"
+                return@setOnClickListener
+            }
+
+            val record = baseRecord().copy(
+                weightKg = weightKg
+            )
+
+            saveWellnessRecord(
+                formName = "Weight",
+                record = record,
+                saveButton = saveButton
             )
         }
     }
 
-    private fun setupStepsForm() {
-        addSectionDescription("Record daily step count.")
+    private fun setupExerciseForm() {
+        addSectionDescription(
+            "Exercise will be saved into exercise_logs. Distance and calories burned are optional."
+        )
 
-        val stepsInput = addInput(
-            label = "Steps",
-            hint = "e.g. 8000",
+        val exerciseTypeInput = addInput(
+            label = "Exercise Type",
+            hint = "WALKING / RUNNING / CYCLING / YOGA / OTHER",
+            inputType = InputType.TYPE_CLASS_TEXT
+        )
+
+        val durationInput = addInput(
+            label = "Duration (minutes)",
+            hint = "e.g. 30",
             inputType = InputType.TYPE_CLASS_NUMBER
         )
 
-        val unitInput = addInput(
-            label = "Unit",
-            hint = "steps",
-            inputType = InputType.TYPE_CLASS_TEXT
+        val distanceInput = addInput(
+            label = "Distance (km, optional)",
+            hint = "e.g. 3.2",
+            inputType = decimalInputType()
         )
-        unitInput.setText("steps")
 
-        val saveButton = addButton("Save Steps")
-        saveButton.setOnClickListener {
-            saveGenericMetric(
-                metricType = "steps",
-                valueInput = stepsInput,
-                unitInput = unitInput,
-                displayName = "Steps"
-            )
-        }
-    }
-
-    private fun setupExerciseDaysForm() {
-        addSectionDescription("Record how many days you exercised in the selected period.")
-
-        val daysInput = addInput(
-            label = "Exercise Days",
-            hint = "e.g. 3",
+        val caloriesBurnedInput = addInput(
+            label = "Calories Burned (kcal, optional)",
+            hint = "e.g. 180",
             inputType = InputType.TYPE_CLASS_NUMBER
         )
 
-        val unitInput = addInput(
-            label = "Unit",
-            hint = "days",
-            inputType = InputType.TYPE_CLASS_TEXT
-        )
-        unitInput.setText("days")
+        val saveButton = addButton("Save Exercise")
 
-        val saveButton = addButton("Save Exercise Days")
         saveButton.setOnClickListener {
-            saveGenericMetric(
-                metricType = "exercise_days",
-                valueInput = daysInput,
-                unitInput = unitInput,
-                displayName = "Exercise Days"
+            val exerciseType = normalizeEnumInput(exerciseTypeInput.text.toString())
+            val duration = durationInput.text.toString().trim().toIntOrNull()
+
+            val distanceText = distanceInput.text.toString().trim()
+            val caloriesText = caloriesBurnedInput.text.toString().trim()
+
+            val distance = if (distanceText.isEmpty()) null else distanceText.toDoubleOrNull()
+            val caloriesBurned =
+                if (caloriesText.isEmpty()) null else caloriesText.toIntOrNull()
+
+            if (exerciseType.isEmpty()) {
+                exerciseTypeInput.error = "Exercise type is required"
+                return@setOnClickListener
+            }
+
+            if (exerciseType !in EXERCISE_TYPES) {
+                exerciseTypeInput.error = "Use WALKING, RUNNING, CYCLING, YOGA, or OTHER"
+                return@setOnClickListener
+            }
+
+            if (duration == null || duration <= 0) {
+                durationInput.error = "Duration must be a positive number"
+                return@setOnClickListener
+            }
+
+            if (distanceText.isNotEmpty() && (distance == null || distance < 0.0)) {
+                distanceInput.error = "Distance must be a valid number"
+                return@setOnClickListener
+            }
+
+            if (caloriesText.isNotEmpty() && (caloriesBurned == null || caloriesBurned < 0)) {
+                caloriesBurnedInput.error = "Calories burned must be a valid number"
+                return@setOnClickListener
+            }
+
+            val record = baseRecord().copy(
+                exerciseType = exerciseType,
+                exerciseDurationMinutes = duration,
+                exerciseDistanceKm = distance,
+                exerciseCaloriesBurnedKcal = caloriesBurned
+            )
+
+            saveWellnessRecord(
+                formName = "Exercise",
+                record = record,
+                saveButton = saveButton
             )
         }
     }
 
-    private fun setupMentalHealthForm() {
-        addSectionDescription("Record mental wellbeing score and optional notes.")
+    private fun setupMoodForm() {
+        addSectionDescription(
+            "Mood will be saved into mood_logs. Backend currently expects moodRating only."
+        )
 
-        val scoreInput = addInput(
-            label = "Mental Health Score",
+        val moodInput = addInput(
+            label = "Mood Rating",
             hint = "1 = low, 10 = very good",
             inputType = InputType.TYPE_CLASS_NUMBER
         )
 
-        val notesInput = addInput(
-            label = "Notes (optional)",
-            hint = "How do you feel today?",
-            inputType = InputType.TYPE_CLASS_TEXT
-        )
+        val saveButton = addButton("Save Mood")
 
-        val saveButton = addButton("Save Mental Health")
         saveButton.setOnClickListener {
-            val scoreText = scoreInput.text.toString().trim()
-            val notes = notesInput.text.toString().trim()
+            val moodRating = moodInput.text.toString().trim().toIntOrNull()
 
-            if (scoreText.isEmpty()) {
-                scoreInput.error = "Score is required"
+            if (moodRating == null || moodRating !in 1..10) {
+                moodInput.error = "Please enter a rating from 1 to 10"
                 return@setOnClickListener
             }
 
-            val score = scoreText.toIntOrNull()
-            if (score == null || score !in 1..10) {
-                scoreInput.error = "Please enter a score from 1 to 10"
-                return@setOnClickListener
-            }
+            val record = baseRecord().copy(
+                moodRating = moodRating
+            )
 
-            val payload = JSONObject().apply {
-                put("metric_type", "mental_health")
-                put("metric_value", score)
-                put("unit", "score")
-                put("notes", notes)
-            }
-
-            savePayloadLocallyForNow("Mental Health", payload)
-        }
-    }
-
-    /**
-     * Badges are usually generated by the app, not manually entered by users.
-     * This temporary form is kept only because the current Add Manually screen has a Badges button.
-     */
-    private fun setupBadgesForm() {
-        addSectionDescription("Badges are usually generated automatically. This temporary form can be adjusted later.")
-
-        val badgeNameInput = addInput(
-            label = "Badge Name",
-            hint = "e.g. 7-day streak",
-            inputType = InputType.TYPE_CLASS_TEXT
-        )
-
-        val notesInput = addInput(
-            label = "Notes (optional)",
-            hint = "Reason or description",
-            inputType = InputType.TYPE_CLASS_TEXT
-        )
-
-        val saveButton = addButton("Save Badge")
-        saveButton.setOnClickListener {
-            val badgeName = badgeNameInput.text.toString().trim()
-            val notes = notesInput.text.toString().trim()
-
-            if (badgeName.isEmpty()) {
-                badgeNameInput.error = "Badge name is required"
-                return@setOnClickListener
-            }
-
-            val payload = JSONObject().apply {
-                put("metric_type", "badge")
-                put("metric_value", badgeName)
-                put("unit", "text")
-                put("notes", notes)
-            }
-
-            savePayloadLocallyForNow("Badge", payload)
-        }
-    }
-
-    private fun setupGenericMetricForm(itemName: String) {
-        addSectionDescription("Record a wellness metric.")
-
-        val valueInput = addInput(
-            label = "$itemName Value",
-            hint = "Enter value",
-            inputType = decimalInputType()
-        )
-
-        val unitInput = addInput(
-            label = "Unit",
-            hint = "Enter unit",
-            inputType = InputType.TYPE_CLASS_TEXT
-        )
-
-        val saveButton = addButton("Save $itemName")
-        saveButton.setOnClickListener {
-            saveGenericMetric(
-                metricType = itemName.lowercase().replace(" ", "_"),
-                valueInput = valueInput,
-                unitInput = unitInput,
-                displayName = itemName
+            saveWellnessRecord(
+                formName = "Mood",
+                record = record,
+                saveButton = saveButton
             )
         }
     }
 
-    private fun saveGenericMetric(
-        metricType: String,
-        valueInput: EditText,
-        unitInput: EditText,
-        displayName: String
+    private fun setupUnsupportedForm(itemName: String) {
+        addSectionDescription(
+            "$itemName is not supported by the current backend. " +
+                    "Only Food, Sleep, Hydration, Weight, Exercise, and Mood are enabled."
+        )
+    }
+
+    private fun baseRecord(): WellnessRecord {
+        val formattedDate = LocalDateTime.now().format(RECORD_DATE_FORMATTER)
+
+        Log.d(TAG, "Generated recordDate = $formattedDate")
+
+        return WellnessRecord(
+            recordDate = formattedDate
+        )
+    }
+
+    private fun parseUserDateTime(rawValue: String): LocalDateTime? {
+        return runCatching {
+            LocalDateTime.parse(rawValue, USER_INPUT_DATE_FORMATTER)
+        }.getOrNull()
+    }
+
+    private fun saveWellnessRecord(
+        formName: String,
+        record: WellnessRecord,
+        saveButton: Button
     ) {
-        val value = valueInput.text.toString().trim()
-        val unit = unitInput.text.toString().trim()
+        saveButton.isEnabled = false
+        saveButton.text = "Saving..."
 
-        if (value.isEmpty()) {
-            valueInput.error = "Value is required"
-            return
+        Log.d(TAG, "Sending $formName record = $record")
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val response = RetrofitClient
+                    .getApiService(requireContext())
+                    .saveRecord(record)
+
+                if (response.isSuccessful) {
+                    Toast.makeText(
+                        requireContext(),
+                        "$formName saved successfully",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    dismiss()
+                } else {
+                    val errorBody = response.errorBody()?.string().orEmpty()
+
+                    Log.e(
+                        TAG,
+                        "Save $formName failed. Code=${response.code()}, Body=$errorBody"
+                    )
+
+                    Toast.makeText(
+                        requireContext(),
+                        "Save failed: ${response.code()} ${errorBody.take(160)}",
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    saveButton.isEnabled = true
+                    saveButton.text = "Save $formName"
+                }
+            } catch (exception: Exception) {
+                Log.e(TAG, "Save $formName exception", exception)
+
+                Toast.makeText(
+                    requireContext(),
+                    "Save failed: ${exception.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+
+                saveButton.isEnabled = true
+                saveButton.text = "Save $formName"
+            }
         }
-
-        if (unit.isEmpty()) {
-            unitInput.error = "Unit is required"
-            return
-        }
-
-        val payload = JSONObject().apply {
-            put("metric_type", metricType)
-            put("metric_value", value.toDoubleOrNull() ?: value)
-            put("unit", unit)
-        }
-
-        savePayloadLocallyForNow(displayName, payload)
     }
 
-    /**
-     * Temporary local lookup interface.
-     *
-     * Important:
-     * Do not add invented calorie values here.
-     * After teammate provides assets/food_calories.json, replace this method with JSON parsing.
-     */
-    private fun lookupCaloriesFromLocalFoodLibrary(foodName: String): Int? {
-        val foodCalories = emptyMap<String, Int>()
-
-        return foodCalories[foodName.trim().lowercase()]
-    }
-
-    /**
-     * Temporary save behavior.
-     *
-     * Later this should be replaced by:
-     * - Retrofit API call
-     * - POST /api/food-details
-     * - POST /api/sleep-details
-     * - POST /api/exercise-details
-     * - POST /api/wellness-records
-     */
-    private fun savePayloadLocallyForNow(formName: String, payload: JSONObject) {
-        Toast.makeText(
-            requireContext(),
-            "$formName ready to save: $payload",
-            Toast.LENGTH_LONG
-        ).show()
-
-        dismiss()
+    private fun normalizeEnumInput(rawValue: String): String {
+        return rawValue
+            .trim()
+            .replace("-", "_")
+            .replace(" ", "_")
+            .uppercase(Locale.US)
     }
 
     private fun addSectionDescription(text: String) {
@@ -596,6 +624,7 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         }
 
         binding.contentContainer.addView(labelView)
+
         binding.contentContainer.addView(
             input,
             LinearLayout.LayoutParams(
@@ -627,8 +656,7 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
 
     private fun decimalInputType(): Int {
         return InputType.TYPE_CLASS_NUMBER or
-                InputType.TYPE_NUMBER_FLAG_DECIMAL or
-                InputType.TYPE_NUMBER_FLAG_SIGNED
+                InputType.TYPE_NUMBER_FLAG_DECIMAL
     }
 
     private fun dp(value: Int): Int {
