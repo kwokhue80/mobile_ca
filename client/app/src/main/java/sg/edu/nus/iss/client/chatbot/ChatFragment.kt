@@ -18,7 +18,7 @@ class ChatFragment : Fragment() {
 
     private val viewModel: ChatViewModel by activityViewModels {
         val app = requireActivity().application as RagApplication
-        ChatViewModelFactory(app.ragRepository)
+        ChatViewModelFactory(app.ragRepository, app.chatHistoryRepository)
     }
 
     override fun onCreateView(
