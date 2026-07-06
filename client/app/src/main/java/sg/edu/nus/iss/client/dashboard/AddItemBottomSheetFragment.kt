@@ -1,15 +1,19 @@
 package sg.edu.nus.iss.client.dashboard
 
+import android.app.DatePickerDialog
 import android.app.Dialog
+import android.app.TimePickerDialog
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.ViewCompat
@@ -23,7 +27,9 @@ import sg.edu.nus.iss.client.databinding.BottomSheetAddItemBinding
 import sg.edu.nus.iss.client.network.RetrofitClient
 import sg.edu.nus.iss.client.network.WellnessRecord
 import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -35,6 +41,8 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
     companion object {
         private const val ARG_ITEM_NAME = "item_name"
         private const val TAG = "WellnessRecord"
+        private const val MEAL_TYPE_PROMPT = "Select meal type"
+        private const val EXERCISE_TYPE_PROMPT = "Select exercise type"
 
         /*
          * Backend WellnessRecordPayload.java expects:
@@ -43,12 +51,11 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         private val RECORD_DATE_FORMATTER: DateTimeFormatter =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.US)
 
-        /*
-         * User-friendly input format for Sleep Start Time and Wake Up Time.
-         * Example: 2026-07-05 23:00
-         */
-        private val USER_INPUT_DATE_FORMATTER: DateTimeFormatter =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.US)
+        private val SLEEP_DATE_FORMATTER: DateTimeFormatter =
+            DateTimeFormatter.ISO_LOCAL_DATE
+
+        private val SLEEP_TIME_FORMATTER: DateTimeFormatter =
+            DateTimeFormatter.ofPattern("HH:mm", Locale.US)
 
         private val MEAL_TYPES = setOf(
             "BREAKFAST",
@@ -166,10 +173,9 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             "Food will be saved into food_logs through POST /api/wellness/records."
         )
 
-        val mealTypeInput = addInput(
+        val mealTypeInput = addSpinner(
             label = "Meal Type",
-            hint = "BREAKFAST / LUNCH / DINNER / SNACK / OTHER",
-            inputType = InputType.TYPE_CLASS_TEXT
+            items = listOf(MEAL_TYPE_PROMPT) + MEAL_TYPES.toList()
         )
 
         val foodNameInput = addInput(
@@ -187,17 +193,16 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         val saveButton = addButton("Save Food")
 
         saveButton.setOnClickListener {
-            val mealType = normalizeEnumInput(mealTypeInput.text.toString())
+            val mealType = mealTypeInput.selectedItem?.toString().orEmpty()
             val foodName = foodNameInput.text.toString().trim()
             val calories = caloriesInput.text.toString().trim().toIntOrNull()
 
-            if (mealType.isEmpty()) {
-                mealTypeInput.error = "Meal type is required"
-                return@setOnClickListener
-            }
-
             if (mealType !in MEAL_TYPES) {
-                mealTypeInput.error = "Use BREAKFAST, LUNCH, DINNER, SNACK, or OTHER"
+                Toast.makeText(
+                    requireContext(),
+                    "Meal type is required",
+                    Toast.LENGTH_SHORT
+                ).show()
                 return@setOnClickListener
             }
 
@@ -228,10 +233,12 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
     /*
      * Sleep Form - Frontend Scheme B
      *
-     * User enters:
-     * 1. Sleep Start Time
-     * 2. Wake Up Time
-     * 3. Sleep Quality Rating
+     * User selects:
+     * 1. Sleep Start Date
+     * 2. Sleep Start Time
+     * 3. Wake Up Date
+     * 4. Wake Up Time
+     * 5. Sleep Quality Rating
      *
      * Frontend calculates:
      * sleepMinutes = Wake Up Time - Sleep Start Time
@@ -247,68 +254,103 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
      */
     private fun setupSleepForm() {
         addSectionDescription(
-            "Enter sleep start and wake-up time. The app will calculate sleep duration automatically."
+            "Select sleep start and wake-up date/time. The app will calculate sleep duration automatically."
         )
 
-        val startTimeInput = addInput(
+        val startDateInput = addPickerInput(
+            label = "Sleep Start Date",
+            hint = "Select date, e.g. 2026-07-05"
+        )
+
+        val startTimeInput = addPickerInput(
             label = "Sleep Start Time",
-            hint = "yyyy-MM-dd HH:mm, e.g. 2026-07-05 23:00",
-            inputType = InputType.TYPE_CLASS_TEXT
+            hint = "Select time, e.g. 23:30"
         )
 
-        val wakeUpTimeInput = addInput(
-            label = "Wake Up Time",
-            hint = "yyyy-MM-dd HH:mm, e.g. 2026-07-06 07:00",
-            inputType = InputType.TYPE_CLASS_TEXT
+        val wakeUpDateInput = addPickerInput(
+            label = "Wake Up Date",
+            hint = "Select date, e.g. 2026-07-06"
         )
+
+        val wakeUpTimeInput = addPickerInput(
+            label = "Wake Up Time",
+            hint = "Select time, e.g. 07:00"
+        )
+
+        startDateInput.setOnClickListener { showDatePicker(startDateInput) }
+        startTimeInput.setOnClickListener { showTimePicker(startTimeInput) }
+        wakeUpDateInput.setOnClickListener { showDatePicker(wakeUpDateInput) }
+        wakeUpTimeInput.setOnClickListener { showTimePicker(wakeUpTimeInput) }
 
         val qualityInput = addInput(
             label = "Sleep Quality Rating",
-            hint = "1 = poor, 10 = excellent",
+            hint = "1 = poor, 5 = excellent",
             inputType = InputType.TYPE_CLASS_NUMBER
         )
 
         val saveButton = addButton("Save Sleep")
 
         saveButton.setOnClickListener {
+            val startDateText = startDateInput.text.toString().trim()
             val startTimeText = startTimeInput.text.toString().trim()
+            val wakeUpDateText = wakeUpDateInput.text.toString().trim()
             val wakeUpTimeText = wakeUpTimeInput.text.toString().trim()
             val quality = qualityInput.text.toString().trim().toIntOrNull()
 
-            val startTime = parseUserDateTime(startTimeText)
-            val wakeUpTime = parseUserDateTime(wakeUpTimeText)
-
-            if (startTime == null) {
-                startTimeInput.error = "Use format yyyy-MM-dd HH:mm"
+            if (startDateText.isEmpty()) {
+                startDateInput.error = "Sleep Start Date is required"
                 return@setOnClickListener
             }
 
-            if (wakeUpTime == null) {
-                wakeUpTimeInput.error = "Use format yyyy-MM-dd HH:mm"
+            if (startTimeText.isEmpty()) {
+                startTimeInput.error = "Sleep Start Time is required"
                 return@setOnClickListener
             }
 
-            if (!wakeUpTime.isAfter(startTime)) {
+            if (wakeUpDateText.isEmpty()) {
+                wakeUpDateInput.error = "Wake Up Date is required"
+                return@setOnClickListener
+            }
+
+            if (wakeUpTimeText.isEmpty()) {
+                wakeUpTimeInput.error = "Wake Up Time is required"
+                return@setOnClickListener
+            }
+
+            val sleepStartDateTime = parseSleepDateTime(startDateText, startTimeText)
+            val wakeUpDateTime = parseSleepDateTime(wakeUpDateText, wakeUpTimeText)
+
+            if (sleepStartDateTime == null) {
+                startDateInput.error = "Select a valid sleep start date and time"
+                return@setOnClickListener
+            }
+
+            if (wakeUpDateTime == null) {
+                wakeUpDateInput.error = "Select a valid wake up date and time"
+                return@setOnClickListener
+            }
+
+            if (!wakeUpDateTime.isAfter(sleepStartDateTime)) {
                 wakeUpTimeInput.error = "Wake up time must be after sleep start time"
                 return@setOnClickListener
             }
 
-            val sleepMinutes = Duration.between(startTime, wakeUpTime).toMinutes().toInt()
+            val sleepMinutes = Duration.between(sleepStartDateTime, wakeUpDateTime).toMinutes().toInt()
 
             if (sleepMinutes <= 0) {
                 wakeUpTimeInput.error = "Sleep duration must be greater than 0 minutes"
                 return@setOnClickListener
             }
 
-            if (quality == null || quality !in 1..10) {
-                qualityInput.error = "Please enter a rating from 1 to 10"
+            if (quality == null || quality !in 1..5) {
+                qualityInput.error = "Please enter a rating from 1 to 5"
                 return@setOnClickListener
             }
 
-            val recordDateForBackend = wakeUpTime.format(RECORD_DATE_FORMATTER)
+            val recordDateForBackend = wakeUpDateTime.format(RECORD_DATE_FORMATTER)
 
-            Log.d(TAG, "Sleep startTime = $startTimeText")
-            Log.d(TAG, "Sleep wakeUpTime = $wakeUpTimeText")
+            Log.d(TAG, "Sleep sleepStartDateTime = ${sleepStartDateTime.toString()}")
+            Log.d(TAG, "Sleep wakeUpDateTime = ${wakeUpDateTime.toString()}")
             Log.d(TAG, "Calculated sleepMinutes = $sleepMinutes")
             Log.d(TAG, "Backend recordDate = $recordDateForBackend")
 
@@ -397,10 +439,9 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             "Exercise will be saved into exercise_logs. Distance and calories burned are optional."
         )
 
-        val exerciseTypeInput = addInput(
+        val exerciseTypeInput = addSpinner(
             label = "Exercise Type",
-            hint = "WALKING / RUNNING / CYCLING / YOGA / OTHER",
-            inputType = InputType.TYPE_CLASS_TEXT
+            items = listOf(EXERCISE_TYPE_PROMPT) + EXERCISE_TYPES.toList()
         )
 
         val durationInput = addInput(
@@ -424,7 +465,7 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         val saveButton = addButton("Save Exercise")
 
         saveButton.setOnClickListener {
-            val exerciseType = normalizeEnumInput(exerciseTypeInput.text.toString())
+            val exerciseType = exerciseTypeInput.selectedItem?.toString().orEmpty()
             val duration = durationInput.text.toString().trim().toIntOrNull()
 
             val distanceText = distanceInput.text.toString().trim()
@@ -434,13 +475,12 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             val caloriesBurned =
                 if (caloriesText.isEmpty()) null else caloriesText.toIntOrNull()
 
-            if (exerciseType.isEmpty()) {
-                exerciseTypeInput.error = "Exercise type is required"
-                return@setOnClickListener
-            }
-
             if (exerciseType !in EXERCISE_TYPES) {
-                exerciseTypeInput.error = "Use WALKING, RUNNING, CYCLING, YOGA, or OTHER"
+                Toast.makeText(
+                    requireContext(),
+                    "Exercise type is required",
+                    Toast.LENGTH_SHORT
+                ).show()
                 return@setOnClickListener
             }
 
@@ -524,9 +564,12 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         )
     }
 
-    private fun parseUserDateTime(rawValue: String): LocalDateTime? {
+    private fun parseSleepDateTime(dateText: String, timeText: String): LocalDateTime? {
         return runCatching {
-            LocalDateTime.parse(rawValue, USER_INPUT_DATE_FORMATTER)
+            LocalDateTime.of(
+                LocalDate.parse(dateText, SLEEP_DATE_FORMATTER),
+                LocalTime.parse(timeText, SLEEP_TIME_FORMATTER)
+            )
         }.getOrNull()
     }
 
@@ -634,6 +677,94 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         )
 
         return input
+    }
+
+    private fun addPickerInput(
+        label: String,
+        hint: String
+    ): EditText {
+        return addInput(
+            label = label,
+            hint = hint,
+            inputType = InputType.TYPE_NULL
+        ).apply {
+            isFocusable = false
+            isCursorVisible = false
+            keyListener = null
+        }
+    }
+
+    private fun addSpinner(
+        label: String,
+        items: List<String>
+    ): Spinner {
+        val labelView = TextView(requireContext()).apply {
+            text = label
+            textSize = 14f
+            setTextColor(0xFF333333.toInt())
+            setPadding(0, dp(8), 0, dp(6))
+        }
+
+        val spinner = Spinner(requireContext()).apply {
+            adapter = ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_spinner_item,
+                items
+            ).also { adapter ->
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            }
+        }
+
+        binding.contentContainer.addView(labelView)
+        binding.contentContainer.addView(
+            spinner,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        return spinner
+    }
+
+    private fun showDatePicker(targetInput: EditText) {
+        val initialDate = runCatching {
+            LocalDate.parse(targetInput.text.toString(), SLEEP_DATE_FORMATTER)
+        }.getOrElse {
+            LocalDate.now()
+        }
+
+        DatePickerDialog(
+            requireContext(),
+            { _, year, month, dayOfMonth ->
+                val selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
+                targetInput.error = null
+                targetInput.setText(selectedDate.format(SLEEP_DATE_FORMATTER))
+            },
+            initialDate.year,
+            initialDate.monthValue - 1,
+            initialDate.dayOfMonth
+        ).show()
+    }
+
+    private fun showTimePicker(targetInput: EditText) {
+        val initialTime = runCatching {
+            LocalTime.parse(targetInput.text.toString(), SLEEP_TIME_FORMATTER)
+        }.getOrElse {
+            LocalTime.now()
+        }
+
+        TimePickerDialog(
+            requireContext(),
+            { _, hourOfDay, minute ->
+                val selectedTime = LocalTime.of(hourOfDay, minute)
+                targetInput.error = null
+                targetInput.setText(selectedTime.format(SLEEP_TIME_FORMATTER))
+            },
+            initialTime.hour,
+            initialTime.minute,
+            true
+        ).show()
     }
 
     private fun addButton(text: String): Button {
