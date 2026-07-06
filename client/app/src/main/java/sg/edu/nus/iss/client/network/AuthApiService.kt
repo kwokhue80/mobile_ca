@@ -35,10 +35,11 @@ interface AuthApiService {
         @Query("date") date: String     // Format: "yyyy-MM-dd"
     ): Response<DashboardDailyResponse>
 
-data class LogoutResponse(val token: String?)
     @GET("api/wellness/recommendations/latest")
     suspend fun getLatestRecommendation(): Response<RecommendationResponse>
 }
+
+data class LogoutResponse(val token: String?)
 
 data class RegisterRequest(val emailAddress: String, val password: String)
 data class RegisterResponse(val token: String)
@@ -65,8 +66,8 @@ data class WellnessRecord(
 data class RecommendationResponse(val recommendation: String, val generatedAt: String)
 
 data class DashboardDailyResponse(
-    val summary: DailyWellnessSummary,
-    val activities: List<ActivityRecord>
+    val dailyWellnessSummary: DailyWellnessSummary,
+    val activityRecords: List<ActivityRecord>
 )
 
 data class DailyWellnessSummary(
