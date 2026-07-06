@@ -34,10 +34,10 @@ class DashboardPage1Fragment : Fragment() {
         val badgesViewModel = ViewModelProvider(requireActivity())[BadgesViewModel::class.java]
 
         binding.cardDistance.setOnClickListener { openMetricDetail(MetricType.DISTANCE) }
-        binding.cardSteps.setOnClickListener { openMetricDetail(MetricType.STEPS) }
         binding.cardCalBurned.setOnClickListener { openMetricDetail(MetricType.CALORIES) }
         binding.cardSleep.setOnClickListener { openMetricDetail(MetricType.SLEEP) }
         binding.cardHydration.setOnClickListener { openMetricDetail(MetricType.HYDRATION) }
+        binding.cardWeight.setOnClickListener { openMetricDetail(MetricType.WEIGHT) }
         binding.cardBadges.setOnClickListener { RouteManager.toBadges(this) }
 
         viewLifecycleOwner.lifecycleScope.launch {

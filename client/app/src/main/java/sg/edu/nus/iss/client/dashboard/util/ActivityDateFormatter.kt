@@ -2,6 +2,7 @@ package sg.edu.nus.iss.client.dashboard.util
 
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -21,6 +22,9 @@ object ActivityDateFormatter {
 
     fun formatTimeOnly(timestamp: LocalDateTime): String =
         timestamp.format(DateTimeFormatter.ofPattern("h:mm a", Locale.getDefault()))
+
+    fun formatTimeOnly(time: LocalTime): String =
+        time.format(DateTimeFormatter.ofPattern("h:mm a", Locale.getDefault()))
 
     fun groupLabel(timestamp: LocalDateTime): String {
         val today = LocalDate.now()

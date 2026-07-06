@@ -22,15 +22,6 @@ enum class MetricType(
         chartGoalMetColorHex = "#A6E2DD",
         decimalPlaces = 2
     ),
-    STEPS(
-        displayName = "Steps",
-        unit = "steps",
-        defaultGoal = 10000.0,
-        iconRes = R.drawable.steps_icon,
-        chartColorHex = "#27837B",
-        chartGoalMetColorHex = "#A6E2DD",
-        decimalPlaces = 0
-    ),
     CALORIES(
         displayName = "Calories",
         unit = "Cal",

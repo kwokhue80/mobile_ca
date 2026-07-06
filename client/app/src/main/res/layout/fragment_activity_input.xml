@@ -52,7 +52,7 @@
 
             </FrameLayout>
 
-            <!-- Icon + type + date -->
+            <!-- Icon + type + subtitle -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -98,7 +98,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="Today, 9:39 AM"
+                        android:text="New activity"
                         android:textColor="#4A4A4A"
                         android:textSize="14sp" />
 
@@ -176,7 +176,7 @@
                 android:paddingStart="16dp"
                 android:paddingEnd="20dp">
 
-                <include layout="@layout/item_activity_metric_row" android:id="@+id/rowDistance" />
+                <include layout="@layout/item_activity_input_row" android:id="@+id/rowDistance" />
 
             </LinearLayout>
 
@@ -212,11 +212,39 @@
                 android:paddingStart="16dp"
                 android:paddingEnd="20dp">
 
-                <include layout="@layout/item_activity_metric_row" android:id="@+id/rowCalories" />
+                <include layout="@layout/item_activity_input_row" android:id="@+id/rowCalories" />
 
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/tvHint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="10dp"
+            android:text="Tap start / end time to change them. Distance and calories are pre-filled and editable."
+            android:textColor="#7A7A7A"
+            android:textSize="12sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="20dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp"
+            android:text="Save activity"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            app:backgroundTint="#0B57D0"
+            app:cornerRadius="28dp" />
 
     </LinearLayout>
 
