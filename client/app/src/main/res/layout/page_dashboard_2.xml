@@ -8,9 +8,9 @@
     android:paddingTop="6dp"
     android:paddingBottom="6dp">
 
-    <!-- Weight 卡片 -->
+    <!-- Exercise days 卡片 -->
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardWeight"
+        android:id="@+id/cardExerciseDays"
         android:layout_width="0dp"
         android:layout_height="58dp"
         android:clickable="true"
@@ -23,88 +23,6 @@
         android:layout_marginTop="30dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="9dp">
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <!-- 纯背景色 -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#A6E2DD" />
-
-            <!-- 图标+文字层，浮在进度条上方 -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <!-- 40%位置参考线 -->
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guideline40Weight"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.38" />
-
-                <!-- 图标 -->
-                <ImageView
-                    android:id="@+id/iconWeight"
-                    android:layout_width="45dp"
-                    android:layout_height="50dp"
-                    android:src="@drawable/weight_icon"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:layout_marginStart="10dp" />
-
-                <!-- 文字组，左边贴住40%参考线 -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintStart_toStartOf="@id/guideline40Weight"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-medium"
-                        android:includeFontPadding="false"
-                        android:text="Weight"
-                        android:textColor="#37423F"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvWeight"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif"
-                        android:textStyle="bold"
-                        android:text="68kg"
-                        android:textSize="26sp" />
-                </LinearLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </FrameLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Exercise days 卡片 -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardExerciseDays"
-        android:layout_width="0dp"
-        android:layout_height="58dp"
-        android:clickable="true"
-        android:focusable="true"
-        app:strokeWidth="0dp"
-        app:cardCornerRadius="30dp"
-        app:layout_constraintTop_toBottomOf="@id/cardWeight"
-        app:layout_constraintStart_toStartOf="@id/cardWeight"
-        app:layout_constraintEnd_toEndOf="@id/cardWeight"
-        android:layout_marginTop="15dp">
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -270,7 +188,7 @@
         app:strokeWidth="0dp"
         app:cardCornerRadius="30dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/cardWeight"
+        app:layout_constraintStart_toEndOf="@id/cardExerciseDays"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="30dp"
         android:layout_marginStart="9dp"
@@ -287,6 +205,19 @@
         app:layout_constraintTop_toBottomOf="@id/cardEmpty1"
         app:layout_constraintStart_toStartOf="@id/cardEmpty1"
         app:layout_constraintEnd_toEndOf="@id/cardEmpty1"
+        android:layout_marginTop="15dp" />
+
+    <!-- 左侧空白卡片 4 -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardEmpty4"
+        android:layout_width="0dp"
+        android:layout_height="58dp"
+        app:cardBackgroundColor="#E0E0E0"
+        app:strokeWidth="0dp"
+        app:cardCornerRadius="30dp"
+        app:layout_constraintTop_toBottomOf="@id/cardMentalHealth"
+        app:layout_constraintStart_toStartOf="@id/cardMentalHealth"
+        app:layout_constraintEnd_toEndOf="@id/cardMentalHealth"
         android:layout_marginTop="15dp" />
 
     <!-- 右侧空白卡片 3 -->
