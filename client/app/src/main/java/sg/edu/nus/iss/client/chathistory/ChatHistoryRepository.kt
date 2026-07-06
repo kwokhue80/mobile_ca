@@ -9,12 +9,21 @@ class ChatHistoryRepository(store: BoxStore) {
 
     private val box: Box<ChatMessageEntity> = store.boxFor(ChatMessageEntity::class.java)
 
-    // Removes every stored chat message from the database, without
-    // affecting any other data such as the dish records
-    fun clearAllMessages() {
-        box.removeAll()
+    companion object {
+        // Highest number of chat messages kept in persistent storage.
+        // This figure was chosen to stay safely under Android's 25 MB
+        // per-app backup limit, accounting for the existing dish
+        // nutrition data that shares the same storage budget.
+        private const val MAX_STORED_MESSAGES = 2500
+
+        // Number of most recent messages reloaded into the chat window
+        // when the app restarts. Kept much smaller than the storage
+        // limit above, since a long visible history is rarely useful
+        // to scroll through.
+        private const val DISPLAYED_MESSAGE_COUNT = 30
     }
-    fun getRecentMessages(limit: Int = 30): List<ChatMessage> {
+
+    fun getRecentMessages(limit: Int = DISPLAYED_MESSAGE_COUNT): List<ChatMessage> {
         val query = box.query()
             .order(ChatMessageEntity_.timestamp, QueryBuilder.DESCENDING)
             .build()
@@ -23,7 +32,7 @@ class ChatHistoryRepository(store: BoxStore) {
         return recent.reversed().map { it.toChatMessage() }
     }
 
-    fun saveMessage(message: ChatMessageEntity, limit: Int = 30) {
+    fun saveMessage(message: ChatMessageEntity, limit: Int = MAX_STORED_MESSAGES) {
         box.put(message)
         if (box.count() > limit) {
             val query = box.query()
@@ -44,6 +53,12 @@ class ChatHistoryRepository(store: BoxStore) {
         val results = query.find()
         query.close()
         return results.map { it.toChatMessage() }
+    }
+
+    // Removes every stored chat message from the database, without
+    // affecting any other data such as the dish records
+    fun clearAllMessages() {
+        box.removeAll()
     }
 }
 
