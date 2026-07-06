@@ -30,6 +30,8 @@ class RagApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+
+
         copyPrebuiltDatabaseIfNeeded()
 
         boxStore = MyObjectBox.builder()
@@ -42,6 +44,10 @@ class RagApplication : Application() {
 
         val dishRepository = DishRepository(boxStore)
         chatHistoryRepository = ChatHistoryRepository(boxStore)
+
+        // Temporary line for clearing stored chat history during testing.
+        // Comment out this line to disable it where necessary
+//        chatHistoryRepository.clearAllMessages()
 
         val backendRetrofit = Retrofit.Builder()
             .baseUrl("http://10.0.2.2:8000/")

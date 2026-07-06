@@ -9,6 +9,11 @@ class ChatHistoryRepository(store: BoxStore) {
 
     private val box: Box<ChatMessageEntity> = store.boxFor(ChatMessageEntity::class.java)
 
+    // Removes every stored chat message from the database, without
+    // affecting any other data such as the dish records
+    fun clearAllMessages() {
+        box.removeAll()
+    }
     fun getRecentMessages(limit: Int = 30): List<ChatMessage> {
         val query = box.query()
             .order(ChatMessageEntity_.timestamp, QueryBuilder.DESCENDING)
