@@ -19,6 +19,8 @@
     <string name="logout_success">Logout Successful</string>
     <string name="biometric_title">Biometric Authentication</string>
     <string name="biometric_subtitle">Log in Using your Biometric Credential</string>
+    <string name="biometric_enabled">Enable Biometric Login</string>
+    <string name="biometric_disabled">Biometric Login Disabled</string>
     <string name="biometric_negativeButtonText">Cancel</string>
     <string name="biometric_error_no_hardware">No Biometric Features Available on this Device</string>
     <string name="biometric_error_hw_unavailable">Biometric Features are Currently Unavailable</string>
