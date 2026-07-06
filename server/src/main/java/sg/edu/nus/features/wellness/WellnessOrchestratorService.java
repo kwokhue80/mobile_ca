@@ -2,6 +2,8 @@ package sg.edu.nus.features.wellness;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import sg.edu.nus.features.wellness.dto.ActivityRecordDto;
 import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -181,4 +183,28 @@ public class WellnessOrchestratorService {
             .build();
         activityRepo.save(record);
     }
+    
+ // Retrieves a user's logged activity history over a given number of
+ // past days. Uses the existing activity_records table, which already
+ // stores a short readable title and description for every logged event.
+    public List<ActivityRecordDto> getActivityHistory(User currentUser, int numberOfDays) {
+     LocalDateTime endTime = LocalDateTime.now();
+     LocalDateTime startTime = endTime.minusDays(numberOfDays);
+
+     List<ActivityRecord> records = activityRepo.findByUserIdAndRecordedAtBetweenOrderByRecordedAtDesc(
+         currentUser.getId(), startTime, endTime
+     );
+
+     List<ActivityRecordDto> result = new ArrayList<>();
+     for (ActivityRecord record : records) {
+         ActivityRecordDto dto = new ActivityRecordDto(
+             record.getActivityType().toString(),
+             record.getTitle(),
+             record.getDescription(),
+             record.getRecordedAt()
+         );
+         result.add(dto);
+     }
+     return result;
+ }
 }
