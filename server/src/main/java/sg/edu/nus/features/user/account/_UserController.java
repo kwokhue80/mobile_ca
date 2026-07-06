@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import sg.edu.nus.features.user.dto.UserResponse;
+import sg.edu.nus.features.user.account.dto._UserResponse;
 
 /*
 *   AUTHOR: Amelia
@@ -16,13 +16,13 @@ import sg.edu.nus.features.user.dto.UserResponse;
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
-public class UserController {
+public class _UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
 
     @GetMapping("/profile")
-    public ResponseEntity<UserResponse> profile(Authentication authentication) {
+    public ResponseEntity<_UserResponse> profile(Authentication authentication) {
         User user = userService.getByEmail(authentication.getName());
         return ResponseEntity.ok(userMapper.toResponseDto(user));
     }

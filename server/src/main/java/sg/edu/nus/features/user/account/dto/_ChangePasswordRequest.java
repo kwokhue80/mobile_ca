@@ -1,4 +1,4 @@
-package sg.edu.nus.features.user.dto;
+package sg.edu.nus.features.user.account.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -12,7 +12,7 @@ import lombok.Setter;
 */
 @Getter
 @Setter
-public class ChangePasswordRequest {
+public class _ChangePasswordRequest {
 
     @NotBlank(message = "Current password is required")
     private String currentPassword;

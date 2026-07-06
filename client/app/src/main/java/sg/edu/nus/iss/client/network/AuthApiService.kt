@@ -4,6 +4,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Query
 import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
 
@@ -37,6 +38,16 @@ interface AuthApiService {
 
     @GET("api/wellness/recommendations/latest")
     suspend fun getLatestRecommendation(): Response<RecommendationResponse>
+
+    // Fetch current user's profile (name/DOB/gender/height); fields are null until first saved
+    @GET("api/user-profile")
+    suspend fun getUserProfile(): Response<UserProfileResponse>
+
+    // Create or update the current user's profile
+    @PUT("api/user-profile")
+    suspend fun updateUserProfile(
+        @Body request: UserProfileUpdateRequest
+    ): Response<UserProfileResponse>
 }
 
 data class LogoutResponse(val token: String?)
@@ -64,6 +75,22 @@ data class WellnessRecord(
 )
 
 data class RecommendationResponse(val recommendation: String, val generatedAt: String)
+
+data class UserProfileResponse(
+    val userId: String,
+    val emailAddress: String,
+    val fullName: String?,
+    val dateOfBirth: String?,   // Format: "yyyy-MM-dd"
+    val gender: String?,
+    val heightCm: Double?
+)
+
+data class UserProfileUpdateRequest(
+    val fullName: String,
+    val dateOfBirth: String,   // Format: "yyyy-MM-dd"
+    val gender: String,
+    val heightCm: Double
+)
 
 data class DashboardDailyResponse(
     val dailyWellnessSummary: DailyWellnessSummary,
