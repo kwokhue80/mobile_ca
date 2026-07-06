@@ -14,6 +14,7 @@
         android:paddingBottom="12dp">
 
         <FrameLayout
+            android:id="@+id/iconCircle"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:background="@drawable/bg_row_icon_circle">
@@ -61,6 +62,15 @@
             android:textColor="#1F1F1F"
             android:textSize="15sp"
             android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/ivEditPencil"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_marginStart="8dp"
+            android:contentDescription="Editable"
+            android:src="@drawable/ic_edit_pencil"
+            android:tint="#B0B4BA" />
 
     </LinearLayout>
 

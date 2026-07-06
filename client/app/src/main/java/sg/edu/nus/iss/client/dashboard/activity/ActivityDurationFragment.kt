@@ -1,13 +1,14 @@
 package sg.edu.nus.iss.client.dashboard.activity
 
 import android.app.TimePickerDialog
-import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.graphics.ColorUtils
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -30,6 +31,10 @@ class ActivityDurationFragment : Fragment() {
 
     companion object {
         private const val ARG_EXERCISE_TYPE = "arg_exercise_type"
+        // Duration is computed (not user-entered), so it's always shown in this fixed
+        // green rather than the exercise's own accent color, to visually separate
+        // "computed" values from the editable/tappable ones.
+        private val DURATION_VALUE_COLOR = Color.parseColor("#2E7D32")
 
         fun newInstance(exerciseType: ExerciseType): ActivityDurationFragment {
             val fragment = ActivityDurationFragment()
@@ -70,13 +75,14 @@ class ActivityDurationFragment : Fragment() {
         binding.rowStartTime.tvLabel.text = "Start time"
         binding.rowEndTime.tvLabel.text = "End time"
         binding.rowDuration.tvLabel.text = "Duration"
+        binding.rowDuration.tvValue.setTextColor(DURATION_VALUE_COLOR)
         binding.rowDuration.dividerRow.visibility = View.GONE
         binding.rowDistance.dividerRow.visibility = View.GONE
         binding.rowCalories.dividerRow.visibility = View.GONE
 
         binding.rowStartTime.ivIcon.setImageResource(R.drawable.ic_time)
         binding.rowEndTime.ivIcon.setImageResource(R.drawable.ic_time)
-        binding.rowDuration.ivIcon.setImageResource(R.drawable.ic_time)
+        binding.rowDuration.ivIcon.setImageResource(R.drawable.ic_hourglass)
         binding.rowDistance.ivIcon.setImageResource(R.drawable.distance_icon)
         binding.rowCalories.ivIcon.setImageResource(R.drawable.calories_icon)
         listOf(
@@ -153,9 +159,27 @@ class ActivityDurationFragment : Fragment() {
     }
 
     private fun applyAccentTheme() {
-        (binding.headerBanner.background.mutate() as GradientDrawable).setColor(exerciseType.accentBackground)
-        (binding.iconContainer.background.mutate() as GradientDrawable).setColor(0xFFFFFFFF.toInt())
-        binding.btnSave.backgroundTintList = ColorStateList.valueOf(exerciseType.accentColor)
+        // The header's pale background tint alone (e.g. Walk/Hike's) reads as almost
+        // neutral gray, not clearly "in family" with any bold button color below it.
+        // Blending it partway toward the accent color keeps it a soft header while making
+        // its hue actually legible, so it visually flows into the bold button beneath it.
+        val headerDeepTint = ColorUtils.blendARGB(exerciseType.accentBackground, exerciseType.accentColor, 0.35f)
+        (binding.headerBanner.background.mutate() as GradientDrawable).colors =
+            intArrayOf(exerciseType.accentBackground, headerDeepTint)
+
+        val rowIconCircles = listOf(
+            binding.rowStartTime.iconCircle, binding.rowEndTime.iconCircle, binding.rowDuration.iconCircle,
+            binding.rowDistance.iconCircle, binding.rowCalories.iconCircle
+        )
+        rowIconCircles.forEach {
+            (it.background.mutate() as GradientDrawable).setColor(exerciseType.accentBackground)
+        }
+
+        // Same formula for every type (this is what Cycle already used), so Cycle's
+        // button is unchanged and the others now match it instead of looking crushed/muddy.
+        val buttonColorDark = ColorUtils.blendARGB(exerciseType.accentColor, Color.BLACK, 0.35f)
+        (binding.btnSave.background.mutate() as GradientDrawable).colors =
+            intArrayOf(exerciseType.accentColor, buttonColorDark)
     }
 
     /** One-time suggestion based on the exercise type's typical pace, seeded from the

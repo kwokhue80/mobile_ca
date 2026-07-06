@@ -5,8 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import sg.edu.nus.iss.client.R
 import sg.edu.nus.iss.client.databinding.ItemActivityRecordBinding
+import sg.edu.nus.iss.client.dashboard.activity.model.ExerciseType
 import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
 import sg.edu.nus.iss.client.dashboard.util.ActivityDateFormatter
 
@@ -28,14 +28,7 @@ class ActivityRecordAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(record: ActivityRecord) {
-            binding.iconActivityType.setImageResource(
-                when (record.type) {
-                    "Walk" -> R.drawable.ic_activity_walk
-                    "Run" -> R.drawable.ic_activity_run
-                    "Swim" -> R.drawable.ic_activity_swim
-                    else -> R.drawable.ic_activity_default
-                }
-            )
+            binding.iconActivityType.setImageResource(ExerciseType.iconResFor(record.type))
             binding.tvActivityType.text = record.type
             binding.tvActivityMeta.text =
                 "${ActivityDateFormatter.formatCompact(record.timestamp)} · ${record.durationMinutes} min"

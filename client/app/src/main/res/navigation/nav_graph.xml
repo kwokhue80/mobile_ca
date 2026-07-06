@@ -47,7 +47,24 @@
         <action
             android:id="@+id/action_homeFragment_to_badgesFragment"
             app:destination="@id/badgesFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="sg.edu.nus.iss.client.profile.ProfileFragment"
+        android:label="My Profile">
+        <action
+            android:id="@+id/action_profileFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="sg.edu.nus.iss.client.profile.EditProfileFragment"
+        android:label="Edit Profile" />
 
     <fragment
         android:id="@+id/chooseExerciseFragment"

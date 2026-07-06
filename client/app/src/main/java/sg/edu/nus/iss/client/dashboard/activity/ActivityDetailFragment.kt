@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.graphics.ColorUtils
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -20,6 +21,7 @@ import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
 import sg.edu.nus.iss.client.dashboard.util.ActivityDateFormatter
 import sg.edu.nus.iss.client.databinding.FragmentActivityDetailBinding
 import sg.edu.nus.iss.client.navigation.RouteManager
+import kotlin.math.roundToInt
 
 class ActivityDetailFragment : Fragment() {
 
@@ -54,22 +56,6 @@ class ActivityDetailFragment : Fragment() {
 
         binding.btnBack.setOnClickListener { RouteManager.back(this) }
 
-        binding.rowStartTime.tvLabel.text = "Start time"
-        binding.rowEndTime.tvLabel.text = "End time"
-        binding.rowDuration.tvLabel.text = "Duration"
-        binding.rowDistance.tvLabel.text = "Distance"
-        binding.rowCalories.tvLabel.text = "Calories"
-
-        binding.rowStartTime.ivIcon.setImageResource(R.drawable.ic_time)
-        binding.rowEndTime.ivIcon.setImageResource(R.drawable.ic_time)
-        binding.rowDuration.ivIcon.setImageResource(R.drawable.ic_time)
-        binding.rowDistance.ivIcon.setImageResource(R.drawable.distance_icon)
-        binding.rowCalories.ivIcon.setImageResource(R.drawable.calories_icon)
-
-        binding.rowDuration.dividerRow.visibility = View.GONE
-        binding.rowDistance.dividerRow.visibility = View.GONE
-        binding.rowCalories.dividerRow.visibility = View.GONE
-
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 dashboardViewModel.activityRecords.collect { records ->
@@ -81,7 +67,7 @@ class ActivityDetailFragment : Fragment() {
     }
 
     private fun render(record: ActivityRecord) {
-        val exerciseType = ExerciseType.entries.firstOrNull { it.displayName == record.type }
+        val exerciseType = ExerciseType.fromDisplayName(record.type)
 
         binding.tvActivityTitle.text = record.type
         binding.tvActivityType.text = record.type
@@ -91,24 +77,47 @@ class ActivityDetailFragment : Fragment() {
         applyAccentTheme(exerciseType)
 
         val endTime = record.timestamp.plusMinutes(record.durationMinutes.toLong())
-        binding.rowStartTime.tvValue.text = ActivityDateFormatter.formatTimeOnly(record.timestamp)
-        binding.rowEndTime.tvValue.text = ActivityDateFormatter.formatTimeOnly(endTime)
-        binding.rowDuration.tvValue.text = "${record.durationMinutes} min"
-        binding.rowDistance.tvValue.text = "%.2f km".format(record.distanceKm)
-        binding.rowCalories.tvValue.text = "${record.calories} Cal"
+        binding.tvTimeRange.text = "${ActivityDateFormatter.formatTimeOnly(record.timestamp)} - " +
+            ActivityDateFormatter.formatTimeOnly(endTime)
+        binding.tvDuration.text = "${record.durationMinutes} min"
+
+        binding.tvDistance.text = "%.2f".format(record.distanceKm)
+        binding.tvPace.text = formatPace(record.durationMinutes, record.distanceKm)
+
+        binding.tvCalories.text = "${record.calories}"
+    }
+
+    // Pace (min/km) = total duration (min) ÷ total distance (km)
+    private fun formatPace(durationMinutes: Int, distanceKm: Double): String {
+        if (distanceKm <= 0.0) return "--"
+
+        val paceMinutesTotal = durationMinutes / distanceKm
+        var wholeMinutes = paceMinutesTotal.toInt()
+        var seconds = ((paceMinutesTotal - wholeMinutes) * 60).roundToInt()
+        if (seconds == 60) {
+            seconds = 0
+            wholeMinutes += 1
+        }
+        return "$wholeMinutes'${seconds.toString().padStart(2, '0')}\""
     }
 
     private fun applyAccentTheme(exerciseType: ExerciseType?) {
         val accentColor = exerciseType?.accentColor ?: DEFAULT_ACCENT_COLOR
         val accentBackground = exerciseType?.accentBackground ?: DEFAULT_ACCENT_BACKGROUND
+        val accentColorDark = ColorUtils.blendARGB(accentColor, Color.BLACK, 0.35f)
 
-        (binding.headerBanner.background.mutate() as GradientDrawable).setColor(accentBackground)
+        // Explicitly set both gradient stops to the same color rather than setColor(),
+        // since bg_activity_header.xml now declares a real <gradient> (for Add Activity's
+        // header) and setColor() alone wasn't reliably overriding it here - the XML's own
+        // default gradient colors kept showing through for every exercise type.
+        (binding.headerBanner.background.mutate() as GradientDrawable).colors =
+            intArrayOf(accentBackground, accentBackground)
         (binding.iconContainer.background.mutate() as GradientDrawable).setColor(0xFFFFFFFF.toInt())
+        (binding.durationCard.background.mutate() as GradientDrawable).colors =
+            intArrayOf(accentColor, accentColorDark)
 
-        listOf(
-            binding.rowStartTime.ivIcon, binding.rowEndTime.ivIcon, binding.rowDuration.ivIcon,
-            binding.rowDistance.ivIcon, binding.rowCalories.ivIcon
-        ).forEach { it.setColorFilter(accentColor, PorterDuff.Mode.SRC_IN) }
+        listOf(binding.iconDistance, binding.iconPace, binding.iconCalories)
+            .forEach { it.setColorFilter(accentColor, PorterDuff.Mode.SRC_IN) }
     }
 
     override fun onDestroyView() {
