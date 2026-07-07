@@ -26,9 +26,10 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 
-private fun MetricType.toActivityGoalType(): ActivityGoalType = when (this) {
+private fun MetricType.toActivityGoalTypeOrNull(): ActivityGoalType? = when (this) {
     MetricType.DISTANCE -> ActivityGoalType.DISTANCE
     MetricType.CALORIES -> ActivityGoalType.CALORIES
+    MetricType.FOOD_INTAKE -> null
     MetricType.SLEEP -> ActivityGoalType.SLEEP
     MetricType.HYDRATION -> ActivityGoalType.HYDRATION
     MetricType.WEIGHT -> ActivityGoalType.WEIGHT
@@ -102,7 +103,8 @@ class MetricDetailFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 userGoalsViewModel.goals.collect { goals ->
-                    currentGoalValue = goals[metricType.toActivityGoalType()] ?: metricType.defaultGoal
+                    val activityGoalType = metricType.toActivityGoalTypeOrNull()
+                    currentGoalValue = activityGoalType?.let { goals[it] } ?: metricType.defaultGoal
                     viewModel.setGoal(currentGoalValue)
                 }
             }
