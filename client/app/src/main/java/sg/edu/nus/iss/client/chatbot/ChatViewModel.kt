@@ -18,7 +18,7 @@ class ChatViewModel(
         // Restores messages saved from a previous session, only when the
         // persistence feature is enabled
         if (FeatureFlags.ENABLE_CHAT_HISTORY_PERSISTENCE) {
-            val savedMessages = chatHistoryRepository.getRecentMessages()
+            val savedMessages = chatHistoryRepository.getRecentHistory()
             messages.addAll(savedMessages)
         }
     }
@@ -31,9 +31,9 @@ class ChatViewModel(
         viewModelScope.launch {
             try {
                 // Only the most recent messages are sent, not the full history
-                val recentHistory = messages.takeLast(10)
+                val recentMessages = messages.takeLast(10)
 
-                val answer = ragRepository.answer(userQuery, recentHistory)
+                val answer = ragRepository.answer(userQuery, recentMessages)
 
                 onResult(answer)
             } catch (e: Exception) {

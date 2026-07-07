@@ -20,9 +20,9 @@ class ChatAdapter(private val messageList: List<ChatMessage>) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
         val layout = if (viewType == VIEW_TYPE_USER) {
-            R.layout.item_message_user // your right-side green/blue bubble layout
+            R.layout.item_message_user // right-side green bubble layout
         } else {
-            R.layout.item_message_bot  // your left-side gray bubble layout
+            R.layout.item_message_bot  // left-side gray bubble layout
         }
         val view = LayoutInflater.from(parent.context).inflate(layout, parent, false)
         return ChatViewHolder(view)

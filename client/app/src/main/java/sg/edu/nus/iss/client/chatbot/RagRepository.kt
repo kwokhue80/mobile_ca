@@ -19,7 +19,7 @@ class RagRepository(
 ) {
     suspend fun answer(
         query: String,
-        conversationHistory: List<ChatMessage> = emptyList(),
+        recentMessages: List<ChatMessage> = emptyList(),
         topK: Int = 3
     ): String {
         // The query only needs to be converted into a vector once, since
@@ -53,9 +53,9 @@ class RagRepository(
         }
 
         val answer = if (BackendConfig.USE_BACKEND) {
-            backendRepository.answer(query, conversationHistory, relevantPastMessages)
+            backendRepository.answer(query, recentMessages, relevantPastMessages)
         } else {
-            val prompt = buildPrompt(query, context, conversationHistory, relevantPastMessages)
+            val prompt = buildPrompt(query, context, recentMessages, relevantPastMessages)
             openRouterClient.chatCompletion(prompt)
         }
 
@@ -83,10 +83,10 @@ class RagRepository(
     private fun buildPrompt(
         query: String,
         context: String,
-        conversationHistory: List<ChatMessage>,
+        recentMessages: List<ChatMessage>,
         relevantPastMessages: List<ChatMessage>
     ): String {
-        val recentText = conversationHistory.joinToString("\n") { msg ->
+        val recentText = recentMessages.joinToString("\n") { msg ->
             if (msg.isUser) "User: ${msg.text}" else "Assistant: ${msg.text}"
         }
 
