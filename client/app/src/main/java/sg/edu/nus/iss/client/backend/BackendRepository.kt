@@ -1,5 +1,7 @@
 package sg.edu.nus.iss.client.backend
 
+import org.json.JSONObject
+import retrofit2.HttpException
 import sg.edu.nus.iss.client.chatbot.ChatMessage
 
 class BackendRepository(
@@ -7,11 +9,32 @@ class BackendRepository(
 ) {
     suspend fun answer(
         query: String,
-        conversationHistory: List<ChatMessage>,
+        recentMessages: List<ChatMessage>,
         relevantPastMessages: List<ChatMessage>
     ): String {
-        val request = ChatRequest(query, conversationHistory, relevantPastMessages)
-        val response = backendApi.sendQuery(request)
-        return response.answer
+        return try {
+            // Payload shape must match FastAPI ChatRequest in mcp_agent_wellness.py
+            val request = ChatRequest(query, recentMessages, relevantPastMessages)
+            val response = backendApi.sendQuery(request)
+            response.answer
+        } catch (error: HttpException) {
+            val errorBody = error.response()?.errorBody()?.string().orEmpty()
+            val detail = runCatching {
+                JSONObject(errorBody).optString("detail").takeIf { it.isNotBlank() }
+            }.getOrNull()
+
+            val message = detail ?: "Backend request failed with HTTP ${error.code()}"
+            throw IllegalStateException(message, error)
+        }
+    }
+
+    suspend fun isHealthy(): Boolean {
+        return try {
+            // /api/tools is a lightweight probe that verifies bridge + MCP wiring
+            backendApi.getAvailableTools()
+            true
+        } catch (_: Exception) {
+            false
+        }
     }
 }

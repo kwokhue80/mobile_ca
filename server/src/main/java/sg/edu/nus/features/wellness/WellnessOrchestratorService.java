@@ -31,6 +31,7 @@ import sg.edu.nus.features.user.account.UserService;
 import sg.edu.nus.features.user.goal.UserGoalRepository;
 import sg.edu.nus.features.user.goal.model.UserGoal;
 import sg.edu.nus.features.user.goal.model.enums.GoalType;
+import sg.edu.nus.features.user.profile.UserProfile;
 import sg.edu.nus.features.wellness.dto.WellnessRecordPayload;
 
 import sg.edu.nus.features.wellness.model.ActivityRecord;
@@ -170,13 +171,15 @@ public class WellnessOrchestratorService {
 
         // 2.5 Process Exercise
         if (payload.getExerciseType() != null && !payload.getExerciseType().isBlank() && payload.getExerciseDurationMinutes() != null) {
+            int caloriesBurnedKcal = resolveExerciseCaloriesBurned(currentUser, payload);
+
             ExerciseLog exercise = ExerciseLog.builder()
                 .user(currentUser)
                 .loggedAt(recordDate)
                 .exerciseType(ExerciseType.valueOf(payload.getExerciseType()))
                 .durationMinutes(payload.getExerciseDurationMinutes())
                 .distanceKm(payload.getExerciseDistanceKm() != null ? BigDecimal.valueOf(payload.getExerciseDistanceKm()) : null)
-                .caloriesBurnedKcal(payload.getExerciseCaloriesBurnedKcal() != null ? payload.getExerciseCaloriesBurnedKcal() : 0)
+                .caloriesBurnedKcal(caloriesBurnedKcal)
                 .startTime(payload.getExerciseStartTime())
                 .endTime(payload.getExerciseEndTime())
                 .build();
@@ -194,8 +197,8 @@ public class WellnessOrchestratorService {
                 summary.setTotalDistanceKm(currentDistance.add(BigDecimal.valueOf(payload.getExerciseDistanceKm())));
             }
 
-            if (payload.getExerciseCaloriesBurnedKcal() != null) {
-                summary.setTotalCaloriesBurned(summary.getTotalCaloriesBurned() + payload.getExerciseCaloriesBurnedKcal());
+            if (caloriesBurnedKcal > 0) {
+                summary.setTotalCaloriesBurned(summary.getTotalCaloriesBurned() + caloriesBurnedKcal);
             }
         }
 
@@ -225,6 +228,78 @@ public class WellnessOrchestratorService {
         summaryRepo.save(summary);
     }
 
+    private int resolveExerciseCaloriesBurned(User currentUser, WellnessRecordPayload payload) {
+        if (payload.getExerciseCaloriesBurnedKcal() != null && payload.getExerciseCaloriesBurnedKcal() > 0) {
+            return payload.getExerciseCaloriesBurnedKcal();
+        }
+
+        if (payload.getExerciseDurationMinutes() == null || payload.getExerciseDurationMinutes() <= 0) {
+            return 0;
+        }
+
+        BigDecimal weightKg = resolveWeightKgForExerciseEstimate(currentUser, payload);
+        BigDecimal heightCm = resolveHeightCmForExerciseEstimate(currentUser);
+
+        if (weightKg == null || heightCm == null) {
+            return 0;
+        }
+
+        double met = estimateMetForExerciseType(payload.getExerciseType());
+        double durationHours = payload.getExerciseDurationMinutes() / 60.0;
+        double baseCalories = met * weightKg.doubleValue() * durationHours;
+
+        double heightAdjustment = 1.0 + ((heightCm.doubleValue() - 170.0) / 500.0);
+        heightAdjustment = Math.max(0.85, Math.min(1.15, heightAdjustment));
+
+        int estimatedCalories = (int) Math.round(baseCalories * heightAdjustment);
+        return Math.max(estimatedCalories, 0);
+    }
+
+    private BigDecimal resolveWeightKgForExerciseEstimate(User currentUser, WellnessRecordPayload payload) {
+        if (payload.getWeightKg() != null && payload.getWeightKg() > 0) {
+            return BigDecimal.valueOf(payload.getWeightKg());
+        }
+
+        List<WeightLog> logs = weightRepo.findAllByUserIdOrderByLoggedAtDesc(currentUser.getId());
+        for (WeightLog log : logs) {
+            if (log.getWeightKg() != null && log.getWeightKg().compareTo(BigDecimal.ZERO) > 0) {
+                return log.getWeightKg();
+            }
+        }
+
+        return null;
+    }
+
+    private BigDecimal resolveHeightCmForExerciseEstimate(User currentUser) {
+        UserProfile profile = currentUser.getProfile();
+        if (profile == null || profile.getHeightCm() == null || profile.getHeightCm().compareTo(BigDecimal.ZERO) <= 0) {
+            return null;
+        }
+        return profile.getHeightCm();
+    }
+
+    private double estimateMetForExerciseType(String exerciseTypeRaw) {
+        if (exerciseTypeRaw == null || exerciseTypeRaw.isBlank()) {
+            return 5.0;
+        }
+
+        String exerciseType = exerciseTypeRaw.trim().toUpperCase();
+        return switch (exerciseType) {
+            case "RUNNING", "JOGGING" -> 8.3;
+            case "WALKING" -> 3.8;
+            case "CYCLING" -> 7.5;
+            case "SWIMMING", "HIKING" -> 6.0;
+            case "HIIT", "CROSSFIT" -> 8.0;
+            case "STRENGTH_TRAINING", "WEIGHTLIFTING", "BODYWEIGHT_TRAINING" -> 5.0;
+            case "YOGA", "PILATES", "STRETCHING" -> 2.8;
+            case "ROWING" -> 7.0;
+            case "JUMP_ROPE" -> 10.0;
+            case "DANCING" -> 5.0;
+            case "BASKETBALL", "FOOTBALL", "BADMINTON", "TENNIS", "VOLLEYBALL", "MARTIAL_ARTS", "CLIMBING" -> 6.5;
+            default -> 5.0;
+        };
+    }
+
     private void saveActivityRecord(User user, Long sourceLogId, String activityType, String title, String description, LocalDateTime recordedAt) {
         ActivityRecord record = ActivityRecord.builder()
             .user(user)
@@ -237,12 +312,6 @@ public class WellnessOrchestratorService {
         activityRepo.save(record);
     }
 
-    public List<ExerciseLog> getWeeklyExercise(UUID userId) {
-        LocalDateTime endTime = LocalDateTime.now();
-        LocalDateTime startTime = endTime.minusDays(7);
-
-        return exerciseRepo.findByUserIdAndLoggedAtBetweenOrderByLoggedAtDesc(userId, startTime, endTime);
-    }
     // Retrieves a user's logged activity history over a given number of
     // past days. Uses the existing activity_records table, which already
     // stores a short readable title and description for every logged event.

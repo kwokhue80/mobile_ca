@@ -54,13 +54,6 @@ public class WellnessController {
         return ResponseEntity.ok(summary);
     }
 
-    @GetMapping("/weekly-exercise")
-    public ResponseEntity<List<ExerciseLog>> getWeeklyExercise(
-        @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        List<ExerciseLog> history = orchestratorService.getWeeklyExercise(userPrincipal.getId());
-        return ResponseEntity.ok(history);
-    }
-
     @GetMapping("/exercise-logs")
     public ResponseEntity<List<ExerciseLogResponse>> getExerciseLogs(
             @RequestParam(defaultValue = "30") int days,

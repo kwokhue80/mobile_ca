@@ -13,7 +13,7 @@ import sg.edu.nus.iss.client.network.UserGoalUpsertRequest
 
 /** Activity-scoped store of the user's current goal per [ActivityGoalType], shared between
  *  the Set Goals flow and the metric detail / exercise days pages that display goal lines.
- *  Backed by the `/api/user-goals` endpoint; falls back to [ActivityGoalType.defaultValue]
+ *  Backed by the `/api/user/goals` endpoint; falls back to [ActivityGoalType.defaultValue]
  *  until the authenticated user's saved goals are loaded (or if loading fails). */
 class UserGoalsViewModel(application: Application) : AndroidViewModel(application) {
 

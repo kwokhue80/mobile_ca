@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import sg.edu.nus.features.user.account.User;
 import sg.edu.nus.features.user.account.UserRepository;
 import sg.edu.nus.features.user.goal.dto.UserGoalResponse;
+import sg.edu.nus.features.user.goal.dto.UserGoalRawView;
 import sg.edu.nus.features.user.goal.model.UserGoal;
 import sg.edu.nus.features.user.goal.model.UserGoalId;
 import sg.edu.nus.features.user.goal.model.enums.GoalType;
@@ -32,7 +33,15 @@ public class UserGoalService {
     }
 
     // Get user goal by User ID only
-    public List<UserGoal> getByUserId(UUID userId) { return userGoalRepository.findByIdUserId(userId); }
+    public List<UserGoal> getByUserId(UUID userId) { return userGoalRepository.findByUserId(userId); }
+    
+    // Get raw goal view (for chatbot) - limited fields
+    public List<UserGoalResponse> getRawByUserId(UUID userId) {
+        return userGoalRepository.findRawByUserId(userId)
+            .stream()
+            .map(this::toRawResponse)
+            .toList();
+    }
 
     // Update goal using Composite Key
     public UserGoal updateTargetValue(UUID userId, GoalType goalType, BigDecimal targetValue) {
@@ -45,7 +54,6 @@ public class UserGoalService {
     // REASON for combining into one transaction: set goal as a single action
     @Transactional
     public UserGoal upsertGoal(UUID userId, GoalType goalType, BigDecimal targetValue) {
-        
         // edge case: target value null / <= 0 
         if (targetValue == null || targetValue.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Target value must be greater than zero");
@@ -64,7 +72,6 @@ public class UserGoalService {
 
             // If not exists, create new user goal and save to DB
             .orElseGet(() -> {
-
                 // Find user
                 User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
@@ -88,5 +95,31 @@ public class UserGoalService {
 			userGoal.getTargetValue(),
 			userGoal.getId().getGoalType().getUnit());
 	}
+
+    public UserGoalResponse toRawResponse(UserGoalRawView rawGoal) {
+        return new UserGoalResponse(
+            rawGoal.getGoalType(),
+            rawGoal.getTargetValue(),
+            goalUnitFor(rawGoal.getGoalType())
+        );
+    }
+
+    private String goalUnitFor(String goalType) {
+        if (goalType == null) {
+            return "";
+        }
+
+        String normalized = goalType.trim().toUpperCase();
+        return switch (normalized) {
+            case "WATER_ML", "HYDRATION" -> "ml per day";
+            case "SLEEP_MINUTES" -> "minutes per day";
+            case "SLEEP" -> "hours per day";
+            case "CALORIES_BURNED", "CALORIES" -> "kcal per day";
+            case "EXERCISE_DAYS" -> "days per week";
+            case "WEIGHT" -> "kg";
+            case "STEPS" -> "steps per day";
+            default -> "";
+        };
+    }
 
 }

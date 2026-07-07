@@ -1,12 +1,23 @@
-# Holds the JWT token for the request currently being processed.
-# Tool functions can read this value without the token being passed
-# through the language model itself.
+"""Request-local JWT token context for FastAPI -> MCP tool calls."""
 
-current_jwt_token = None
+from contextvars import ContextVar
+from typing import Optional
 
-def set_current_token(token):
-    global current_jwt_token
-    current_jwt_token = token
+## ----------------------------------------------------------------- ##
+#   AUTHOR(S): Kwok Heng
+#   PURPOSE: Configure JWT token
+## ----------------------------------------------------------------- ##
 
-def get_current_token():
-    return current_jwt_token
+_current_jwt_token: ContextVar[Optional[str]] = ContextVar("current_jwt_token", default=None)
+
+
+def set_current_token(token: Optional[str]) -> None:
+    _current_jwt_token.set(token)
+
+
+def get_current_token() -> Optional[str]:
+    return _current_jwt_token.get()
+
+
+def clear_current_token() -> None:
+    _current_jwt_token.set(None)

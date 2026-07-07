@@ -10,20 +10,15 @@ class ChatHistoryRepository(store: BoxStore) {
     private val box: Box<ChatMessageEntity> = store.boxFor(ChatMessageEntity::class.java)
 
     companion object {
-        // Highest number of chat messages kept in persistent storage.
-        // This figure was chosen to stay safely under Android's 25 MB
-        // per-app backup limit, accounting for the existing dish
-        // nutrition data that shares the same storage budget.
+        // Max number of chat messages kept in persistent storage
         private const val MAX_STORED_MESSAGES = 2500
 
         // Number of most recent messages reloaded into the chat window
-        // when the app restarts. Kept much smaller than the storage
-        // limit above, since a long visible history is rarely useful
-        // to scroll through.
+        // when the app restarts
         private const val DISPLAYED_MESSAGE_COUNT = 30
     }
 
-    fun getRecentMessages(limit: Int = DISPLAYED_MESSAGE_COUNT): List<ChatMessage> {
+    fun getRecentHistory(limit: Int = DISPLAYED_MESSAGE_COUNT): List<ChatMessage> {
         val query = box.query()
             .order(ChatMessageEntity_.timestamp, QueryBuilder.DESCENDING)
             .build()

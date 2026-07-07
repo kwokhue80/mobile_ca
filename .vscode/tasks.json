@@ -1,0 +1,185 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Start Spring Backend",
+            "type": "shell",
+            "command": ".\\mvnw.cmd",
+            "args": [
+                "spring-boot:run"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/server"
+            },
+            "isBackground": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Start FastAPI Chatbot Bridge",
+            "type": "shell",
+            "command": "C:/Python314/python.exe",
+            "args": [
+                "-m",
+                "uvicorn",
+                "mcp_agent_wellness:app",
+                "--app-dir",
+                "${workspaceFolder}/server/mcp_server",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8001"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "isBackground": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Install Android Client (Debug)",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/.vscode/android-client-task.ps1",
+                "install"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Launch Android Client App",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/.vscode/android-client-task.ps1",
+                "launch"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Start Android Client",
+            "dependsOn": [
+                "Install Android Client (Debug)",
+                "Launch Android Client App"
+            ],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "Start Chat Stack",
+            "dependsOn": [
+                "Start Spring Backend",
+                "Start FastAPI Chatbot Bridge"
+            ],
+            "dependsOrder": "parallel"
+        },
+        {
+            "label": "Start Full Stack",
+            "dependsOn": [
+                "Start Chat Stack",
+                "Start Android Client"
+            ],
+            "dependsOrder": "parallel"
+        },
+        {
+            "label": "Install Chatbot Test Dependencies",
+            "type": "shell",
+            "command": "C:/Python314/python.exe",
+            "args": [
+                "-m",
+                "pip",
+                "install",
+                "-r",
+                "${workspaceFolder}/server/mcp_server/requirements.txt",
+                "-r",
+                "${workspaceFolder}/server/mcp_server/requirements-dev.txt"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Chatbot API Tests",
+            "type": "shell",
+            "command": "C:/Python314/python.exe",
+            "args": [
+                "-m",
+                "pytest",
+                "${workspaceFolder}/server/mcp_server/tests",
+                "-q"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Test Chatbot API (Install + Run)",
+            "dependsOn": [
+                "Install Chatbot Test Dependencies",
+                "Run Chatbot API Tests"
+            ],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "Stop Spring Backend",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoProfile",
+                "-Command",
+                "$connections = Get-NetTCPConnection -LocalPort 8000 -State Listen -ErrorAction SilentlyContinue; if ($connections) { $connections | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue } }"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Stop FastAPI Chatbot Bridge",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoProfile",
+                "-Command",
+                "$connections = Get-NetTCPConnection -LocalPort 8001 -State Listen -ErrorAction SilentlyContinue; if ($connections) { $connections | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue } }"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Stop Android Client App",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/.vscode/android-client-task.ps1",
+                "stop"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Stop Chat Stack",
+            "dependsOn": [
+                "Stop Spring Backend",
+                "Stop FastAPI Chatbot Bridge"
+            ],
+            "dependsOrder": "parallel",
+            "problemMatcher": []
+        },
+        {
+            "label": "Stop Full Stack",
+            "dependsOn": [
+                "Stop Chat Stack",
+                "Stop Android Client App"
+            ],
+            "dependsOrder": "parallel"
+        }
+    ]
+}

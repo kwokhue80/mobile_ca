@@ -1,5 +1,7 @@
 /.metadata/
-/.vscode/
+/.vscode/*
+!/.vscode/tasks.json
+!/.vscode/android-client-task.ps1
 
 # Gradle local build caches and locks
 .gradle/
@@ -11,3 +13,6 @@
 
 # Android/Gradle build outputs
 **/build/
+
+# Local secrets
+server/mcp_server/.env
