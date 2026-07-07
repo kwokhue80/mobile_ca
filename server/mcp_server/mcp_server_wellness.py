@@ -12,7 +12,7 @@ from ddgs import DDGS
 
 ## ----------------------------------------------------------------- ##
 #   AUTHOR(S): Kwok Heng, Amelia, Chai Lee
-#   PURPOSE: Configure MCP server to be linked up with agent
+#   PURPOSE: Configure MCP server used by the wellness agent
 #
 #   FULL FLOW + CONSIDERATIONS:
 #   1) Exposes MCP tools over stdio transport (consumed by mcp_agent_wellness.py).
@@ -360,15 +360,6 @@ def _build_goal_based_recommendation(goals: list[dict[str, Any]], summary: dict[
         recommendation_lines.append("No recognized goals were found. Keep logging your daily habits for a clearer recommendation next time.")
 
     lines.extend(f"- {line}" if not line.startswith("-") else line for line in recommendation_lines)
-    return "\n".join(lines)
-
-
-def _profile_web_search_intro(profile: dict[str, Any], summary: dict[str, Any]) -> str:
-    lines = _summary_header(summary)
-    lines.append("Recommendations based on your profile:")
-    lines.append("- No active goals are set yet, so I looked up general guidance tailored to your profile.")
-    lines.append("- I searched for wellness recommendations for your profile.")
-    lines.append("- Web search results:")
     return "\n".join(lines)
 
 

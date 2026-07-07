@@ -23,7 +23,6 @@ import sg.edu.nus.features.wellness.dto.BadgeProgressResponse;
 import sg.edu.nus.features.wellness.dto.ExerciseLogResponse;
 import sg.edu.nus.features.wellness.dto.HourlyWellnessResponse;
 import sg.edu.nus.features.wellness.model.DailyWellnessSummary;
-import sg.edu.nus.features.wellness.model.ExerciseLog;
 import sg.edu.nus.features.wellness.dto.RecommendationResponse;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -105,13 +104,5 @@ public class WellnessController {
         RecommendationResponse recommendation = orchestratorService.getLatestRecommendation(userPrincipal.getId());
         return ResponseEntity.ok(recommendation);
     }
-
-    // @GetMapping("/activity")
-    // public ResponseEntity<List<ActivityRecordDto>> getActivityHistory(
-    //     @RequestParam(defaultValue = "7") int days,
-    //     @AuthenticationPrincipal UserPrincipal userPrincipal) {
-    //     List<ActivityRecordDto> history = orchestratorService.getActivityHistory(userPrincipal.getId(), days);
-    //     return ResponseEntity.ok(history);
-    // }
 
 }

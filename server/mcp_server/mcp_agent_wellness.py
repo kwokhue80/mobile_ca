@@ -7,12 +7,13 @@ import json
 import hashlib
 import time
 import asyncio
+from enum import Enum
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
 from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel, Field
 from typing import Any, List
-from dotenv import load_dotenv, dotenv_values
+from dotenv import load_dotenv
 from openai import AuthenticationError as OpenAIAuthenticationError
 from langchain_openai import ChatOpenAI
 from langchain.agents import create_agent
@@ -43,7 +44,7 @@ except ImportError:
     )
     
 ## ----------------------------------------------------------------- ##
-#   AUTHOR(S): Kwok Heng, Amelia, Chai Lee
+#   AUTHOR(S): Kwok Heng, Amelia, Chai Lee (AI-assisted; Reason: fairly new concepts)
 #   PURPOSE: Configure MCP agent
 #
 #   FULL FLOW + CONSIDERATIONS:
@@ -69,12 +70,15 @@ except ImportError:
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ENV_PATH = os.path.join(BASE_DIR, ".env")
+
+# Capture the pre-load value so we can report whether .env overrode it.
+_process_openrouter_key = os.getenv("OPENROUTER_API_KEY")
 load_dotenv(ENV_PATH, override=True)
 
-# Prefer an explicit key in server/mcp_server/.env when present.
-_dotenv_values = dotenv_values(ENV_PATH)
-if _dotenv_values.get("OPENROUTER_API_KEY"):
-    os.environ["OPENROUTER_API_KEY"] = str(_dotenv_values["OPENROUTER_API_KEY"])
+# Report the effective OpenRouter key source after dotenv loading.
+if os.getenv("OPENROUTER_API_KEY") is None:
+    OPENROUTER_KEY_SOURCE = "missing"
+elif os.path.exists(ENV_PATH) and os.getenv("OPENROUTER_API_KEY") != _process_openrouter_key:
     OPENROUTER_KEY_SOURCE = ".env"
 else:
     OPENROUTER_KEY_SOURCE = "process-environment"
@@ -87,7 +91,7 @@ logger = logging.getLogger("mcp_agent_wellness")
 
 app = FastAPI(title="Wellness Chatbot API")
 
-
+# For logging purpose
 @dataclass
 class LoggingDraft:
     payload: dict[str, Any] = field(default_factory=dict)
@@ -97,26 +101,57 @@ class LoggingDraft:
     updated_at_epoch: float = field(default_factory=lambda: time.time())
 
 
+# Context object (Like ResearchState)
+@dataclass
+class WorkflowState:
+    request: "ChatRequest"
+    request_id: str
+    actions: list["WorkflowAction"] = field(default_factory=list)
+    deterministic_responses: list[str] = field(default_factory=list)
+
+
+# Action type: Log to DB, read from DB, search web, or LLM
+class WorkflowActionType(str, Enum):
+    LOGGING = "logging"
+    READ = "read"
+    WEB_SEARCH = "web_search"
+    LLM = "llm"
+
+
+# Workflow action object
+@dataclass(frozen=True)
+class WorkflowAction:
+    action_type: WorkflowActionType
+    terminal_on_handle: bool = False
+    accumulate_response: bool = False
+    target: str | None = None
+    query_override: str | None = None
+    logging_task: "LoggingTask | None" = None
+
+
+# Logs intent detection and messages
+@dataclass(frozen=True)
+class LoggingTask:
+    query: str
+    recent_messages: list["ChatMessage"]
+    relevant_past_messages: list["ChatMessage"]
+    intent_detected: bool
+    active_draft_present: bool
+    meal_mention_detected: bool
+
+
+@dataclass
+class WorkflowActionResult:
+    handled: bool
+    response: str | None = None
+
+
+# Logging draft expire after 20 mins
 LOGGING_DRAFT_TTL_SECONDS = 20 * 60
 
 
-class DraftStore:
-    """Storage abstraction so draft state can later move to Redis cleanly."""
-
-    def get(self, key: str) -> LoggingDraft | None:
-        raise NotImplementedError()
-
-    def set(self, key: str, draft: LoggingDraft) -> None:
-        raise NotImplementedError()
-
-    def delete(self, key: str) -> None:
-        raise NotImplementedError()
-
-    def cleanup_expired(self, ttl_seconds: int) -> None:
-        raise NotImplementedError()
-
-
-class InMemoryDraftStore(DraftStore):
+# In-memory draft store.
+class InMemoryDraftStore:
     def __init__(self) -> None:
         self._drafts: dict[str, LoggingDraft] = {}
 
@@ -136,9 +171,10 @@ class InMemoryDraftStore(DraftStore):
             self.delete(key)
 
 
-DRAFT_STORE: DraftStore = InMemoryDraftStore()
+DRAFT_STORE = InMemoryDraftStore()
 
 
+# Returns the OpenRouter API key
 def _get_openrouter_api_key() -> str | None:
     key = os.getenv("OPENROUTER_API_KEY")
     if key is None:
@@ -146,6 +182,7 @@ def _get_openrouter_api_key() -> str | None:
     return key.strip()
 
 
+# Masks a secret for safe logging
 def _mask_key(key: str | None) -> str:
     if not key:
         return "<missing>"
@@ -161,8 +198,7 @@ logger.info(
     _mask_key(_get_openrouter_api_key()),
 )
 
-# Points to the MCP server script, launched automatically through
-# the stdio transport rather than a separate network address
+# Points to the MCP server script, launched automatically through the stdio transport
 mcp_client = MultiServerMCPClient(
     {
         "wellness_db": {
@@ -174,7 +210,7 @@ mcp_client = MultiServerMCPClient(
 )
 
 
-# System prompt: ensure good coverage of our database schema, intentions, rules
+# System prompt: good coverage of our database schema, intentions, rules
 SYSTEM_PROMPT = """
 You are a wellness assistant.
 Use MCP tools for user-specific wellness data before answering.
@@ -204,18 +240,18 @@ Important behavior rules:
 - Never invent unsupported limitations (for example, "can only log within 24 hours") if the tool can handle the request.
 """
 
-# Represents one message already exchanged in the conversation
+# Represents message exchanged in the conversation
 class ChatMessage(BaseModel):
     text: str
     isUser: bool
 
-# Represents the request payload sent from the Android application
+# Represents the request payload sent from application
 class ChatRequest(BaseModel):
     query: str
     recentMessages: List[ChatMessage] = Field(default_factory=list)
     relevantPastMessages: List[ChatMessage] = Field(default_factory=list)
 
-# Represents the final answer sent back to the Android application
+# Represents the final answer sent back to application
 class ChatResponse(BaseModel):
     answer: str
 
@@ -250,14 +286,15 @@ def _extract_tool_calls(result: dict) -> list[str]:
     return tool_calls
 
 
+# REGEX checks Yes / No
 def _is_affirmative(text: str) -> bool:
     return bool(re.search(r"\b(yes|yep|yeah|ok|okay|sure|please do|go ahead|confirm|proceed)\b", text, re.IGNORECASE))
-
 
 def _is_negative(text: str) -> bool:
     return bool(re.search(r"\b(no|nope|don't|do not|cancel|not now|change|edit)\b", text, re.IGNORECASE))
 
 
+# Draft ops
 def _draft_key_from_current_token() -> str | None:
     token = get_current_token()
     if not token:
@@ -265,14 +302,11 @@ def _draft_key_from_current_token() -> str | None:
     digest = hashlib.sha256(token.encode("utf-8")).hexdigest()
     return digest[:24]
 
-
 def _cleanup_expired_drafts() -> None:
     DRAFT_STORE.cleanup_expired(LOGGING_DRAFT_TTL_SECONDS)
 
-
 def _touch_draft(draft: LoggingDraft) -> None:
     draft.updated_at_epoch = time.time()
-
 
 def _tool_payload_from_draft_payload(payload: dict[str, Any]) -> dict[str, Any]:
     allowed_fields = {
@@ -293,7 +327,7 @@ def _tool_payload_from_draft_payload(payload: dict[str, Any]) -> dict[str, Any]:
     return {k: v for k, v in payload.items() if k in allowed_fields}
 
 
-# Convert content to text
+# Cleans up raw message from LLM/tools to plain string
 def _content_to_text(content: Any) -> str:
     if content is None:
         return ""
@@ -401,6 +435,7 @@ def _looks_like_false_logging_refusal(text: str) -> bool:
     )
 
 
+# Converts messy text into json
 def _maybe_parse_json_object(text: str) -> dict[str, Any] | None:
     text = text.strip()
     if not text:
@@ -429,6 +464,7 @@ def _maybe_parse_json_object(text: str) -> dict[str, Any] | None:
     return None
 
 
+# Get latest payload
 def _extract_log_wellness_tool_result(result: dict) -> dict[str, Any] | None:
     """Return the latest log_wellness_entry tool payload when available."""
     messages = result.get("messages", [])
@@ -463,6 +499,7 @@ def _extract_log_wellness_tool_result(result: dict) -> dict[str, Any] | None:
     return None
 
 
+# Get tool message
 def _extract_named_tool_result(result: dict, tool_name: str) -> Any | None:
     """Return latest parsed content for a specific tool message, when available."""
     messages = result.get("messages", [])
@@ -497,17 +534,15 @@ def _extract_named_tool_result(result: dict, tool_name: str) -> Any | None:
     return None
 
 
+# Formatting result
 def _humanize_field_name(name: str) -> str:
-    # Convert camelCase/snake_case to readable labels.
     text = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", name)
     text = text.replace("_", " ").strip().title()
     return text
 
-
 def _should_skip_tool_result_field(name: str) -> bool:
     normalized = re.sub(r"[^a-z0-9]", "", name.lower())
     return normalized in {"id", "createdat", "updatedat", "timestamp"}
-
 
 def _format_tool_result_text(value: Any, indent: int = 0) -> str:
     prefix = " " * indent
@@ -540,6 +575,7 @@ def _format_tool_result_text(value: Any, indent: int = 0) -> str:
     return f"{prefix}{value}"
 
 
+# Effective feedback on chat
 def _format_read_tool_fallback(tool_name: str, tool_result: Any) -> str:
     formatted = _format_tool_result_text(tool_result)
     if tool_name == "get_daily_summary":
@@ -551,6 +587,7 @@ def _format_read_tool_fallback(tool_name: str, tool_result: Any) -> str:
     return f"I fetched data from {tool_name}:\n{formatted}"
 
 
+# Error
 def _tool_result_looks_like_error(tool_result: Any) -> bool:
     if not isinstance(tool_result, dict):
         return False
@@ -570,6 +607,7 @@ def _tool_result_looks_like_error(tool_result: Any) -> bool:
     return False
 
 
+# Fallback chain: custom tools -> web search -> logging
 def _format_tool_fallback(tool_name: str, tool_result: Any) -> str:
     if tool_name in {"get_daily_summary", "get_activity_history", "get_latest_recommendation"}:
         return _format_read_tool_fallback(tool_name, tool_result)
@@ -580,6 +618,7 @@ def _format_tool_fallback(tool_name: str, tool_result: Any) -> str:
     return f"I successfully used {tool_name} and got:\n{_format_tool_result_text(tool_result)}"
 
 
+# Mapping query to specific tools
 def _detect_read_tool_name(query: str) -> str | None:
     lowered = query.lower()
 
@@ -615,12 +654,12 @@ def _detect_read_tool_name(query: str) -> str | None:
     return None
 
 
+# Safeguard for LLM echo response
 def _normalized_text_for_compare(text: str) -> str:
     lowered = text.lower().strip()
     lowered = re.sub(r"[\?\!\.,;:\"'\(\)]", "", lowered)
     lowered = re.sub(r"\s+", " ", lowered)
     return lowered
-
 
 def _looks_like_echo_response(answer: str, user_query: str) -> bool:
     normalized_answer = _normalized_text_for_compare(answer)
@@ -630,6 +669,7 @@ def _looks_like_echo_response(answer: str, user_query: str) -> bool:
     return normalized_answer == normalized_query
 
 
+# Fallback text when personalized recommendation retrieval fails.
 def _general_recommendation_fallback_text() -> str:
     return (
         "I couldn't access your personalized recommendation right now. "
@@ -638,12 +678,328 @@ def _general_recommendation_fallback_text() -> str:
         "include one protein-rich meal, and aim for a consistent sleep time tonight."
     )
 
+# Check whether current user already has a logging draft
+def _has_active_logging_draft() -> bool:
+    draft_key = _draft_key_from_current_token()
+    if not draft_key:
+        return False
+    return DRAFT_STORE.get(draft_key) is not None
 
+
+# Packages the current request into a structured logging task
+def _plan_logging_task(request: ChatRequest) -> LoggingTask | None:
+    intent_detected = _looks_like_logging_intent(request.query)
+    active_draft_present = _has_active_logging_draft()
+    meal_mention_detected = _looks_like_meal_mention(request.query)
+
+    if not (intent_detected or active_draft_present or meal_mention_detected):
+        return None
+
+    return LoggingTask(
+        query=request.query,
+        recent_messages=request.recentMessages,
+        relevant_past_messages=request.relevantPastMessages,
+        intent_detected=intent_detected,
+        active_draft_present=active_draft_present,
+        meal_mention_detected=meal_mention_detected,
+    )
+
+
+# Decide whether the current query should enter the deterministic web-search path.
+def _should_plan_web_search(query: str) -> bool:
+    if _is_explicit_search_request(query):
+        return True
+    if _is_wellness_nutrition_topic(query) and _looks_like_wellness_web_search_request(query):
+        return True
+    if _has_active_logging_draft() and _looks_like_wellness_web_search_request(query):
+        return True
+    return False
+
+def _planned_web_search_query(request: ChatRequest) -> str | None:
+    if not _should_plan_web_search(request.query):
+        return None
+    return request.query.strip() or None
+
+
+# Builds an ordered list of workflow actions for the current request
+def _build_workflow_actions(request: ChatRequest) -> list[WorkflowAction]:
+    actions: list[WorkflowAction] = []
+
+    logging_task = _plan_logging_task(request)
+    if logging_task is not None:
+        actions.append(
+            WorkflowAction(
+                WorkflowActionType.LOGGING,
+                terminal_on_handle=True,
+                logging_task=logging_task,
+            )
+        )
+
+    read_tool_name = _detect_read_tool_name(request.query)
+    if read_tool_name:
+        actions.append(
+            WorkflowAction(
+                WorkflowActionType.READ,
+                accumulate_response=True,
+                target=read_tool_name,
+            )
+        )
+
+    web_search_query = _planned_web_search_query(request)
+    if web_search_query:
+        actions.append(
+            WorkflowAction(
+                WorkflowActionType.WEB_SEARCH,
+                accumulate_response=True,
+                query_override=web_search_query,
+            )
+        )
+
+    actions.append(WorkflowAction(WorkflowActionType.LLM, terminal_on_handle=True))
+    return actions
+
+
+# Converts stored chat context into the message list for LLM
+def _build_conversation_messages(request: ChatRequest) -> list[dict[str, str]]:
+    conversation_messages: list[dict[str, str]] = []
+
+    if request.relevantPastMessages:
+        relevant_text = "\n".join(
+            f"Earlier, the {'user' if msg.isUser else 'assistant'} said: \"{msg.text}\""
+            for msg in request.relevantPastMessages
+        )
+        conversation_messages.append({
+            "role": "system",
+            "content": f"Relevant earlier context:\n{relevant_text}"
+        })
+
+    for msg in request.recentMessages:
+        role = "user" if msg.isUser else "assistant"
+        conversation_messages.append({"role": role, "content": msg.text})
+
+    if not (
+        request.recentMessages
+        and request.recentMessages[-1].isUser
+        and request.recentMessages[-1].text.strip() == request.query.strip()
+    ):
+        conversation_messages.append({"role": "user", "content": request.query})
+
+    return conversation_messages
+
+
+# Creates the LangChain agent instance used for tool-calling fallback
+def _create_llm_agent(tools: list[Any]):
+    api_key = _get_openrouter_api_key()
+    if not api_key:
+        raise HTTPException(
+            status_code=500,
+            detail="OPENROUTER_API_KEY is missing in server/mcp_server/.env",
+        )
+
+    llm = ChatOpenAI(
+        model="google/gemini-2.5-flash-lite",
+        temperature=0,
+        base_url="https://openrouter.ai/api/v1",
+        api_key=api_key,
+    )
+    return create_agent(llm, tools=tools, system_prompt=SYSTEM_PROMPT)
+
+
+# Repairs low-quality echo answers by falling back to deterministic read handlers
+async def _repair_echo_response(query: str, request_id: str) -> str:
+    read_tool_name = _detect_read_tool_name(query)
+    if read_tool_name == "get_daily_summary":
+        try:
+            tool_result = await direct_get_daily_summary()
+            return _format_read_tool_fallback("get_daily_summary", tool_result)
+        except Exception:
+            logger.exception("[%s] Echo fallback daily summary failed", request_id)
+    elif read_tool_name == "get_activity_history":
+        try:
+            tool_result = await direct_get_activity_history()
+            return _format_read_tool_fallback("get_activity_history", tool_result)
+        except Exception:
+            logger.exception("[%s] Echo fallback activity history failed", request_id)
+    elif read_tool_name == "get_latest_recommendation":
+        try:
+            tool_result = await direct_get_latest_recommendation()
+            return _format_read_tool_fallback("get_latest_recommendation", tool_result)
+        except Exception:
+            logger.exception("[%s] Echo fallback recommendation failed", request_id)
+
+    return "I couldn't find a clear answer yet. If you want, I can fetch your latest wellness recommendation or look this up on the web."
+
+
+# Replaces false refusal text when a successful tool result exists underneath it
+def _repair_false_refusal(final_answer: str, called_tools: list[str], result: dict, request_id: str) -> str:
+    repaired_answer = final_answer
+
+    if "log_wellness_entry" in called_tools:
+        tool_result = _extract_log_wellness_tool_result(result)
+        if tool_result and _looks_like_false_logging_refusal(repaired_answer):
+            logger.warning(
+                "[%s] Replacing hallucinated logging refusal after successful tool result. original=%s",
+                request_id,
+                repaired_answer[:240],
+            )
+            repaired_answer = _format_logging_response(tool_result)
+        elif not tool_result and _looks_like_false_logging_refusal(repaired_answer):
+            logger.warning(
+                "[%s] Logging refusal detected but no successful tool payload found; keeping model text.",
+                request_id,
+            )
+
+    if _looks_like_false_logging_refusal(repaired_answer):
+        for tool_name in called_tools:
+            tool_result = _extract_named_tool_result(result, tool_name)
+            if tool_result is None:
+                continue
+            if _tool_result_looks_like_error(tool_result):
+                continue
+
+            logger.warning(
+                "[%s] Replacing false refusal after successful %s tool output.",
+                request_id,
+                tool_name,
+            )
+            repaired_answer = _format_tool_fallback(tool_name, tool_result)
+            break
+
+    return repaired_answer
+
+
+# Runs the LLM fallback stage after deterministic workflow actions are exhausted
+async def _run_llm_stage(state: WorkflowState) -> str:
+    tools = await mcp_client.get_tools()
+    tool_names = sorted([tool.name for tool in tools])
+    logger.info("[%s] MCP tools available: %s", state.request_id, tool_names)
+
+    agent = _create_llm_agent(tools)
+    conversation_messages = _build_conversation_messages(state.request)
+
+    logger.info(
+        "[%s] Processing chat query. history=%s relevant=%s",
+        state.request_id,
+        len(state.request.recentMessages),
+        len(state.request.relevantPastMessages),
+    )
+    result = await agent.ainvoke({"messages": conversation_messages})
+    called_tools = _extract_tool_calls(result)
+    logger.info("[%s] MCP tools called by agent: %s", state.request_id, called_tools)
+
+    if _looks_like_logging_intent(state.request.query) and "log_wellness_entry" not in called_tools:
+        logger.warning(
+            "[%s] Logging intent detected but log_wellness_entry was not called. query=%s",
+            state.request_id,
+            state.request.query,
+        )
+
+    final_answer = _extract_final_answer(result, called_tools, state.request_id)
+
+    if _looks_like_echo_response(final_answer, state.request.query):
+        logger.warning("[%s] Detected echo response; attempting deterministic fallback", state.request_id)
+        return await _repair_echo_response(state.request.query, state.request_id)
+
+    final_answer = _repair_false_refusal(final_answer, called_tools, result, state.request_id)
+    logger.info("[%s] Final answer length=%s preview=%s", state.request_id, len(final_answer), final_answer[:180])
+    return final_answer
+
+
+# Executes the planned logging action using the structured logging task when present
+async def _execute_logging_action(state: WorkflowState, action: WorkflowAction) -> WorkflowActionResult:
+    request = state.request
+    if action.logging_task is not None:
+        request = ChatRequest(
+            query=action.logging_task.query,
+            recentMessages=action.logging_task.recent_messages,
+            relevantPastMessages=action.logging_task.relevant_past_messages,
+        )
+
+    handled, response = await _handle_logging_orchestration(request, state.request_id)
+    if handled:
+        return WorkflowActionResult(True, response or "I can help log that. Please share the details you want saved.")
+    return WorkflowActionResult(False)
+
+
+# Executes the planned read action using either a named read tool or request inference
+async def _execute_read_action(state: WorkflowState, action: WorkflowAction) -> WorkflowActionResult:
+    if action.target:
+        handled, response = await _execute_named_read_tool(action.target, state.request_id)
+    else:
+        handled, response = await _handle_read_orchestration(state.request, state.request_id)
+    if handled:
+        return WorkflowActionResult(True, response or "I fetched your requested wellness data.")
+    return WorkflowActionResult(False)
+
+
+# Executes the planned wellness web-search action
+async def _execute_web_search_action(state: WorkflowState, action: WorkflowAction) -> WorkflowActionResult:
+    request = state.request
+    if action.query_override:
+        request = ChatRequest(
+            query=action.query_override,
+            recentMessages=state.request.recentMessages,
+            relevantPastMessages=state.request.relevantPastMessages,
+        )
+    handled, response = await _handle_wellness_web_search_orchestration(request, state.request_id)
+    if handled:
+        return WorkflowActionResult(True, response or "I ran a web search and found some results.")
+    return WorkflowActionResult(False)
+
+
+# Executes the terminal LLM action or returns accumulated responses
+async def _execute_llm_action(state: WorkflowState, action: WorkflowAction) -> WorkflowActionResult:
+    _ = action
+    if state.deterministic_responses:
+        return WorkflowActionResult(True, "\n\n".join(state.deterministic_responses))
+    return WorkflowActionResult(True, await _run_llm_stage(state))
+
+
+# Dispatches a workflow action to its dedicated executor
+async def _execute_action(state: WorkflowState, action: WorkflowAction) -> WorkflowActionResult:
+    if action.action_type == WorkflowActionType.LOGGING:
+        return await _execute_logging_action(state, action)
+    if action.action_type == WorkflowActionType.READ:
+        return await _execute_read_action(state, action)
+    if action.action_type == WorkflowActionType.WEB_SEARCH:
+        return await _execute_web_search_action(state, action)
+    if action.action_type == WorkflowActionType.LLM:
+        return await _execute_llm_action(state, action)
+    return WorkflowActionResult(False)
+
+
+# Runs the planned workflow actions in order until request is terminated
+async def _execute_workflow(state: WorkflowState) -> str:
+    for action in state.actions:
+        result = await _execute_action(state, action)
+        if not result.handled:
+            continue
+
+        if action.accumulate_response and result.response:
+            state.deterministic_responses.append(result.response)
+            continue
+
+        if action.terminal_on_handle:
+            return result.response or "I couldn't complete that step. Please try again."
+
+    if state.deterministic_responses:
+        return "\n\n".join(state.deterministic_responses)
+    return "I couldn't determine the next step for your request. Please try again."
+
+
+# Routes read-type prompts into specific deterministic wellness data fetches
 async def _handle_read_orchestration(request: ChatRequest, request_id: str) -> tuple[bool, str | None]:
     """Deterministic handler for wellness read tools to avoid LLM/tool mismatch."""
     tool_name = _detect_read_tool_name(request.query)
     if not tool_name:
         return False, None
+
+    return await _execute_named_read_tool(tool_name, request_id)
+
+
+# Executes a named read tool and applies the existing recommendation fallback rules
+async def _execute_named_read_tool(tool_name: str, request_id: str) -> tuple[bool, str | None]:
+    """Execute a deterministic read tool by explicit name."""
 
     try:
         if tool_name == "get_daily_summary":
@@ -678,15 +1034,7 @@ def _has_uncertainty_language(text: str) -> bool:
     return bool(re.search(r"\b(not sure|unsure|don't know|do not know|maybe)\b", text, re.IGNORECASE))
 
 
-def _looks_like_exercise_calorie_uncertainty(text: str) -> bool:
-    lowered = text.lower()
-    if not _has_uncertainty_language(text):
-        return False
-    mentions_calories = any(token in lowered for token in ["calorie", "calories", "kcal", "burn", "burned", "burnt"])
-    mentions_exercise = any(token in lowered for token in ["exercise", "workout", "run", "running", "walk", "walking", "cycle", "cycling"])
-    return mentions_calories and mentions_exercise
-
-
+# For calories, we have decided it will be computed on backend (specific to user)
 def _exercise_calorie_backend_estimate_prompt(payload: dict[str, Any]) -> str:
     exercise_type = str(payload.get("exercise_type") or "exercise").replace("_", " ").strip()
     duration = payload.get("exercise_duration_minutes")
@@ -802,17 +1150,16 @@ def _extract_exercise_type(text: str) -> str | None:
     return None
 
 
+# Extract meal type
 def _extract_meal_type(text: str) -> str | None:
     lowered = text.lower()
-    for candidate in [
-        "breakfast", "brunch", "lunch", "dinner", "snack", "dessert", "beverage", "other"
-    ]:
+    for candidate in [ "breakfast", "brunch", "lunch", "dinner", "snack", "dessert", "beverage", "other" ]:
         if candidate in lowered:
             return candidate
     return None
 
 
-# Set prompts for missing fields before logging entry
+# Set prompts for missing fields BEFORE logging
 def _missing_field_prompt(missing_field: str) -> str:
     prompts = {
         "water_intake_ml": "Please share approximately how much water you drank, for example in ml or liters.",
@@ -854,6 +1201,7 @@ def _confirmation_prompt_from_payload(payload: dict[str, Any]) -> str:
     return f"No problem, we can keep it flexible. I understood: {detail_text}. Would you like me to log this now, or would you like to adjust anything first?"
 
 
+# Clarify with user
 def _logging_clarification_prompt() -> str:
     return (
         "I can help log that. Could you share the key details you want saved? "
@@ -862,6 +1210,7 @@ def _logging_clarification_prompt() -> str:
     )
 
 
+# REGEX match for food related
 def _looks_like_meal_mention(text: str) -> bool:
     lowered = text.lower()
     if any(keyword in lowered for keyword in ["breakfast", "brunch", "lunch", "dinner", "snack", "meal"]):
@@ -869,6 +1218,7 @@ def _looks_like_meal_mention(text: str) -> bool:
     return bool(re.search(r"\b(i\s+(?:had|ate))\b", lowered))
 
 
+# REGEX match for calorie related
 def _looks_like_calorie_lookup_query(text: str) -> bool:
     lowered = text.lower()
     if not any(token in lowered for token in ["calorie", "calories", "kcal"]):
@@ -876,6 +1226,7 @@ def _looks_like_calorie_lookup_query(text: str) -> bool:
     return any(token in lowered for token in ["what", "how many", "estimate", "in", "for", "about"])
 
 
+# REGEX match for portion / weight related
 def _looks_like_portion_size_hint(text: str) -> bool:
     lowered = text.lower()
 
@@ -886,10 +1237,10 @@ def _looks_like_portion_size_hint(text: str) -> bool:
             lowered,
         )
     )
-
     return quantity_hint and unit_hint
 
 
+# REGEX for calorie specific to exercise (instead of food)
 def _looks_like_exercise_calorie_query(text: str) -> bool:
     lowered = text.lower()
     if not any(token in lowered for token in ["calorie", "calories", "kcal"]):
@@ -900,13 +1251,12 @@ def _looks_like_exercise_calorie_query(text: str) -> bool:
     )
 
 
+# Contexts + field
 def _has_meal_context(payload: dict[str, Any]) -> bool:
     return any(field in payload for field in ["meal_type", "meal_description", "meal_calories_kcal"])
 
-
 def _has_exercise_context(payload: dict[str, Any]) -> bool:
     return any(field in payload for field in ["exercise_type", "exercise_duration_minutes", "exercise_calories_burned_kcal"])
-
 
 def _exercise_context_from_query(query: str) -> dict[str, Any]:
     payload: dict[str, Any] = {}
@@ -925,7 +1275,7 @@ def _exercise_context_from_query(query: str) -> dict[str, Any]:
 
     return payload
 
-
+# This is for log / record timestamp
 def _extract_record_date_from_text(text: str) -> str | None:
     """Parse simple natural date/time phrases into YYYY-MM-DD HH:MM:SS."""
     lowered = text.lower()
@@ -964,13 +1314,11 @@ def _extract_record_date_from_text(text: str) -> str | None:
 
     return None
 
-
 def _attach_record_date(payload: dict[str, Any], query: str) -> dict[str, Any]:
     record_date = _extract_record_date_from_text(query)
     if record_date:
         payload["record_date"] = record_date
     return payload
-
 
 def _payload_with_only_context(payload: dict[str, Any], context: str) -> dict[str, Any]:
     base: dict[str, Any] = {}
@@ -1013,18 +1361,7 @@ def _try_apply_web_search_estimate_to_draft(query: str, search_result: str, requ
 
     applied_context: str | None = None
 
-    if _looks_like_exercise_calorie_query(query):
-        # Switch to an exercise-focused draft to avoid stale meal fields
-        # triggering unrelated required-field prompts.
-        draft.payload = _payload_with_only_context(draft.payload, "exercise")
-        parsed_exercise = _exercise_context_from_query(query)
-        for key, value in parsed_exercise.items():
-            draft.payload[key] = value
-
-        if _has_exercise_context(draft.payload):
-            draft.payload["exercise_calories_burned_kcal"] = int(round(estimated_kcal))
-            applied_context = "exercise"
-    elif _looks_like_calorie_lookup_query(query):
+    if _looks_like_calorie_lookup_query(query):
         # Switch to a meal-focused draft for food calorie lookups.
         draft.payload = _payload_with_only_context(draft.payload, "meal")
         if "meal_type" not in draft.payload:
@@ -1040,13 +1377,6 @@ def _try_apply_web_search_estimate_to_draft(query: str, search_result: str, requ
         if "meal_description" not in draft.payload:
             draft.payload["meal_description"] = _extract_meal_description(query)
         applied_context = "meal"
-    elif (
-        _looks_like_exercise_calorie_query(query)
-        and _has_exercise_context(draft.payload)
-        and "exercise_calories_burned_kcal" not in draft.payload
-    ):
-        draft.payload["exercise_calories_burned_kcal"] = int(round(estimated_kcal))
-        applied_context = "exercise"
 
     if not applied_context:
         return None
@@ -1074,18 +1404,13 @@ def _try_apply_web_search_estimate_to_draft(query: str, search_result: str, requ
     DRAFT_STORE.set(draft_key, draft)
     logger.info("[%s] Stored %s draft from web-search estimate=%s", request_id, applied_context, estimated_kcal)
 
-    if applied_context == "exercise":
-        return (
-            "I ran a quick web search and found an estimated calorie burn of about "
-            f"{int(round(estimated_kcal))} kcal. Would you like me to log this exercise now?"
-        )
-
     return (
         "I ran a quick web search and found an estimated calorie value of about "
         f"{int(round(estimated_kcal))} kcal per serving. Would you like me to log this meal now?"
     )
 
 
+# Identify nutrition topics to query
 def _is_wellness_nutrition_topic(text: str) -> bool:
     lowered = text.lower()
     topic_keywords = [
@@ -1097,15 +1422,17 @@ def _is_wellness_nutrition_topic(text: str) -> bool:
     return any(keyword in lowered for keyword in topic_keywords)
 
 
+# Check intent to search web
+def _is_explicit_search_request(text: str) -> bool:
+    lowered = text.lower().strip()
+    explicit_search_tokens = ["search", "look up", "lookup", "find", "google", "web", "online"]
+    return any(token in lowered for token in explicit_search_tokens)
+
 def _looks_like_wellness_web_search_request(text: str) -> bool:
     lowered = text.lower().strip()
-
-    # Explicit search requests always trigger deterministic web search when in-topic.
-    explicit_search_tokens = ["search", "look up", "lookup", "find", "google", "web", "online"]
-    if any(token in lowered for token in explicit_search_tokens):
+    if _is_explicit_search_request(text):
         return True
 
-    # Factual query shapes that are better grounded with web lookup.
     factual_patterns = [
         r"\bwhat\s+(?:is|are)\b",
         r"\bhow\s+many\b",
@@ -1120,12 +1447,7 @@ def _looks_like_wellness_web_search_request(text: str) -> bool:
     return any(re.search(pattern, lowered, re.IGNORECASE) for pattern in factual_patterns)
 
 
-def _is_explicit_search_request(text: str) -> bool:
-    lowered = text.lower().strip()
-    explicit_search_tokens = ["search", "look up", "lookup", "find", "google", "web", "online"]
-    return any(token in lowered for token in explicit_search_tokens)
-
-
+# REGEX match for meal description
 def _extract_meal_description_from_calorie_query(query: str) -> str:
     text = query.strip()
     patterns = [
@@ -1143,17 +1465,8 @@ def _extract_meal_description_from_calorie_query(query: str) -> str:
     return _extract_meal_description(query)
 
 
+# Exercise calorie uncertainty is handled through backend estimation (no web search).
 def _format_web_search_orchestration_response(query: str, search_result: str, estimated_kcal: int | None = None) -> str:
-    if _looks_like_exercise_calorie_query(query):
-        estimate_line = ""
-        if estimated_kcal is not None:
-            estimate_line = f"\n\nEstimated calories burned: about {estimated_kcal} kcal for this session."
-        return (
-            "I ran a quick web search for exercise calorie-burn information and found:\n"
-            f"{search_result}{estimate_line}\n\n"
-            "Would you like me to log this exercise now?"
-        )
-
     if _looks_like_calorie_lookup_query(query):
         estimate_line = ""
         if estimated_kcal is not None:
@@ -1171,6 +1484,7 @@ def _format_web_search_orchestration_response(query: str, search_result: str, es
     )
 
 
+# Web search for other wellness/nutrition topics
 async def _handle_wellness_web_search_orchestration(request: ChatRequest, request_id: str) -> tuple[bool, str | None]:
     """Deterministic web-search path for wellness/nutrition lookup queries."""
     query = request.query.strip()
@@ -1183,15 +1497,13 @@ async def _handle_wellness_web_search_orchestration(request: ChatRequest, reques
     active_draft_context = bool(active_draft and (_has_meal_context(active_draft.payload) or _has_exercise_context(active_draft.payload)))
 
     if not _is_wellness_nutrition_topic(query):
-        # Allow explicit lookup while an active wellness draft exists (for example,
-        # "Search for Singapore chicken rice" during meal logging).
+        # Allow explicit lookup while an active wellness draft exists
         if not (explicit_search and active_draft_context):
             return False, None
 
     if not _looks_like_wellness_web_search_request(query):
         return False, None
 
-    # Exercise calorie-burn questions should not use web search.
     # Prepare an exercise draft and confirm backend-based estimation + logging.
     if _looks_like_exercise_calorie_query(query):
         if not draft_key:
@@ -1268,6 +1580,7 @@ async def _handle_wellness_web_search_orchestration(request: ChatRequest, reques
         return True, "I couldn't run a web search right now. Please try again in a moment."
 
 
+# Intent to log meal
 def _meal_log_interest_prompt(payload: dict[str, Any]) -> str:
     meal_desc = str(payload.get("meal_description") or "that meal").strip()
     meal_type = str(payload.get("meal_type") or "").strip().lower()
@@ -1616,7 +1929,7 @@ async def _handle_logging_orchestration(request: ChatRequest, request_id: str) -
         else:
             draft.awaiting_confirmation = False
 
-    # Special-case meal calories: if user is unsure, estimate via web search then ask for confirmation.
+    # if user is unsure, estimate via web search then ask for confirmation
     if draft.missing_field == "meal_calories_kcal" and (
         _has_uncertainty_language(request.query)
         or _looks_like_calorie_lookup_query(request.query)
@@ -1654,7 +1967,6 @@ async def _handle_logging_orchestration(request: ChatRequest, request_id: str) -
     parsed = _resolve_logging_follow_up(request.query, request.recentMessages, parsed)
 
     if parsed is None:
-        # Keep draft alive for short follow-up answers.
         return True, _logging_clarification_prompt()
 
     if parsed.get("missing"):
@@ -1665,10 +1977,9 @@ async def _handle_logging_orchestration(request: ChatRequest, request_id: str) -
         _touch_draft(draft)
         return True, _missing_field_prompt(draft.missing_field)
 
-    # Merge any new values into draft.
+    # Merge any new values into draft
     for k, v in parsed.items():
         if k != "missing":
-            # Do not overwrite an existing specific meal description with a placeholder.
             if (
                 k == "meal_description"
                 and str(v).strip().lower() == "logged meal"
@@ -1741,7 +2052,7 @@ def _extract_meal_description(query: str) -> str | None:
     if had_or_ate:
         text = had_or_ate.group(1).strip()
 
-    # Remove trailing time/date fragments often included in free-form chat.
+    # Remove trailing time/date fragments often included in free-form chat
     text = re.sub(r"\s+at\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)?\b.*$", "", text, flags=re.IGNORECASE)
     text = re.sub(r"\s+(?:today|yesterday|this\s+morning|this\s+afternoon|tonight)\b.*$", "", text, flags=re.IGNORECASE)
 
@@ -1763,11 +2074,11 @@ def _extract_meal_description(query: str) -> str | None:
     if any(re.match(pattern, text, re.IGNORECASE) for pattern in generic_intent_patterns):
         return None
 
-    # Calorie-only replies are numeric metadata, not food names.
+    # Calorie-only replies are numeric metadata, not food names
     if re.match(r"^\d+(?:\.\d+)?\s*(?:kcal|calories?|cals?)$", text, re.IGNORECASE):
         return None
 
-    # Avoid saving a plain meal type as the meal description.
+    # Avoid saving a plain meal type as the meal description
     if text.lower() in {
         "breakfast",
         "brunch",
@@ -1896,156 +2207,20 @@ def _format_logging_response(result: dict[str, Any]) -> str:
     return "Logged your wellness entry successfully."
 
 
-# Full function
+# Execute workflow on ask agent
 async def ask_agent(request: ChatRequest, request_id: str) -> str:
     """
     Builds the conversation for the language model and runs the agent,
     combining the current question with recent messages and any older
     messages found to be relevant through semantic search.
     """
-    handled, logging_response = await _handle_logging_orchestration(request, request_id)
-    if handled:
-        return logging_response or "I can help log that. Please share the details you want saved."
-
-    read_handled, read_response = await _handle_read_orchestration(request, request_id)
-    web_search_handled, web_search_response = await _handle_wellness_web_search_orchestration(request, request_id)
-
-    deterministic_responses: list[str] = []
-    if read_handled:
-        deterministic_responses.append(read_response or "I fetched your requested wellness data.")
-    if web_search_handled:
-        deterministic_responses.append(web_search_response or "I ran a web search and found some results.")
-    if deterministic_responses:
-        return "\n\n".join(deterministic_responses)
-
-    tools = await mcp_client.get_tools()
-    tool_names = sorted([tool.name for tool in tools])
-    logger.info("[%s] MCP tools available: %s", request_id, tool_names)
-
-    api_key = _get_openrouter_api_key()
-    if not api_key:
-        raise HTTPException(
-            status_code=500,
-            detail="OPENROUTER_API_KEY is missing in server/mcp_server/.env",
-        )
-
-    llm = ChatOpenAI(
-        model="google/gemini-2.5-flash-lite",
-        temperature=0,
-        base_url="https://openrouter.ai/api/v1",
-        api_key=api_key,
+    state = WorkflowState(
+        request=request,
+        request_id=request_id,
+        actions=_build_workflow_actions(request),
     )
-
-    agent = create_agent(llm, tools=tools, system_prompt=SYSTEM_PROMPT)
-
-    conversation_messages = []
-
-    # Older messages found to be relevant are included as background
-    # information, separate from the immediate flow of the conversation
-    if request.relevantPastMessages:
-        relevant_text = "\n".join(
-            f"Earlier, the {'user' if msg.isUser else 'assistant'} said: \"{msg.text}\""
-            for msg in request.relevantPastMessages
-        )
-        conversation_messages.append({
-            "role": "system",
-            "content": f"Relevant earlier context:\n{relevant_text}"
-        })
-
-    # Recent messages are added in order to preserve natural flow of the conversation
-    for msg in request.recentMessages:
-        role = "user" if msg.isUser else "assistant"
-        conversation_messages.append({"role": role, "content": msg.text})
-
-    # Avoid duplicating the latest user turn when the client already
-    # includes the freshly sent query in recentMessages.
-    if not (
-        request.recentMessages
-        and request.recentMessages[-1].isUser
-        and request.recentMessages[-1].text.strip() == request.query.strip()
-    ):
-        conversation_messages.append({"role": "user", "content": request.query})
-
-    logger.info(
-        "[%s] Processing chat query. history=%s relevant=%s",
-        request_id,
-        len(request.recentMessages),
-        len(request.relevantPastMessages),
-    )
-    result = await agent.ainvoke({"messages": conversation_messages})
-    # At this point the chain is:
-    # FastAPI endpoint -> LangChain agent -> MCP tool(s) -> Spring backend APIs
-    called_tools = _extract_tool_calls(result)
-    logger.info("[%s] MCP tools called by agent: %s", request_id, called_tools)
-
-    if _looks_like_logging_intent(request.query) and "log_wellness_entry" not in called_tools:
-        logger.warning(
-            "[%s] Logging intent detected but log_wellness_entry was not called. query=%s",
-            request_id,
-            request.query,
-        )
-
-    final_answer = _extract_final_answer(result, called_tools, request_id)
-
-    # Prevent low-quality echo responses (model repeating user input).
-    if _looks_like_echo_response(final_answer, request.query):
-        logger.warning("[%s] Detected echo response; attempting deterministic fallback", request_id)
-        read_tool_name = _detect_read_tool_name(request.query)
-        if read_tool_name == "get_daily_summary":
-            try:
-                tool_result = await direct_get_daily_summary()
-                return _format_read_tool_fallback("get_daily_summary", tool_result)
-            except Exception:
-                logger.exception("[%s] Echo fallback daily summary failed", request_id)
-        elif read_tool_name == "get_activity_history":
-            try:
-                tool_result = await direct_get_activity_history()
-                return _format_read_tool_fallback("get_activity_history", tool_result)
-            except Exception:
-                logger.exception("[%s] Echo fallback activity history failed", request_id)
-        elif read_tool_name == "get_latest_recommendation":
-            try:
-                tool_result = await direct_get_latest_recommendation()
-                return _format_read_tool_fallback("get_latest_recommendation", tool_result)
-            except Exception:
-                logger.exception("[%s] Echo fallback recommendation failed", request_id)
-
-        return "I couldn't find a clear answer yet. If you want, I can fetch your latest wellness recommendation or look this up on the web."
-
-    if "log_wellness_entry" in called_tools:
-        tool_result = _extract_log_wellness_tool_result(result)
-        if tool_result and _looks_like_false_logging_refusal(final_answer):
-            logger.warning(
-                "[%s] Replacing hallucinated logging refusal after successful tool result. original=%s",
-                request_id,
-                final_answer[:240],
-            )
-            final_answer = _format_logging_response(tool_result)
-        elif not tool_result and _looks_like_false_logging_refusal(final_answer):
-            logger.warning(
-                "[%s] Logging refusal detected but no successful tool payload found; keeping model text.",
-                request_id,
-            )
-
-    if _looks_like_false_logging_refusal(final_answer):
-        for tool_name in called_tools:
-            tool_result = _extract_named_tool_result(result, tool_name)
-            if tool_result is None:
-                continue
-
-            if _tool_result_looks_like_error(tool_result):
-                continue
-
-            logger.warning(
-                "[%s] Replacing false refusal after successful %s tool output.",
-                request_id,
-                tool_name,
-            )
-            final_answer = _format_tool_fallback(tool_name, tool_result)
-            break
-
-    logger.info("[%s] Final answer length=%s preview=%s", request_id, len(final_answer), final_answer[:180])
-    return final_answer
+    logger.info("[%s] Planned workflow actions: %s", request_id, [action.action_type.value for action in state.actions])
+    return await _execute_workflow(state)
 
 
 # Tools endpoint

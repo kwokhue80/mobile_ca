@@ -4,199 +4,390 @@ GDipSA 62 Mobile App Group 3 project.
 
 ## Overview
 
-MobileCA is an AI-enabled wellness application with:
+MobileCA is a mobile wellness application built around three cooperating layers:
 
-- A Kotlin Android client application
-- A Java Spring Boot backend service
-- MySQL persistence for user and wellness data
-- AI-assisted recommendation and chatbot capabilities
+- An Android client for user interaction, local chat context, and dashboards
+- A Spring Boot backend for authentication, business logic, and persistence
+- A Python FastAPI + MCP chatbot bridge for orchestration, tool-calling, and AI-assisted wellness flows
 
-The app supports user authentication, daily wellness logging, dashboards, profile management, goals, activity history, chatbot interactions, and recommendation notifications.
+The app supports user authentication, wellness logging, dashboard summaries, profile and goal management, recommendation history, and a chatbot that can read data, log data, and perform wellness-oriented web lookups.
+
+## Architecture
+
+```mermaid
+flowchart LR
+		A[Android Client] --> B[FastAPI Chatbot Bridge]
+		B --> C[LangChain Agent]
+		C --> D[MCP Tool Server]
+		D --> E[Spring Boot Backend]
+		E --> F[(MySQL)]
+		A --> E
+```
+
+### Runtime Responsibilities
+
+- [client](client)
+	Android application. Handles UI, local vector retrieval, local chat history, authenticated REST calls to Spring Boot, and backend-first chatbot requests to FastAPI.
+- [server](server)
+	Spring Boot application. Owns user authentication, persistence, wellness domain logic, dashboards, profile/goals, and recommendation APIs.
+- [server/mcp_server](server/mcp_server)
+	Python chatbot bridge and MCP tool server. Owns chat orchestration, request-local JWT forwarding, deterministic logging/read flows, and tool access to Spring APIs.
+- [objectbox-generator](objectbox-generator)
+	Supporting utilities and data tooling for ObjectBox and RAG-related workflows.
 
 ## Repository Structure
 
-- [client](client): Android mobile app (Kotlin, XML, Navigation Component, Retrofit, WorkManager)
-- [server](server): Spring Boot backend (REST API, JWT security, JPA, MySQL)
-- [objectbox-generator](objectbox-generator): Supporting utilities and data tooling for ObjectBox/RAG workflows
+- [client](client)
+	Android app source, resources, Gradle configuration, and ObjectBox integration.
+- [server](server)
+	Spring Boot backend, MCP bridge, Python chatbot tests, and SQL seed/config resources.
+- [objectbox-generator](objectbox-generator)
+	Experimental/support tooling for ObjectBox and data generation.
 
 ## Main Features
 
-- User registration, login, and logout with JWT-based backend authentication
-- Wellness record capture
-	Sleep, food, hydration, exercise, mood, weight
-- Dashboard views
-	Daily summary and activity feed, plus date-range metrics
-- User profile
-	View and update profile fields
-- User goals
-	Read and upsert wellness goals
-- Chatbot tab in app home
-- Recommendations
-	Latest recommendation API, in-app unread badge, notification history screen
-- Background recommendation polling with Android WorkManager
-- System notifications for new recommendations (with Android 13+ runtime permission handling)
+- User registration, login, and logout with JWT authentication
+- Wellness record capture for:
+	sleep, food, hydration, exercise, mood, and weight
+- Dashboard views for:
+	daily summary, date-range metrics, badge progress, hourly summaries, and activity history
+- User profile read/update
+- User goal read/update
+- Recommendation generation and history
+- Notification polling with Android WorkManager
+- Chatbot with backend-assisted logging, reading, recommendation, and wellness lookup flows
+- Client-side fallback chatbot when the backend bridge is unavailable for non-persistence queries
 
 ## Tech Stack
 
-### Client (Android)
+### Android Client
 
-- Kotlin + Android SDK
-- AndroidX Navigation
+- Kotlin
+- Android SDK / AndroidX
+- Navigation Component
 - Retrofit + OkHttp + Gson
-- Coroutines
+- Kotlin coroutines
 - WorkManager
 - ObjectBox
 - ONNX Runtime
 - MPAndroidChart
 
-### Server (Backend)
+### Spring Backend
 
-- Java 17
-- Spring Boot
+- Java 17 runtime
+- Spring Boot 4.1
 - Spring Web
 - Spring Security
 - Spring Data JPA
-- MySQL connector
-- JWT (jjwt)
-- Spring AI dependencies (OpenAI/OpenRouter and Chroma-related libraries)
+- MySQL
+- JWT via `jjwt`
+- Spring AI dependencies for OpenAI/OpenRouter and Chroma integration
 - Lombok
+
+### MCP / Chatbot Layer
+
+- Python
+- FastAPI
+- Uvicorn
+- LangChain
+- LangChain OpenAI adapter
+- LangChain MCP adapters
+- MCP Python SDK (`mcp.server.fastmcp`)
+- HTTPX
+- DDGS web search
+
+## Chatbot and MCP Implementation
+
+The chatbot is not a direct Android-to-LLM integration. It is a layered system designed for authenticated, tool-backed wellness workflows.
+
+### High-Level Chat Flow
+
+1. The user sends a message from the Android chat screen.
+2. The client gathers:
+	 recent messages, relevant past messages, and optional local dish-vector context.
+3. If backend mode is enabled, the client sends the request to the FastAPI bridge at `http://10.0.2.2:8001/api/chat`.
+4. FastAPI stores the JWT token in request-local context so downstream Spring API calls remain user-scoped.
+5. FastAPI tries deterministic handlers first for:
+	 logging, backend reads, and wellness web-search routing.
+6. If deterministic logic does not fully resolve the request, LangChain invokes MCP tools.
+7. MCP tools call Spring Boot APIs on `http://localhost:8000` using the forwarded JWT.
+8. The bridge formats the result and returns a single answer string to Android.
+
+### Client-Side Fallback
+
+The client has an explicit fallback path in [client/app/src/main/java/sg/edu/nus/iss/client/chatbot/RagRepository.kt](client/app/src/main/java/sg/edu/nus/iss/client/chatbot/RagRepository.kt):
+
+- If backend chat is unavailable, general wellness questions fall back to a local OpenRouter prompt flow.
+- The local fallback can use:
+	local dish vector retrieval and locally persisted chat history.
+- Logging requests do not fall back to fake persistence.
+	If the backend is unavailable, the app tells the user it cannot save the wellness log right now.
+
+### FastAPI Agent Responsibilities
+
+The FastAPI entrypoint is [server/mcp_server/mcp_agent_wellness.py](server/mcp_server/mcp_agent_wellness.py). It owns:
+
+- `/api/chat` chatbot endpoint
+- `/api/tools` health/debug endpoint
+- deterministic orchestration before LLM fallback
+- multi-turn draft state for partial wellness logs
+- request-local JWT propagation
+- output cleanup for tool results and model responses
+
+### MCP Tool Server Responsibilities
+
+The MCP tool server is [server/mcp_server/mcp_server_wellness.py](server/mcp_server/mcp_server_wellness.py). It exposes tool semantics over stdio and acts as the server-side source of truth for:
+
+- validation and required-field checks
+- meal and exercise enum normalization
+- logging payload construction
+- daily summary retrieval
+- activity history retrieval
+- recommendation retrieval
+- wellness-oriented web search
+
+The tool server is launched over stdio by the FastAPI layer through `MultiServerMCPClient`, not via a separate network API.
+
+### Current MCP Tool Categories
+
+The chatbot can currently:
+
+- Log wellness data into the backend database
+	food, hydration, weight, mood, sleep, exercise
+- Query wellness data from the backend database
+	daily summary, exercise/activity history, latest recommendations
+- Perform wellness and nutrition web search
+	calorie lookups, nutrition facts, general wellness information
+- Combine estimation and logging
+	for example estimate calories first, then log after confirmation
+- Provide general wellness chat responses
+	with client fallback when the bridge is unavailable
+
+### Authentication Flow for MCP Calls
+
+- Android sends the same bearer token used for normal backend-authenticated requests.
+- FastAPI stores that token using [server/mcp_server/jwt_context.py](server/mcp_server/jwt_context.py).
+- MCP tools forward the token to Spring through [server/mcp_server/spring_boot_client.py](server/mcp_server/spring_boot_client.py).
+- Spring remains the system of record for all real user-specific reads and writes.
 
 ## API Summary
 
-The backend currently exposes these main REST routes:
+### Spring Boot Backend APIs
 
-- Auth
-	- POST /api/auth/register
-	- POST /api/auth/login
-	- POST /api/auth/logout
-- Dashboard
-	- GET /api/dashboard/daily
-	- GET /api/dashboard/range
-- Wellness
-	- POST /api/wellness/records
-	- GET /api/wellness/activity
-	- GET /api/wellness/recommendations/latest
-- User Profile
-	- GET /api/user-profile
-	- PUT /api/user-profile
-- User Goals
-	- GET /api/user-goals
-	- PUT /api/user-goals/{goalType}
+Implemented under [server/src/main/java/sg/edu/nus/features](server/src/main/java/sg/edu/nus/features).
 
-See implementations under [server/src/main/java/sg/edu/nus/features](server/src/main/java/sg/edu/nus/features).
+#### Auth
 
-## Prerequisites
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/logout`
 
-- JDK 21 for Android build and tooling
-- JDK 17 for server runtime compatibility
-- Android Studio or Android SDK + emulator
-- MySQL running locally
-- Maven Wrapper (already included)
-- Gradle Wrapper (already included)
+#### Wellness
+
+- `POST /api/wellness/records`
+- `GET /api/wellness/daily-summary`
+- `GET /api/wellness/exercise-logs`
+- `DELETE /api/wellness/exercise-logs/{id}`
+- `GET /api/wellness/hourly-summary`
+- `GET /api/wellness/badge-progress`
+- `POST /api/wellness/reset-today`
+- `GET /api/wellness/recommendations`
+
+#### User
+
+- `GET /api/user/goals`
+- `GET /api/user/goals/raw`
+- `PUT /api/user/goals/{goalType}`
+- `GET /api/user/profile`
+- `PUT /api/user/profile`
+
+### FastAPI Chatbot Bridge APIs
+
+- `POST /api/chat`
+- `GET /api/tools`
+
+The FastAPI bridge runs on port `8001` and is separate from the Spring backend on port `8000`.
 
 ## Configuration
 
-### Server Configuration
+### Spring Boot Configuration
 
-File: [server/src/main/resources/application.properties](server/src/main/resources/application.properties)
+Primary file:
+[server/src/main/resources/application.properties](server/src/main/resources/application.properties)
 
-Important settings:
+Important defaults:
 
-- Server port: 8000
-- Chatbot bridge (FastAPI) port: 8001
-- MySQL datasource: wellness_db
-- JWT secret: JWT_SECRET environment variable
-- OpenRouter API key: OPENROUTER_API_KEY environment variable
+- Spring server port: `8000`
+- Spring server bind address: `0.0.0.0`
+- MySQL database: `wellness_db`
+- MySQL username: `${MYSQL_USERNAME:root}`
+- MySQL password: `${MYSQL_PASSWORD:}`
+- JWT secret: `${JWT_SECRET}`
+- OpenRouter key for Spring AI: `${OPENROUTER_API_KEY}`
+- Active profile: `local`
 
-### Client Configuration
+### MCP / FastAPI Configuration
 
-- Base URL is configured in [client/app/src/main/java/sg/edu/nus/iss/client/network/RetrofitClient.kt](client/app/src/main/java/sg/edu/nus/iss/client/network/RetrofitClient.kt)
-	Default emulator URL is http://10.0.2.2:8000/
-- Optional local properties key used by client build:
-	OPENROUTER_API_KEY in [client/app/build.gradle.kts](client/app/build.gradle.kts)
+Relevant files:
+
+- [server/mcp_server/mcp_agent_wellness.py](server/mcp_server/mcp_agent_wellness.py)
+- [server/mcp_server/mcp_server_wellness.py](server/mcp_server/mcp_server_wellness.py)
+- [server/mcp_server/spring_boot_client.py](server/mcp_server/spring_boot_client.py)
+- [server/mcp_server/.env](server/mcp_server/.env)
+
+Important notes:
+
+- FastAPI bridge runs on port `8001`.
+- MCP tools call Spring using `http://localhost:8000`.
+- `OPENROUTER_API_KEY` is loaded by the bridge from `server/mcp_server/.env` when present.
+
+### Android Client Configuration
+
+Relevant files:
+
+- [client/app/src/main/java/sg/edu/nus/iss/client/network/RetrofitClient.kt](client/app/src/main/java/sg/edu/nus/iss/client/network/RetrofitClient.kt)
+- [client/app/src/main/java/sg/edu/nus/iss/client/backend/BackendConfig.kt](client/app/src/main/java/sg/edu/nus/iss/client/backend/BackendConfig.kt)
+- [client/app/build.gradle.kts](client/app/build.gradle.kts)
+
+Current defaults:
+
+- Spring REST base URL for the emulator: `http://10.0.2.2:8000/`
+- FastAPI chat bridge base URL for the emulator: `http://10.0.2.2:8001/`
+- Backend chatbot mode is enabled with `BackendConfig.USE_BACKEND = true`
+- Optional client-side OpenRouter key can be provided via `OPENROUTER_API_KEY` in `client/local.properties`
+
+## Prerequisites
+
+- JDK 21 for Android build/tooling
+- JDK 17 for Spring Boot runtime compatibility
+- Python 3.14 or equivalent Python environment for the FastAPI chatbot bridge and tests
+- Android Studio or Android SDK + emulator/device
+- Local MySQL instance
+- Maven Wrapper and Gradle Wrapper are already included
 
 ## Running the Project
 
-### 1) Start MySQL
+### 1. Start MySQL
 
-Ensure a local MySQL instance is running and accessible.
+Ensure a local MySQL instance is running and accessible to the Spring datasource in [server/src/main/resources/application.properties](server/src/main/resources/application.properties).
 
-### 2) Start Backend Server
+### 2. Start Spring Boot Backend
 
 From [server](server):
 
-Windows:
-	.\mvnw.cmd spring-boot:run
+#### Windows
 
-macOS/Linux:
-	./mvnw spring-boot:run
+```powershell
+.\mvnw.cmd spring-boot:run
+```
 
-Backend will start on port 8000 by default.
+#### macOS/Linux
 
-### 2a) Start Chatbot Bridge (FastAPI)
+```bash
+./mvnw spring-boot:run
+```
 
-From [server/mcp_server](server/mcp_server):
+Backend default port: `8000`
 
-Windows:
-	C:/Python314/python.exe -m uvicorn mcp_agent_wellness:app --app-dir "c:\Users\ameli\Documents\GDipSA\CAs\MobileCA\server\mcp_server" --host 0.0.0.0 --port 8001
+### 3. Start FastAPI Chatbot Bridge
 
-macOS/Linux:
-	python -m uvicorn mcp_agent_wellness:app --app-dir ./server/mcp_server --host 0.0.0.0 --port 8001
+From the repository root or a Python environment that can import the bridge package:
 
-Chatbot requests from Android are routed to the bridge on port 8001, while the bridge calls Spring endpoints on port 8000.
+#### Windows
 
-### 2b) Start Both Services From VS Code
+```powershell
+C:/Python314/python.exe -m uvicorn mcp_agent_wellness:app --app-dir "C:/Users/ameli/Documents/GDipSA/CAs/MobileCA/server/mcp_server" --host 0.0.0.0 --port 8001
+```
 
-You can start backend + chatbot bridge together using the configured VS Code task:
+#### macOS/Linux
 
-- Run Task: Start Chat Stack
+```bash
+python -m uvicorn mcp_agent_wellness:app --app-dir ./server/mcp_server --host 0.0.0.0 --port 8001
+```
 
-You can start backend + chatbot bridge + Android client install/launch together using:
+Bridge default port: `8001`
 
-- Run Task: Start Full Stack
-
-If no Android emulator/device is connected, the Android install/launch steps are skipped automatically and the backend/chat services still start.
-
-You can stop backend + chatbot bridge together using:
-
-- Run Task: Stop Chat Stack
-
-You can stop backend + chatbot bridge + Android client app using:
-
-- Run Task: Stop Full Stack
-
-Task configuration is in [.vscode/tasks.json](.vscode/tasks.json).
-
-### 3) Start Android Client
+### 4. Start Android Client
 
 From [client](client):
 
-Windows:
-	.\gradlew.bat assembleDebug
+#### Windows
 
-macOS/Linux:
-	./gradlew assembleDebug
+```powershell
+.\gradlew.bat assembleDebug
+```
 
-Then run from Android Studio on emulator/device.
+#### macOS/Linux
 
-## Seed Data and Test Accounts
+```bash
+./gradlew assembleDebug
+```
 
-Initial SQL seed data is in [server/src/main/resources/data.sql](server/src/main/resources/data.sql).
+Then run the app from Android Studio or install the debug build onto an emulator/device.
 
-A documented sample test password is noted there as:
+## VS Code Tasks
 
-- Password@123
+Task definitions live in [.vscode/tasks.json](.vscode/tasks.json).
 
-Example seed users are also listed in the same file.
+Available task groups:
 
-## Recommendation Notifications Flow
+- `Start Spring Backend`
+- `Stop Spring Backend`
+- `Start Chat Stack`
+- `Stop Chat Stack`
+- `Start Full Stack`
+- `Stop Full Stack`
 
-- Server generates latest recommendation at /api/wellness/recommendations/latest
-- Client polls in foreground from Home
-- Client also polls in background using WorkManager
-- New recommendation increments unread counter
-- Notification icon opens recommendation history screen
-- Opening history marks unread count as viewed
+- `Start FastAPI Chatbot Bridge`
+- `Stop FastAPI Chatbot Bridge`
+- `Install Chatbot Test Dependencies`
+- `Run Chatbot API Tests`
+- `Test Chatbot API (Install + Run)`
+
+Note: the current VS Code tasks are pinned to `C:/Python314/python.exe`. Update [.vscode/tasks.json](.vscode/tasks.json) if your local Python path is different.
+
+## Testing
+
+### Python Chatbot Tests
+
+The chatbot regression suite lives under [server/mcp_server/tests](server/mcp_server/tests).
+
+Run manually:
+
+```powershell
+C:/Python314/python.exe -m pip install -r server/mcp_server/requirements.txt -r server/mcp_server/requirements-dev.txt
+C:/Python314/python.exe -m pytest server/mcp_server/tests -q
+```
+
+Or use the VS Code task:
+
+- `Test Chatbot API (Install + Run)`
+
+### Android / Server Tests
+
+This repository is primarily wired for Android builds and Python chatbot tests from VS Code. Additional Spring and Android test workflows can be run through the usual Maven/Gradle commands if extended by the team.
+
+## Chatbot Query Types
+
+The chatbot currently supports these major query categories:
+
+- Logging to the backend database
+	water, weight, mood, sleep, food, exercise
+- Reading from the backend database
+	daily summary, recent activity/exercise history, latest recommendation
+- Wellness and nutrition web search
+	calorie or nutrition lookups, general wellness information
+- Hybrid search-and-log flows
+	estimate or search first, then confirm and save
+- General wellness conversation
+	advice and follow-up chat, with client fallback when backend chat is unavailable
+
+## Recommendation and Notification Flow
+
+- Spring exposes recommendation APIs under `/api/wellness/recommendations`
+- The Android client checks recommendations from the home/dashboard flow
+- The app also polls in the background using WorkManager
+- New recommendations update the unread indicator and notification history UI
 
 Relevant client files:
 
@@ -205,7 +396,19 @@ Relevant client files:
 - [client/app/src/main/java/sg/edu/nus/iss/client/dashboard/RecommendationHistoryFragment.kt](client/app/src/main/java/sg/edu/nus/iss/client/dashboard/RecommendationHistoryFragment.kt)
 - [client/app/src/main/java/sg/edu/nus/iss/client/util/SessionManager.kt](client/app/src/main/java/sg/edu/nus/iss/client/util/SessionManager.kt)
 
-## Notes
+## Seed Data and Test Accounts
 
-- This repository includes additional experimental/support assets (for example under [objectbox-generator](objectbox-generator) and [server/src/RAG](server/src/RAG)).
-- The primary production path is the Android client in [client](client) with the Spring backend in [server](server).
+Initial SQL seed data is in [server/src/main/resources/data.sql](server/src/main/resources/data.sql).
+
+The sample seed password documented there is:
+
+- `Password@123`
+
+Example seed users are also defined in the same SQL file.
+
+## Important Notes
+
+- The Android client and Spring backend are the main production application layers.
+- The FastAPI + MCP layer is currently a bridge/orchestration service for chatbot functionality.
+- This repository also includes experimental/support assets under [objectbox-generator](objectbox-generator) and [server/src/RAG](server/src/RAG).
+- The Chroma-related Spring AI dependency is present, but Chroma auto-configuration is currently disabled in [server/src/main/resources/application.properties](server/src/main/resources/application.properties).
