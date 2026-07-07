@@ -70,6 +70,21 @@ public class WellnessOrchestratorService {
     
 
     // ---------------------- CRUD LOGIC ---------------------- //
+
+    public DailyWellnessSummary getDailyWellnessSummary(UUID userId) {
+        User currentUser = userService.getById(userId);
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Singapore"));
+
+        return summaryRepo.findByUserIdAndSummaryDate(userId, today)
+            .orElse(DailyWellnessSummary.builder()
+                .user(currentUser)
+                .summaryDate(today)
+                .totalWaterMl(0)
+                .totalCaloriesIntake(0)
+                .totalCaloriesBurned(0)
+                .totalExerciseMinutes(0)
+                .build());
+    }
     
     @Transactional
     public void processMonolithicRecord(UUID userId, WellnessRecordPayload payload) {
@@ -166,6 +181,14 @@ public class WellnessOrchestratorService {
                 + payload.getExerciseType(), payload.getExerciseDurationMinutes() + " mins", recordDate);
 
             summary.setTotalExerciseMinutes(summary.getTotalExerciseMinutes() + payload.getExerciseDurationMinutes());
+            
+            if (payload.getExerciseDistanceKm() != null) {
+                BigDecimal currentDistance = summary.getTotalDistanceKm() != null
+                    ? summary.getTotalDistanceKm()
+                    : BigDecimal.ZERO;
+                summary.setTotalDistanceKm(currentDistance.add(BigDecimal.valueOf(payload.getExerciseDistanceKm())));
+            }
+
             if (payload.getExerciseCaloriesBurnedKcal() != null) {
                 summary.setTotalCaloriesBurned(summary.getTotalCaloriesBurned() + payload.getExerciseCaloriesBurnedKcal());
             }
@@ -207,6 +230,13 @@ public class WellnessOrchestratorService {
             .recordedAt(recordedAt)
             .build();
         activityRepo.save(record);
+    }
+
+    public List<ExerciseLog> getWeeklyExercise(UUID userId) {
+        LocalDateTime endTime = LocalDateTime.now();
+        LocalDateTime startTime = endTime.minusDays(7);
+
+        return exerciseRepo.findByUserIdAndLoggedAtBetweenOrderByLoggedAtDesc(userId, startTime, endTime);
     }
     
     // Retrieves a user's logged activity history over a given number of
