@@ -36,7 +36,7 @@ class ChatMessage(BaseModel):
 # Represents the request payload sent from the Android application
 class ChatRequest(BaseModel):
     query: str
-    conversationHistory: List[ChatMessage] = []
+    recentMessages: List[ChatMessage] = []
     relevantPastMessages: List[ChatMessage] = []
 
 # Represents the final answer sent back to the Android application
@@ -77,7 +77,7 @@ async def ask_agent(request: ChatRequest) -> str:
 
     # Recent messages are added in order to preserve the natural
     # flow of the conversation
-    for msg in request.conversationHistory:
+    for msg in request.recentMessages:
         role = "user" if msg.isUser else "assistant"
         conversation_messages.append({"role": role, "content": msg.text})
 

@@ -4,7 +4,7 @@ import sg.edu.nus.iss.client.chatbot.ChatMessage
 
 data class ChatRequest(
     val query: String,
-    val conversationHistory: List<ChatMessage>,
+    val recentMessages: List<ChatMessage>,
     val relevantPastMessages: List<ChatMessage>
 )
 
