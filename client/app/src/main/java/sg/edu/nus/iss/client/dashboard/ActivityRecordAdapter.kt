@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import sg.edu.nus.iss.client.R
 import sg.edu.nus.iss.client.databinding.ItemActivityRecordBinding
 import sg.edu.nus.iss.client.dashboard.activity.model.ExerciseType
 import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
@@ -29,6 +30,7 @@ class ActivityRecordAdapter(
 
         fun bind(record: ActivityRecord) {
             binding.iconActivityType.setImageResource(ExerciseType.iconResFor(record.type))
+            
             binding.tvActivityType.text = record.type
             binding.tvActivityMeta.text =
                 "${ActivityDateFormatter.formatCompact(record.timestamp)} · ${record.durationMinutes} min"

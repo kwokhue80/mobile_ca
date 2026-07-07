@@ -10,7 +10,7 @@ object RetrofitClient {
     // If you intend to run the application on your Android Device, 
     // Ensure your Local Machine and Android Device are on the same network (i.e. the same IP address)
     // Replace with your server's IP4 address and Update the "network_security_config.xml"
-    // private const val BASE_URL = "http://10.XXX.XX.XXX:8000/"
+    // private const val BASE_URL = "http://192.XXX.XX:8000/"
 
     private const val BASE_URL = "http://10.0.2.2:8000/"
     private var apiService: AuthApiService? = null

@@ -7,11 +7,10 @@ class BackendRepository(
 ) {
     suspend fun answer(
         query: String,
-        retrievedContext: String,
-        localMatchFound: Boolean,
-        conversationHistory: List<ChatMessage>
+        conversationHistory: List<ChatMessage>,
+        relevantPastMessages: List<ChatMessage>
     ): String {
-        val request = ChatRequest(query, retrievedContext, localMatchFound, conversationHistory)
+        val request = ChatRequest(query, conversationHistory, relevantPastMessages)
         val response = backendApi.sendQuery(request)
         return response.answer
     }

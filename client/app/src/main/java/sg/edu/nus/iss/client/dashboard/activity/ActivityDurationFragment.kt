@@ -31,6 +31,7 @@ class ActivityDurationFragment : Fragment() {
 
     companion object {
         private const val ARG_EXERCISE_TYPE = "arg_exercise_type"
+
         // Duration is computed (not user-entered), so it's always shown in this fixed
         // green rather than the exercise's own accent color, to visually separate
         // "computed" values from the editable/tappable ones.
@@ -82,8 +83,7 @@ class ActivityDurationFragment : Fragment() {
 
         binding.rowStartTime.ivIcon.setImageResource(R.drawable.ic_time)
         binding.rowEndTime.ivIcon.setImageResource(R.drawable.ic_time)
-        binding.rowDuration.ivIcon.setImageResource(R.drawable.ic_hourglass)
-        binding.rowDistance.ivIcon.setImageResource(R.drawable.distance_icon)
+        binding.rowDuration.ivIcon.setImageResource(R.drawable.ic_hourglass)        binding.rowDistance.ivIcon.setImageResource(R.drawable.distance_icon)
         binding.rowCalories.ivIcon.setImageResource(R.drawable.calories_icon)
         listOf(
             binding.rowStartTime.ivIcon, binding.rowEndTime.ivIcon, binding.rowDuration.ivIcon,

@@ -30,4 +30,5 @@ enum class ExerciseType(
         fun iconResFor(displayName: String): Int =
             fromDisplayName(displayName)?.iconRes ?: R.drawable.ic_activity_default
     }
+
 }

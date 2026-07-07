@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">client</string>
+    <string name="app_name">Nova Health</string>
     <string name="base_url">http://10.0.2.2:8000/</string>
     <string name="credential_emailAddress">Email Address</string>
     <string name="credential_password">Password</string>
@@ -19,6 +19,8 @@
     <string name="logout_success">Logout Successful</string>
     <string name="biometric_title">Biometric Authentication</string>
     <string name="biometric_subtitle">Log in Using your Biometric Credential</string>
+    <string name="biometric_enabled">Enable Biometric Login</string>
+    <string name="biometric_disabled">Biometric Login Disabled</string>
     <string name="biometric_negativeButtonText">Cancel</string>
     <string name="biometric_error_no_hardware">No Biometric Features Available on this Device</string>
     <string name="biometric_error_hw_unavailable">Biometric Features are Currently Unavailable</string>
@@ -29,7 +31,6 @@
     <string name="biometric_login_failed">Please Login with Password First</string>
     <string name="add_item_title_preview">Add Item</string>
     <string name="close">Close</string>
-
     <string-array name="gender_options">
         <item>Male</item>
         <item>Female</item>

@@ -77,7 +77,7 @@ class HistoryListAdapter(
             (binding.iconContainer.background.mutate() as GradientDrawable).setColor(
                 exerciseType?.accentBackground ?: DEFAULT_ACCENT_BACKGROUND
             )
-
+            
             binding.tvActivityType.text = record.type
             binding.tvActivityMeta.text =
                 "${ActivityDateFormatter.formatTimeOnly(record.timestamp)} · ${record.durationMinutes} min"
