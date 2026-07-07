@@ -3,6 +3,8 @@ package sg.edu.nus.features.wellness.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -56,6 +58,10 @@ public class DailyWellnessSummary extends Updatable {
 	@Column(name = "total_exercise_minutes", nullable = false)
 	private Integer totalExerciseMinutes = 0;
 
+	@Builder.Default
+	@Column(name = "total_distance_km", nullable = false, precision = 6, scale = 2)
+	private BigDecimal totalDistanceKm = BigDecimal.ZERO;
+
 	@Column(name = "sleep_minutes")
 	private Integer sleepMinutes;
 
@@ -71,6 +77,7 @@ public class DailyWellnessSummary extends Updatable {
     // ASSOCIATIONS
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+	@JsonIgnore
 	private User user;
 
 }
