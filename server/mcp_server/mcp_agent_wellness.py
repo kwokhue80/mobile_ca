@@ -1,5 +1,6 @@
 import os
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header
+from jwt_context import set_current_token
 from langchain_ollama import ChatOllama
 from pydantic import BaseModel
 from typing import List, Dict
@@ -17,8 +18,9 @@ app = FastAPI(title="Wellness Chatbot API")
 mcp_client = MultiServerMCPClient(
     {
         "app_MySQL_db": {
-            "transport": "http",
-            "url": "http://localhost:8000/mcp"  # Points to your running FastMCP server
+            "command": "python",
+            "args": ["mcp_server_wellness.py"],
+            "transport": "stdio",
         }
     }
 )
@@ -37,12 +39,15 @@ async def list_available_tools():
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/chat")
-async def chat_endpoint(request: ChatRequest):
+async def chat_endpoint(request: ChatRequest, authorization: str = Header(None)):
     """
-    Main endpoint called by the Mobile App.
+    Main endpoint called by the Android application.
     """
     try:
-        # 2. Dynamically gather tools from all connected MCP servers
+        # Stores the authorization token for this request, so tool
+        # functions can attach it when calling the Spring Boot backend
+        set_current_token(authorization)
+
         tools = await mcp_client.get_tools()
         
         # 3. Instantiate LLM and the LangChain Agent
