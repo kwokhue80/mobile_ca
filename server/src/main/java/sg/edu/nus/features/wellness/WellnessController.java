@@ -14,9 +14,10 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import sg.edu.nus.features.user.account.User;
-import sg.edu.nus.features.user.account.UserRepository;
+import sg.edu.nus.features.user.account.UserService;
 import sg.edu.nus.features.wellness.dto.WellnessRecordPayload;
 import sg.edu.nus.features.wellness.dto.ActivityRecordDto;
+import sg.edu.nus.features.wellness.dto.RecommendationResponse;
 
 @Slf4j
 @RestController
@@ -25,25 +26,17 @@ import sg.edu.nus.features.wellness.dto.ActivityRecordDto;
 public class WellnessController {
 
     private final WellnessOrchestratorService orchestratorService;
-    private final UserRepository userRepository;
+    private final WellnessRecommendationService wellnessRecommendationService;
+    private final UserService userService;
 
     @PostMapping("/records")
     public ResponseEntity<Void> saveRecord(
             @RequestBody WellnessRecordPayload payload,
             Authentication authentication) {
+        User currentUser = findAuthenticatedUser(authentication);
 
-        if (authentication == null || authentication.getName() == null) {
-            throw new RuntimeException("User is not authenticated");
-        }
-
-        // JwtAuthenticationFilter stores the email as authentication name.
-        String emailAddress = authentication.getName();
-
-        log.info("Received wellness record payload from user email: {}", emailAddress);
+        log.info("Received wellness record payload from user email: {}", currentUser.getEmailAddress());
         log.info("Payload recordDate: {}", payload.getRecordDate());
-
-        User currentUser = userRepository.findByEmailAddress(emailAddress)
-                .orElseThrow(() -> new RuntimeException("Authenticated user not found in database"));
 
         orchestratorService.processMonolithicRecord(currentUser, payload);
 
@@ -56,18 +49,24 @@ public class WellnessController {
     public ResponseEntity<List<ActivityRecordDto>> getActivityHistory(
             @RequestParam(defaultValue = "7") int days,
             Authentication authentication) {
+        User currentUser = findAuthenticatedUser(authentication);
+        List<ActivityRecordDto> history = orchestratorService.getActivityHistory(currentUser, days);
+        return ResponseEntity.ok(history);
+    }
 
+    @GetMapping("/recommendations/latest")
+    public ResponseEntity<RecommendationResponse> getLatestRecommendation(Authentication authentication) {
+        User currentUser = findAuthenticatedUser(authentication);
+
+        RecommendationResponse recommendation = wellnessRecommendationService.getLatestRecommendation(currentUser);
+        return ResponseEntity.ok(recommendation);
+    }
+
+    private User findAuthenticatedUser(Authentication authentication) {
         if (authentication == null || authentication.getName() == null) {
             throw new RuntimeException("User is not authenticated");
         }
 
-        String emailAddress = authentication.getName();
-
-        User currentUser = userRepository.findByEmailAddress(emailAddress)
-                .orElseThrow(() -> new RuntimeException("Authenticated user not found in database"));
-
-        List<ActivityRecordDto> history = orchestratorService.getActivityHistory(currentUser, days);
-
-        return ResponseEntity.ok(history);
+        return userService.getByEmail(authentication.getName());
     }
 }
