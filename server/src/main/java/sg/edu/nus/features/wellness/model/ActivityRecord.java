@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -52,6 +53,7 @@ public class ActivityRecord extends Creatable {
 	private LocalDateTime recordedAt;
     
     // ASSOCIATIONS
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
 	private User user;

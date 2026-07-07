@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client.dashboard
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,13 +10,25 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import sg.edu.nus.iss.client.dashboard.detail.model.MetricType
+import sg.edu.nus.iss.client.dashboard.detail.ExerciseDaysViewModel
+import sg.edu.nus.iss.client.dashboard.detail.MentalHealthDetailViewModel
 import sg.edu.nus.iss.client.dashboard.goals.UserGoalsViewModel
 import sg.edu.nus.iss.client.dashboard.goals.model.ActivityGoalType
 import sg.edu.nus.iss.client.databinding.PageDashboard2Binding
 import sg.edu.nus.iss.client.navigation.RouteManager
 
 class DashboardPage2Fragment : Fragment() {
+
+    companion object {
+        // Matches DashboardPage1Fragment's goal-reached style: green card border ring
+        // + top-right corner wedge, same color regardless of card.
+        private val GOAL_REACHED_COLOR = Color.parseColor("#22C55E")
+        private val GOAL_NOT_REACHED_COLOR = Color.TRANSPARENT
+    }
+
     private var _binding: PageDashboard2Binding? = null
     private val binding get() = _binding!!
 
@@ -31,20 +44,51 @@ class DashboardPage2Fragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.cardExerciseDays.setOnClickListener { RouteManager.toExerciseDaysDetail(this) }
         binding.cardMentalHealth.setOnClickListener { RouteManager.toMentalHealthDetail(this) }
+        binding.cardFoodIntake.setOnClickListener { RouteManager.toMetricDetail(this, MetricType.FOOD_INTAKE) }
 
         val userGoalsViewModel = ViewModelProvider(requireActivity())[UserGoalsViewModel::class.java]
-        val currentExerciseDays = binding.progressExerciseDays.progress
+        val dashboardViewModel = ViewModelProvider(requireActivity())[DashboardViewModel::class.java]
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                userGoalsViewModel.goals.collect { goals ->
+                combine(dashboardViewModel.activityRecords, userGoalsViewModel.goals) { records, goals ->
+                    records to goals
+                }.collect { (records, goals) ->
                     val goalDays =
                         (goals[ActivityGoalType.EXERCISE_DAYS] ?: ActivityGoalType.EXERCISE_DAYS.defaultValue).toInt()
-                    binding.progressExerciseDays.max = goalDays
-                    binding.tvExerciseDays.text = "$currentExerciseDays of $goalDays"
+                    val exercisedDays = ExerciseDaysViewModel.daysExercisedThisWeek(records)
+                    // Goal only scales the progress bar's max; the card text always
+                    // counts against 7 (days in a week), since that's what this card tracks.
+                    binding.progressExerciseDays.max = goalDays.coerceAtLeast(1)
+                    binding.progressExerciseDays.progress = exercisedDays
+                    binding.tvExerciseDays.text = "$exercisedDays of 7"
+                    val reached = exercisedDays >= goalDays
+                    binding.cardExerciseDays.strokeColor = if (reached) GOAL_REACHED_COLOR else GOAL_NOT_REACHED_COLOR
+                    binding.cornerWedgeExerciseDays.visibility = if (reached) View.VISIBLE else View.GONE
+                    binding.checkExerciseDays.visibility = if (reached) View.VISIBLE else View.GONE
                 }
             }
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                dashboardViewModel.todaySummary.collect { summary ->
+                    binding.tvMentalHealth.text = summary?.moodScore?.let {
+                        MentalHealthDetailViewModel.moodCategory(it.toDouble())
+                    } ?: "--"
+
+                    val calories = summary?.totalCaloriesIntake ?: 0
+                    binding.tvFoodIntake.text = "$calories kcal"
+                    binding.progressFoodIntake.progress =
+                        calories.coerceIn(0, binding.progressFoodIntake.max)
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        ViewModelProvider(requireActivity())[DashboardViewModel::class.java].refreshToday()
     }
 
     override fun onDestroyView() {

@@ -12,6 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.databinding.FragmentBadgesBinding
+import sg.edu.nus.iss.client.dashboard.goals.UserGoalsViewModel
 import sg.edu.nus.iss.client.navigation.RouteManager
 
 class BadgesFragment : Fragment() {
@@ -38,6 +39,7 @@ class BadgesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel = ViewModelProvider(requireActivity())[BadgesViewModel::class.java]
+        val userGoalsViewModel = ViewModelProvider(requireActivity())[UserGoalsViewModel::class.java]
         adapter = BadgeAdapter(onCollectClick = { item -> viewModel.collect(item.type) })
 
         binding.rvBadges.layoutManager = GridLayoutManager(requireContext(), GRID_SPAN_COUNT)
@@ -48,6 +50,12 @@ class BadgesFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.badgeItems.collect { items -> adapter.submitList(items) }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                userGoalsViewModel.goals.collect { goals -> viewModel.refresh(goals) }
             }
         }
     }

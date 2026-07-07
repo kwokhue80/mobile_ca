@@ -107,21 +107,38 @@
                         android:textColor="#5C7A66"
                         android:textSize="13sp" />
 
-                    <EditText
-                        android:id="@+id/etFullName"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:background="@null"
-                        android:hint="e.g. Jane Tan"
-                        android:textColorHint="#9BB3A2"
-                        android:inputType="textPersonName|textCapWords"
-                        android:maxLines="1"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="10dp"
-                        android:textColor="#1B4332"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/etFullName"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:background="@null"
+                            android:hint="e.g. Jane Tan"
+                            android:textColorHint="#9BB3A2"
+                            android:inputType="textPersonName|textCapWords"
+                            android:maxLines="1"
+                            android:paddingTop="6dp"
+                            android:paddingBottom="10dp"
+                            android:textColor="#1B4332"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_marginStart="8dp"
+                            android:src="@drawable/ic_edit_pencil"
+                            app:tint="#9BB3A2"
+                            android:contentDescription="Edit" />
+
+                    </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
@@ -185,22 +202,39 @@
                         android:textColor="#5C7A66"
                         android:textSize="13sp" />
 
-                    <EditText
-                        android:id="@+id/etHeight"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:layout_marginBottom="12dp"
-                        android:background="@null"
-                        android:hint="e.g. 165"
-                        android:textColorHint="#9BB3A2"
-                        android:inputType="numberDecimal"
-                        android:maxLines="1"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="10dp"
-                        android:textColor="#1B4332"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/etHeight"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:background="@null"
+                            android:hint="e.g. 165"
+                            android:textColorHint="#9BB3A2"
+                            android:inputType="numberDecimal"
+                            android:maxLines="1"
+                            android:paddingTop="6dp"
+                            android:paddingBottom="10dp"
+                            android:textColor="#1B4332"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_marginStart="8dp"
+                            android:src="@drawable/ic_edit_pencil"
+                            app:tint="#9BB3A2"
+                            android:contentDescription="Edit" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 

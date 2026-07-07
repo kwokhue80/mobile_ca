@@ -31,6 +31,15 @@ enum class MetricType(
         chartGoalMetColorHex = "#A6E2DD",
         decimalPlaces = 0
     ),
+    FOOD_INTAKE(
+        displayName = "Food Intake",
+        unit = "kcal",
+        defaultGoal = 2000.0,
+        iconRes = R.drawable.calories_icon,
+        chartColorHex = "#27837B",
+        chartGoalMetColorHex = "#A6E2DD",
+        decimalPlaces = 0
+    ),
     HYDRATION(
         displayName = "Hydration",
         unit = "ml",

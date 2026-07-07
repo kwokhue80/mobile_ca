@@ -1,11 +1,17 @@
 package sg.edu.nus.iss.client.dashboard.detail
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricBar
 import sg.edu.nus.iss.client.dashboard.detail.model.TimeRange
+import sg.edu.nus.iss.client.network.DailyWellnessSummary
+import sg.edu.nus.iss.client.network.RetrofitClient
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -14,7 +20,6 @@ import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
 import java.util.Locale
 import kotlin.math.ceil
-import kotlin.random.Random
 
 data class MoodNode(val label: String, val value: Double)
 
@@ -22,17 +27,21 @@ data class MentalHealthUiState(
     val timeRange: TimeRange = TimeRange.DAY,
     val periodLabel: String = "",
     val points: List<MetricBar> = emptyList(),
-    val dayMoodValue: Double = 5.0,
+    val dayMoodValue: Double? = null,
     val moodNodes: List<MoodNode> = emptyList(),
     val summaryText: String = "",
-    val canGoNext: Boolean = false
+    val canGoNext: Boolean = false,
+    val selectedBarIndex: Int? = null
 )
 
 /** Mood is tracked on a fixed 1 (very bad) .. 10 (excellent) scale; there is no
  *  user-configurable goal for it, unlike the other metrics. Day view shows a single
  *  mood icon/word (no chart); Week/Month show a trend chart plus 3 mood-icon
- *  checkpoints (early/mid/late) summarizing the trend at a glance. */
-class MentalHealthDetailViewModel : ViewModel() {
+ *  checkpoints (early/mid/late) summarizing the trend at a glance. All real backend
+ *  data, sourced from GET /api/dashboard/range's per-day moodScore. */
+class MentalHealthDetailViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val apiService = RetrofitClient.getApiService(application)
 
     private val today: LocalDate = LocalDate.now()
     private var referenceDate: LocalDate = today
@@ -40,6 +49,8 @@ class MentalHealthDetailViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(MentalHealthUiState())
     val uiState: StateFlow<MentalHealthUiState> = _uiState.asStateFlow()
+
+    private var refreshJob: Job? = null
 
     init {
         refresh()
@@ -75,38 +86,69 @@ class MentalHealthDetailViewModel : ViewModel() {
         refresh()
     }
 
+    fun selectBar(index: Int) {
+        _uiState.value = _uiState.value.copy(selectedBarIndex = index)
+    }
+
+    fun clearSelection() {
+        _uiState.value = _uiState.value.copy(selectedBarIndex = null)
+    }
+
     private fun refresh() {
-        _uiState.value = when (timeRange) {
-            TimeRange.DAY -> buildDayState()
-            TimeRange.WEEK -> buildWeekState()
-            else -> buildMonthState()
+        refreshJob?.cancel()
+        refreshJob = viewModelScope.launch {
+            val newState = when (timeRange) {
+                TimeRange.DAY -> buildDayState()
+                TimeRange.WEEK -> buildWeekState()
+                else -> buildMonthState()
+            }
+            _uiState.value = newState
         }
     }
 
-    private fun buildDayState(): MentalHealthUiState {
-        val random = Random(referenceDate.toEpochDay())
-        val value = round1((5.0 + (random.nextDouble() * 4.0 - 2.0)).coerceIn(1.0, 10.0))
+    private suspend fun fetchRange(start: LocalDate, end: LocalDate): Map<LocalDate, DailyWellnessSummary> {
+        return try {
+            val response = apiService.getDashboardRange(
+                start.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                end.format(DateTimeFormatter.ISO_LOCAL_DATE)
+            )
+            response.body().orEmpty().associateBy { LocalDate.parse(it.summaryDate) }
+        } catch (e: Exception) {
+            emptyMap()
+        }
+    }
+
+    private suspend fun buildDayState(): MentalHealthUiState {
+        val value = fetchRange(referenceDate, referenceDate)[referenceDate]?.moodScore?.toDouble()
         val periodLabel = if (referenceDate == today) "Today" else formatDayLabel(referenceDate)
+        val summaryText = if (value != null) {
+            "Today's mood has been ${moodCategory(value)}, averaging ${formatMood(value)}/10."
+        } else {
+            "No mood data has been logged for this day yet."
+        }
         return MentalHealthUiState(
             timeRange = TimeRange.DAY,
             periodLabel = periodLabel,
             dayMoodValue = value,
-            summaryText = "Today's mood has been ${moodCategory(value)}, averaging ${formatMood(value)}/10.",
+            summaryText = summaryText,
             canGoNext = referenceDate.isBefore(today)
         )
     }
 
-    private fun buildWeekState(): MentalHealthUiState {
+    private suspend fun buildWeekState(): MentalHealthUiState {
         val weekStart = referenceDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         val weekEnd = weekStart.plusDays(6)
-        val random = Random(weekStart.toEpochDay())
-        val values = moodSequence(random, 7)
-        val points = (0 until 7).mapNotNull { i ->
+        val summaries = fetchRange(weekStart, weekEnd)
+        // Always emit all 7 days (Mon-Sun) so the chart's x-axis spans the full week;
+        // days with no logged mood get a 0.0 filler, which MetricLineChartConfigurator
+        // skips when drawing the line, and which buildMoodNodes/buildWeekSummary below
+        // exclude from their averages.
+        val points = (0 until 7).map { i ->
             val date = weekStart.plusDays(i.toLong())
-            if (date.isAfter(today)) return@mapNotNull null
+            val mood = if (date.isAfter(today)) 0.0 else summaries[date]?.moodScore?.toDouble() ?: 0.0
             MetricBar(
                 axisLabel = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(2),
-                value = values[i],
+                value = mood,
                 rangeLabel = formatDayLabel(date),
                 meetsGoal = false
             )
@@ -121,17 +163,19 @@ class MentalHealthDetailViewModel : ViewModel() {
         )
     }
 
-    private fun buildMonthState(): MentalHealthUiState {
+    private suspend fun buildMonthState(): MentalHealthUiState {
         val monthEnd = referenceDate
         val monthStart = monthEnd.minusMonths(1)
-        val random = Random(monthStart.toEpochDay())
+        val summaries = fetchRange(monthStart, monthEnd)
         val totalDays = ChronoUnit.DAYS.between(monthStart, monthEnd).toInt() + 1
-        val values = moodSequence(random, totalDays)
+        // Same "always emit every day" approach as buildWeekState, so the chart's
+        // x-axis spans the full month regardless of gaps in logged data.
         val points = (0 until totalDays).map { i ->
             val date = monthStart.plusDays(i.toLong())
+            val mood = if (date.isAfter(today)) 0.0 else summaries[date]?.moodScore?.toDouble() ?: 0.0
             MetricBar(
                 axisLabel = date.dayOfMonth.toString(),
-                value = values[i],
+                value = mood,
                 rangeLabel = formatFullDayLabel(date),
                 meetsGoal = false
             )
@@ -147,25 +191,18 @@ class MentalHealthDetailViewModel : ViewModel() {
     }
 
     /** Splits the period into (up to) 3 roughly-equal chunks and averages each,
-     *  giving an early/mid/late mood-icon snapshot of how the trend moved. */
+     *  giving an early/mid/late mood-icon snapshot of how the trend moved. Days with
+     *  no logged data (value 0) are excluded from each chunk's average; a chunk with
+     *  no real data at all is dropped rather than shown as a false 0. */
     private fun buildMoodNodes(points: List<MetricBar>): List<MoodNode> {
         if (points.isEmpty()) return emptyList()
         val chunkSize = ceil(points.size / 3.0).toInt().coerceAtLeast(1)
-        return points.chunked(chunkSize).take(3).map { chunk ->
-            val average = chunk.map { it.value }.average()
+        return points.chunked(chunkSize).take(3).mapNotNull { chunk ->
+            val realValues = chunk.map { it.value }.filter { it > 0.0 }
+            if (realValues.isEmpty()) return@mapNotNull null
             val label = if (chunk.size == 1) chunk.first().axisLabel else "${chunk.first().axisLabel}–${chunk.last().axisLabel}"
-            MoodNode(label = label, value = round1(average))
+            MoodNode(label = label, value = round1(realValues.average()))
         }
-    }
-
-    private fun moodSequence(random: Random, count: Int): List<Double> {
-        var current = (5.0 + (random.nextDouble() * 4.0 - 2.0)).coerceIn(1.0, 10.0)
-        val values = mutableListOf(round1(current))
-        repeat(count - 1) {
-            current = (current + (random.nextDouble() * 3.0 - 1.5)).coerceIn(1.0, 10.0)
-            values.add(round1(current))
-        }
-        return values
     }
 
     private fun round1(value: Double): Double = Math.round(value * 10) / 10.0
@@ -179,22 +216,24 @@ class MentalHealthDetailViewModel : ViewModel() {
     private fun formatMood(value: Double): String = "%.1f".format(value)
 
     private fun buildWeekSummary(points: List<MetricBar>): String {
-        if (points.isEmpty()) return "No mood data has been logged for this week yet."
-        val average = points.map { it.value }.average()
-        val best = points.maxBy { it.value }
-        val worst = points.minBy { it.value }
-        val trend = trendPhrase(points.first().value, points.last().value, "the week")
+        val realPoints = points.filter { it.value > 0.0 }
+        if (realPoints.isEmpty()) return "No mood data has been logged for this week yet."
+        val average = realPoints.map { it.value }.average()
+        val best = realPoints.maxBy { it.value }
+        val worst = realPoints.minBy { it.value }
+        val trend = trendPhrase(realPoints.first().value, realPoints.last().value, "the week")
         return "This week your mood has been ${moodCategory(average)}, averaging ${formatMood(average)}/10. " +
             "It $trend, with ${best.axisLabel} your best day (${formatMood(best.value)}/10) and ${worst.axisLabel} your toughest (${formatMood(worst.value)}/10)."
     }
 
     private fun buildMonthSummary(points: List<MetricBar>): String {
-        if (points.isEmpty()) return "No mood data has been logged for this month yet."
-        val average = points.map { it.value }.average()
-        val best = points.maxBy { it.value }
-        val worst = points.minBy { it.value }
-        val trend = trendPhrase(points.first().value, points.last().value, "the month")
-        return "This month your mood averaged ${formatMood(average)}/10 across ${points.size} days tracked, and has been ${moodCategory(average)} overall. " +
+        val realPoints = points.filter { it.value > 0.0 }
+        if (realPoints.isEmpty()) return "No mood data has been logged for this month yet."
+        val average = realPoints.map { it.value }.average()
+        val best = realPoints.maxBy { it.value }
+        val worst = realPoints.minBy { it.value }
+        val trend = trendPhrase(realPoints.first().value, realPoints.last().value, "the month")
+        return "This month your mood averaged ${formatMood(average)}/10 across ${realPoints.size} days tracked, and has been ${moodCategory(average)} overall. " +
             "It $trend, with day ${best.axisLabel} your best (${formatMood(best.value)}/10) and day ${worst.axisLabel} your lowest (${formatMood(worst.value)}/10)."
     }
 

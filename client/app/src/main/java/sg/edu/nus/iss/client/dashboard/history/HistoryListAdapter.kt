@@ -1,8 +1,6 @@
 package sg.edu.nus.iss.client.dashboard.history
 
 import android.graphics.Color
-import android.graphics.PorterDuff
-import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -20,14 +18,14 @@ class HistoryListAdapter(
     companion object {
         private const val VIEW_TYPE_HEADER = 0
         private const val VIEW_TYPE_RECORD = 1
-        private val DEFAULT_ACCENT_COLOR = Color.parseColor("#1F1F1F")
-        private val DEFAULT_ACCENT_BACKGROUND = Color.parseColor("#EEF1F5")
     }
 
     private var items: List<HistoryListItem> = emptyList()
+    private var highlightedIds: Set<String> = emptySet()
 
-    fun submitList(newItems: List<HistoryListItem>) {
+    fun submitList(newItems: List<HistoryListItem>, highlightedIds: Set<String> = emptySet()) {
         items = newItems
+        this.highlightedIds = highlightedIds
         notifyDataSetChanged()
     }
 
@@ -48,7 +46,8 @@ class HistoryListAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = items[position]) {
             is HistoryListItem.Header -> (holder as HeaderViewHolder).bind(item)
-            is HistoryListItem.Record -> (holder as RecordViewHolder).bind(item)
+            is HistoryListItem.Record ->
+                (holder as RecordViewHolder).bind(item, highlightedIds.contains(item.record.id))
         }
     }
 
@@ -65,22 +64,24 @@ class HistoryListAdapter(
         private val binding: ItemHistoryRecordBinding,
         private val onItemClick: (ActivityRecord) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: HistoryListItem.Record) {
-            val record = item.record
-            val exerciseType = ExerciseType.fromDisplayName(record.type)
 
-            binding.iconActivityType.setImageResource(exerciseType?.iconRes ?: ExerciseType.iconResFor(record.type))
-            binding.iconActivityType.setColorFilter(
-                exerciseType?.accentColor ?: DEFAULT_ACCENT_COLOR,
-                PorterDuff.Mode.SRC_IN
-            )
-            (binding.iconContainer.background.mutate() as GradientDrawable).setColor(
-                exerciseType?.accentBackground ?: DEFAULT_ACCENT_BACKGROUND
-            )
-            
+        companion object {
+            // Light green highlight for the day jumped to via History's calendar picker.
+            private val HIGHLIGHT_COLOR = Color.parseColor("#DCEDC8")
+        }
+
+        fun bind(item: HistoryListItem.Record, isHighlighted: Boolean) {
+            val record = item.record
+
+            // Matches ActivityRecordAdapter's bind() (Home's "Activity Tracked" list):
+            // no color filter, no background tint override - just the drawable's own
+            // baked-in tint, so both lists render identically.
+            binding.iconActivityType.setImageResource(ExerciseType.iconResFor(record.type))
+
             binding.tvActivityType.text = record.type
             binding.tvActivityMeta.text =
-                "${ActivityDateFormatter.formatTimeOnly(record.timestamp)} · ${record.durationMinutes} min"
+                "${ActivityDateFormatter.formatCompact(record.timestamp)} · ${record.durationMinutes} min"
+            binding.root.setBackgroundColor(if (isHighlighted) HIGHLIGHT_COLOR else Color.TRANSPARENT)
             binding.root.setOnClickListener { onItemClick(record) }
         }
     }

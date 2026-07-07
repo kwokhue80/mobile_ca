@@ -14,18 +14,20 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import android.widget.Toast
 import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.R
 import sg.edu.nus.iss.client.dashboard.DashboardViewModel
 import sg.edu.nus.iss.client.dashboard.activity.model.ExerciseType
-import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
 import sg.edu.nus.iss.client.dashboard.util.ActivityDateFormatter
 import sg.edu.nus.iss.client.databinding.FragmentActivityInputBinding
 import sg.edu.nus.iss.client.navigation.RouteManager
+import sg.edu.nus.iss.client.network.RetrofitClient
+import sg.edu.nus.iss.client.network.WellnessRecord
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.UUID
+import java.time.format.DateTimeFormatter
 
 class ActivityDurationFragment : Fragment() {
 
@@ -122,16 +124,40 @@ class ActivityDurationFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            val record = ActivityRecord(
-                id = UUID.randomUUID().toString(),
-                type = exerciseType.displayName,
-                timestamp = LocalDateTime.of(LocalDate.now(), viewModel.startTime.value),
-                durationMinutes = viewModel.durationMinutes.value,
-                distanceKm = distanceText.toDouble(),
-                calories = caloriesText.toDouble().toInt()
+            val today = LocalDate.now()
+            val endDateTime = LocalDateTime.of(today, viewModel.endTime.value)
+            // Start's time-of-day being numerically after end's (e.g. start=23:41,
+            // end=00:11) means the activity started the previous day, not today.
+            val startDate = if (viewModel.startTime.value.isAfter(viewModel.endTime.value)) today.minusDays(1) else today
+            val startDateTime = LocalDateTime.of(startDate, viewModel.startTime.value)
+            val recordDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+
+            val record = WellnessRecord(
+                recordDate = endDateTime.format(recordDateFormatter),
+                exerciseType = exerciseType.backendExerciseType,
+                exerciseDurationMinutes = viewModel.durationMinutes.value,
+                exerciseDistanceKm = distanceText.toDouble(),
+                exerciseCaloriesBurnedKcal = caloriesText.toDouble().toInt(),
+                exerciseStartTime = startDateTime.format(recordDateFormatter),
+                exerciseEndTime = endDateTime.format(recordDateFormatter)
             )
-            dashboardViewModel.addRecord(record)
-            RouteManager.backTo(this, R.id.chooseExerciseFragment, true)
+
+            binding.btnSave.isEnabled = false
+            viewLifecycleOwner.lifecycleScope.launch {
+                try {
+                    val response = RetrofitClient.getApiService(requireContext()).saveRecord(record)
+                    if (response.isSuccessful) {
+                        dashboardViewModel.refreshToday()
+                        RouteManager.backTo(this@ActivityDurationFragment, R.id.chooseExerciseFragment, true)
+                    } else {
+                        binding.btnSave.isEnabled = true
+                        Toast.makeText(requireContext(), "Save failed: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    binding.btnSave.isEnabled = true
+                    Toast.makeText(requireContext(), "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -192,6 +218,7 @@ class ActivityDurationFragment : Fragment() {
             ExerciseType.SWIM -> 2.0 to 8.0
             ExerciseType.HIKE -> 4.5 to 7.0
             ExerciseType.CYCLE -> 15.0 to 8.0
+            ExerciseType.YOGA -> 0.0 to 3.0
         }
         val durationMinutes = viewModel.durationMinutes.value
         val distance = Math.round(speedKmh * (durationMinutes / 60.0) * 100) / 100.0

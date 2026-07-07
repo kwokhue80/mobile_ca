@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client.dashboard.history
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.databinding.FragmentHistoryBinding
 import sg.edu.nus.iss.client.dashboard.DashboardViewModel
 import sg.edu.nus.iss.client.navigation.RouteManager
+import java.time.LocalDate
 
 class HistoryFragment : Fragment() {
 
@@ -42,6 +44,8 @@ class HistoryFragment : Fragment() {
             RouteManager.back(this)
         }
 
+        binding.btnPickDate.setOnClickListener { showDatePicker() }
+
         binding.viewPagerHistory.adapter = pagerAdapter
         binding.viewPagerHistory.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
@@ -56,6 +60,20 @@ class HistoryFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun showDatePicker() {
+        val today = LocalDate.now()
+        DatePickerDialog(
+            requireContext(),
+            { _, year, month, dayOfMonth ->
+                val picked = LocalDate.of(year, month + 1, dayOfMonth)
+                binding.viewPagerHistory.setCurrentItem(pagerAdapter.jumpToDate(picked), true)
+            },
+            today.year,
+            today.monthValue - 1,
+            today.dayOfMonth
+        ).show()
     }
 
     override fun onDestroyView() {

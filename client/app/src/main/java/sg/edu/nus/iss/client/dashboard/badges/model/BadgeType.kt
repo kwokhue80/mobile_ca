@@ -13,7 +13,7 @@ enum class BadgeType(
 ) {
     DISTANCE_MASTER(
         title = "Marathoner",
-        description = "Walk or run a total of 1,000 km",
+        description = "Run a total of 1,000 km",
         iconRes = R.drawable.badge_marathoner
     ),
     STEP_CHAMPION(
