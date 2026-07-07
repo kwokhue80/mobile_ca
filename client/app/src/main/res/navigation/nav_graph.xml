@@ -15,7 +15,25 @@
         android:label="fragment_login"
         tools:layout="@layout/fragment_login">
         <action
+            android:id="@+id/action_loginFragment_to_registerFragment"
+            app:destination="@id/registerFragment" />
+        <action
             android:id="@+id/action_loginFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="sg.edu.nus.iss.client.auth.RegisterFragment"
+        android:label="fragment_register"
+        tools:layout="@layout/fragment_register">
+        <action
+            android:id="@+id/action_registerFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_registerFragment_to_homeFragment"
             app:destination="@id/homeFragment"
             app:popUpTo="@id/loginFragment"
             app:popUpToInclusive="true" />
@@ -50,7 +68,16 @@
         <action
             android:id="@+id/action_homeFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_recommendationHistoryFragment"
+            app:destination="@id/recommendationHistoryFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/recommendationHistoryFragment"
+        android:name="sg.edu.nus.iss.client.dashboard.RecommendationHistoryFragment"
+        android:label="Recommendations"
+        tools:layout="@layout/fragment_recommendation_history" />
 
     <fragment
         android:id="@+id/profileFragment"

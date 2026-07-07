@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum GoalType {
-    DISTANCE("km per day"),
+    // DISTANCE("km per day"),
     // STEPS("steps per day"),
     CALORIES("kcal per day"),
     SLEEP("hours per day"),

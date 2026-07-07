@@ -50,32 +50,31 @@ public class JwtService {
             .getPayload();
     }
 
-    // Unused for current flow
-    // public String extractEmail(String token) {
-    //     return extractClaims(token).getSubject();
-    // }
+    public String extractEmail(String token) {
+        return extractClaims(token).getSubject();
+    }
 
-    // public String extractUserId(String token) {
-    //     return extractClaims(token).get("userId", String.class);
-    // }
+    public String extractUserId(String token) {
+        return extractClaims(token).get("userId", String.class);
+    }
 
-    // public boolean isTokenValid(String token, User user) {
-    //     String email = extractEmail(token);
-    //     return email.equals(user.getEmailAddress()) && !isTokenExpired(token);
-    // }
+    public boolean isTokenValid(String token, User user) {
+        String email = extractEmail(token);
+        return email.equals(user.getEmailAddress()) && !isTokenExpired(token);
+    }
 
-    // private boolean isTokenExpired(String token) {
-    //     Date expiration = extractClaims(token).getExpiration();
-    //     return expiration.before(new Date());
-    // }
+    private boolean isTokenExpired(String token) {
+        Date expiration = extractClaims(token).getExpiration();
+        return expiration.before(new Date());
+    }
 
-    // private Claims extractClaims(String token) {
-    //     return Jwts.parser()
-    //         .verifyWith(getSigningKey())
-    //         .build()
-    //         .parseSignedClaims(token)
-    //         .getPayload();
-    // }
+    private Claims extractClaims(String token) {
+        return Jwts.parser()
+            .verifyWith(getSigningKey())
+            .build()
+            .parseSignedClaims(token)
+            .getPayload();
+    }
 
     private SecretKey getSigningKey() {
         byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);

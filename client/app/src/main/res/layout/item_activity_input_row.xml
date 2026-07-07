@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -63,6 +64,7 @@
             android:textSize="15sp"
             android:textStyle="bold" />
 
+        <!-- Old: android:tint="#B0B4BA" -->
         <ImageView
             android:id="@+id/ivEditPencil"
             android:layout_width="14dp"
@@ -70,7 +72,7 @@
             android:layout_marginStart="8dp"
             android:contentDescription="Editable"
             android:src="@drawable/ic_edit_pencil"
-            android:tint="#B0B4BA" />
+            app:tint="#B0B4BA" />
 
     </LinearLayout>
 

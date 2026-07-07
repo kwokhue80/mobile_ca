@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import sg.edu.nus.features.user.account.User;
 import sg.edu.nus.features.user.account.UserRepository;
+import sg.edu.nus.features.user.goal.dto.UserGoalResponse;
 import sg.edu.nus.features.user.goal.model.UserGoal;
 import sg.edu.nus.features.user.goal.model.UserGoalId;
 import sg.edu.nus.features.user.goal.model.enums.GoalType;
@@ -80,5 +81,12 @@ public class UserGoalService {
                 return userGoalRepository.save(goal);
             });
     }
+
+    public UserGoalResponse toResponse(UserGoal userGoal) {
+		return new UserGoalResponse(
+			userGoal.getId().getGoalType().name(),
+			userGoal.getTargetValue(),
+			userGoal.getId().getGoalType().getUnit());
+	}
 
 }
