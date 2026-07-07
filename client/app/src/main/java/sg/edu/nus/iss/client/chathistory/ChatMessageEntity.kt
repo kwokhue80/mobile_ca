@@ -5,7 +5,7 @@ import io.objectbox.annotation.HnswIndex
 import io.objectbox.annotation.Id
 import io.objectbox.annotation.VectorDistanceType
 
-// Stored representation of a chat message, kept separate from the
+// Stored (in vector db) representation of a chat message, kept separate from the
 // ChatMessage class used by the adapter that is meant for the UI
 @Entity
 data class ChatMessageEntity(

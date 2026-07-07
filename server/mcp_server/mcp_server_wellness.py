@@ -69,9 +69,15 @@ def get_missing_required_fields(payload: dict[str, Any]) -> list[str]:
     missing: list[str] = []
 
     if any(k in payload for k in ["meal_type", "meal_calories_kcal", "meal_description"]):
-        if "meal_type" not in payload:
+        meal_type = payload.get("meal_type")
+        meal_description = payload.get("meal_description")
+        meal_calories_kcal = payload.get("meal_calories_kcal")
+
+        if meal_type is None or str(meal_type).strip() == "":
             missing.append("meal_type")
-        if "meal_calories_kcal" not in payload:
+        if meal_description is None or str(meal_description).strip() == "":
+            missing.append("meal_description")
+        if meal_calories_kcal is None:
             missing.append("meal_calories_kcal")
 
     if any(k in payload for k in ["exercise_type", "exercise_duration_minutes", "exercise_distance_km", "exercise_calories_burned_kcal"]):
@@ -403,10 +409,9 @@ def _normalized_enum(value: str) -> str:
 @mcp.tool()
 async def get_activity_history(days: int = 7):
     """Fetches the current user's exercise history from the backend.
-    The backend endpoint currently returns a 7-day window."""
+    The backend endpoint returns exercise logs and supports a `days` window."""
     logger.info("Tool called: get_activity_history days=%s", days)
-    _ = days
-    return await call_spring_boot("/api/wellness/weekly-exercise")
+    return await call_spring_boot(f"/api/wellness/exercise-logs?days={days}")
 
 
 @mcp.tool()
@@ -528,8 +533,8 @@ async def log_wellness_entry(
             categories_logged.append("sleep")
 
     if meal_type is not None or meal_calories_kcal is not None or meal_description is not None:
-        if not meal_type or meal_calories_kcal is None:
-            _validation_error("For food logging, both meal_type and meal_calories_kcal are required")
+        if not meal_type or not str(meal_description or "").strip() or meal_calories_kcal is None:
+            _validation_error("For food logging, meal_type, meal_description, and meal_calories_kcal are required")
         if meal_calories_kcal <= 0:
             _validation_error("meal_calories_kcal must be greater than 0")
 
@@ -539,7 +544,7 @@ async def log_wellness_entry(
 
         payload["mealType"] = normalized_meal_type
         payload["mealCaloriesKcal"] = meal_calories_kcal
-        payload["mealDescription"] = meal_description if meal_description else "Logged Meal"
+        payload["mealDescription"] = str(meal_description).strip()
         categories_logged.append("food")
 
     if (

@@ -39,7 +39,7 @@ class RagRepository(
 
     suspend fun answer(
         query: String,
-        conversationHistory: List<ChatMessage> = emptyList(),
+        recentMessages: List<ChatMessage> = emptyList(),
         topK: Int = 3
     ): String {
         // The query only needs to be converted into a vector once, since
@@ -64,9 +64,9 @@ class RagRepository(
             }
         }
 
-        // Look through previously saved messages for anything relevant
-        // to the current question, separate from the recent messages
-        // already tracked on screen
+        // Search previously saved messages (separate from the recent
+        // messages already tracked on screen) for anything relevant
+        // to the current question,
         var relevantPastMessages: List<ChatMessage> = emptyList()
         if (FeatureFlags.ENABLE_CHAT_HISTORY_PERSISTENCE) {
             relevantPastMessages = chatHistoryRepository.searchMessages(queryVector, limit = 3)
@@ -80,7 +80,7 @@ class RagRepository(
         // Falls back to local mode if backend unavailable
         val answer = if (BackendConfig.USE_BACKEND) {
             try {
-                backendRepository.answer(query, conversationHistory, relevantPastMessages)
+                backendRepository.answer(query, recentMessages, relevantPastMessages)
             } catch (error: Exception) {
                 android.util.Log.w("RagRepository", "Backend chat failed; falling back to local model", error)
                 if (wantsWellnessLogging) {
@@ -88,7 +88,7 @@ class RagRepository(
                     return "I can't save your wellness log right now. Reason: $reason"
                 }
                 try {
-                    val prompt = buildPrompt(query, context, conversationHistory, relevantPastMessages)
+                    val prompt = buildPrompt(query, context, recentMessages, relevantPastMessages)
                     openRouterClient.chatCompletion(prompt)
                 } catch (fallbackError: Exception) {
                     android.util.Log.e("RagRepository", "OpenRouter fallback also failed", fallbackError)
@@ -96,7 +96,7 @@ class RagRepository(
                 }
             }
         } else {
-            val prompt = buildPrompt(query, context, conversationHistory, relevantPastMessages)
+            val prompt = buildPrompt(query, context, recentMessages, relevantPastMessages)
             openRouterClient.chatCompletion(prompt)
         }
 
@@ -133,10 +133,10 @@ class RagRepository(
     private fun buildPrompt(
         query: String,
         context: String,
-        conversationHistory: List<ChatMessage>,
+        recentMessages: List<ChatMessage>,
         relevantPastMessages: List<ChatMessage>
     ): String {
-        val recentText = conversationHistory.joinToString("\n") { msg ->
+        val recentText = recentMessages.joinToString("\n") { msg ->
             if (msg.isUser) "User: ${msg.text}" else "Assistant: ${msg.text}"
         }
 

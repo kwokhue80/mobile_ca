@@ -7,6 +7,7 @@ import json
 import hashlib
 import time
 import asyncio
+from datetime import datetime, timedelta
 from dataclasses import dataclass, field
 from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel, Field
@@ -186,7 +187,7 @@ Supported categories and expected fields:
 - Weight: weight_kg (>0)
 - Mood: mood_rating (1-10)
 - Sleep: sleep_minutes (>0) and/or sleep_quality_rating (1-10)
-- Food: meal_type + meal_calories_kcal required; meal_description optional
+- Food: meal_type + meal_description (food name) + meal_calories_kcal required
 - Exercise: exercise_type + exercise_duration_minutes required; exercise_distance_km and exercise_calories_burned_kcal optional
 
 Enum normalization rules before tool call:
@@ -211,7 +212,7 @@ class ChatMessage(BaseModel):
 # Represents the request payload sent from the Android application
 class ChatRequest(BaseModel):
     query: str
-    conversationHistory: List[ChatMessage] = Field(default_factory=list)
+    recentMessages: List[ChatMessage] = Field(default_factory=list)
     relevantPastMessages: List[ChatMessage] = Field(default_factory=list)
 
 # Represents the final answer sent back to the Android application
@@ -594,7 +595,6 @@ def _detect_read_tool_name(query: str) -> str | None:
     if any(phrase in lowered for phrase in [
         "activity history",
         "exercise history",
-        "weekly exercise",
         "recent activity",
         "my workouts",
     ]):
@@ -676,6 +676,26 @@ async def _handle_read_orchestration(request: ChatRequest, request_id: str) -> t
 # Detects if user is uncertain about something - for agent to further probe
 def _has_uncertainty_language(text: str) -> bool:
     return bool(re.search(r"\b(not sure|unsure|don't know|do not know|maybe)\b", text, re.IGNORECASE))
+
+
+def _looks_like_exercise_calorie_uncertainty(text: str) -> bool:
+    lowered = text.lower()
+    if not _has_uncertainty_language(text):
+        return False
+    mentions_calories = any(token in lowered for token in ["calorie", "calories", "kcal", "burn", "burned", "burnt"])
+    mentions_exercise = any(token in lowered for token in ["exercise", "workout", "run", "running", "walk", "walking", "cycle", "cycling"])
+    return mentions_calories and mentions_exercise
+
+
+def _exercise_calorie_backend_estimate_prompt(payload: dict[str, Any]) -> str:
+    exercise_type = str(payload.get("exercise_type") or "exercise").replace("_", " ").strip()
+    duration = payload.get("exercise_duration_minutes")
+    duration_text = f" for {duration} minutes" if duration is not None else ""
+    return (
+        f"No worries. I can estimate calories burned for your {exercise_type}{duration_text} and log it for you. "
+        "The estimate uses your latest weight and profile details on the backend. "
+        "Would you like me to proceed?"
+    )
 
 
 # Extract ml from user input
@@ -795,15 +815,16 @@ def _extract_meal_type(text: str) -> str | None:
 # Set prompts for missing fields before logging entry
 def _missing_field_prompt(missing_field: str) -> str:
     prompts = {
-        "water_intake_ml": "Thanks for sharing that. Could you tell me approximately how much water you drank, for example in ml or liters?",
-        "weight_kg": "Got it. Could you share your weight in kg so I can log it accurately?",
-        "mood_rating": "Thanks. How would you rate your mood from 1 to 10 right now?",
-        "sleep_minutes": "Thanks for sharing. About how long did you sleep, for example in hours or minutes?",
+        "water_intake_ml": "Please share approximately how much water you drank, for example in ml or liters.",
+        "weight_kg": "Please share your weight in kg so I can log it accurately.",
+        "mood_rating": "Please rate your mood from 1 to 10.",
+        "sleep_minutes": "Please share how long you slept, for example in hours or minutes.",
         "sleep_quality_rating": "If you'd like, you can also rate your sleep quality from 1 to 10.",
-        "meal_type": "Thanks. What meal type was this, for example breakfast, lunch, dinner, or snack?",
-        "meal_calories_kcal": "Thanks for sharing that. No worries if you are unsure. Could you give a rough calorie estimate for the meal, or tell me the portion size so I can help estimate it?",
-        "exercise_type": "Nice work staying active. What type of exercise was it?",
-        "exercise_duration_minutes": "Great. About how long was the exercise session, in minutes or hours?",
+        "meal_type": "What meal type was this, for example breakfast, lunch, dinner, or snack?",
+        "meal_description": "What food did you have? Please share the food name so I can log it accurately.",
+        "meal_calories_kcal": "Please share a rough calorie estimate for the meal, or the portion size so I can help estimate it.",
+        "exercise_type": "What type of exercise was it?",
+        "exercise_duration_minutes": "How long was the exercise session, in minutes or hours?",
     }
     return prompts.get(missing_field, "What details should I log for this wellness entry?")
 
@@ -859,7 +880,12 @@ def _looks_like_portion_size_hint(text: str) -> bool:
     lowered = text.lower()
 
     quantity_hint = bool(re.search(r"\b(\d+(?:\.\d+)?|a|an|one|two|three|half|small|medium|large)\b", lowered))
-    unit_hint = bool(re.search(r"\b(plate|bowl|serving|portion|cup|slice|piece|packet|pack)\b", lowered))
+    unit_hint = bool(
+        re.search(
+            r"\b(plate|bowl|serving|portion|cup|slice|piece|packet|pack|gram|grams|g|kg|kilogram|kilograms|oz|ounce|ounces|lb|lbs|pound|pounds|ml|milliliter|milliliters|l|liter|liters)\b",
+            lowered,
+        )
+    )
 
     return quantity_hint and unit_hint
 
@@ -897,6 +923,52 @@ def _exercise_context_from_query(query: str) -> dict[str, Any]:
     if distance_match:
         payload["exercise_distance_km"] = float(distance_match.group(1))
 
+    return payload
+
+
+def _extract_record_date_from_text(text: str) -> str | None:
+    """Parse simple natural date/time phrases into YYYY-MM-DD HH:MM:SS."""
+    lowered = text.lower()
+
+    base_date = None
+    now = datetime.now()
+    if "yesterday" in lowered:
+        base_date = (now - timedelta(days=1)).date()
+    elif "today" in lowered:
+        base_date = now.date()
+
+    if base_date is None:
+        return None
+
+    ampm_match = re.search(r"\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b", lowered, re.IGNORECASE)
+    if ampm_match:
+        hour = int(ampm_match.group(1))
+        minute = int(ampm_match.group(2) or 0)
+        ampm = ampm_match.group(3).lower()
+
+        if hour < 1 or hour > 12 or minute < 0 or minute > 59:
+            return None
+
+        if ampm == "pm" and hour != 12:
+            hour += 12
+        if ampm == "am" and hour == 12:
+            hour = 0
+
+        return f"{base_date.strftime('%Y-%m-%d')} {hour:02d}:{minute:02d}:00"
+
+    hhmm_match = re.search(r"\b([01]?\d|2[0-3]):([0-5]\d)\b", lowered)
+    if hhmm_match:
+        hour = int(hhmm_match.group(1))
+        minute = int(hhmm_match.group(2))
+        return f"{base_date.strftime('%Y-%m-%d')} {hour:02d}:{minute:02d}:00"
+
+    return None
+
+
+def _attach_record_date(payload: dict[str, Any], query: str) -> dict[str, Any]:
+    record_date = _extract_record_date_from_text(query)
+    if record_date:
+        payload["record_date"] = record_date
     return payload
 
 
@@ -1048,6 +1120,12 @@ def _looks_like_wellness_web_search_request(text: str) -> bool:
     return any(re.search(pattern, lowered, re.IGNORECASE) for pattern in factual_patterns)
 
 
+def _is_explicit_search_request(text: str) -> bool:
+    lowered = text.lower().strip()
+    explicit_search_tokens = ["search", "look up", "lookup", "find", "google", "web", "online"]
+    return any(token in lowered for token in explicit_search_tokens)
+
+
 def _extract_meal_description_from_calorie_query(query: str) -> str:
     text = query.strip()
     patterns = [
@@ -1099,11 +1177,56 @@ async def _handle_wellness_web_search_orchestration(request: ChatRequest, reques
     if not query:
         return False, None
 
+    explicit_search = _is_explicit_search_request(query)
+    draft_key = _draft_key_from_current_token()
+    active_draft = DRAFT_STORE.get(draft_key) if draft_key else None
+    active_draft_context = bool(active_draft and (_has_meal_context(active_draft.payload) or _has_exercise_context(active_draft.payload)))
+
     if not _is_wellness_nutrition_topic(query):
-        return False, None
+        # Allow explicit lookup while an active wellness draft exists (for example,
+        # "Search for Singapore chicken rice" during meal logging).
+        if not (explicit_search and active_draft_context):
+            return False, None
 
     if not _looks_like_wellness_web_search_request(query):
         return False, None
+
+    # Exercise calorie-burn questions should not use web search.
+    # Prepare an exercise draft and confirm backend-based estimation + logging.
+    if _looks_like_exercise_calorie_query(query):
+        if not draft_key:
+            return False, None
+
+        draft = active_draft or LoggingDraft()
+        draft.payload = _payload_with_only_context(draft.payload, "exercise")
+
+        parsed_exercise = _exercise_context_from_query(query)
+        for key, value in parsed_exercise.items():
+            draft.payload[key] = value
+
+        if "exercise_type" not in draft.payload:
+            draft.missing_field = "exercise_type"
+            draft.awaiting_log_offer = False
+            draft.awaiting_confirmation = False
+            _touch_draft(draft)
+            DRAFT_STORE.set(draft_key, draft)
+            return True, _missing_field_prompt("exercise_type")
+
+        if "exercise_duration_minutes" not in draft.payload:
+            draft.missing_field = "exercise_duration_minutes"
+            draft.awaiting_log_offer = False
+            draft.awaiting_confirmation = False
+            _touch_draft(draft)
+            DRAFT_STORE.set(draft_key, draft)
+            return True, _missing_field_prompt("exercise_duration_minutes")
+
+        draft.missing_field = None
+        draft.awaiting_log_offer = False
+        draft.awaiting_confirmation = True
+        _touch_draft(draft)
+        DRAFT_STORE.set(draft_key, draft)
+        logger.info("[%s] Prepared exercise draft for backend calorie estimation (no web search)", request_id)
+        return True, _exercise_calorie_backend_estimate_prompt(draft.payload)
 
     try:
         search_result = str(await asyncio.to_thread(direct_web_search, query) or "").strip()
@@ -1221,6 +1344,8 @@ def _infer_missing_field_from_recent_assistant(
             return "sleep_quality_rating"
         if "meal type" in text:
             return "meal_type"
+        if "what food did you have" in text or "food name" in text:
+            return "meal_description"
         if "calorie" in text or "portion size" in text:
             return "meal_calories_kcal"
         if "type of exercise" in text:
@@ -1256,6 +1381,10 @@ def _parse_field_value_from_follow_up(missing_field: str, query: str) -> dict[st
         value = _extract_meal_type(query)
         return {"meal_type": value} if value is not None else None
 
+    if missing_field == "meal_description":
+        value = _extract_meal_description(query)
+        return {"meal_description": value} if value else None
+
     if missing_field == "meal_calories_kcal":
         value = _extract_calorie_number(query)
         return {"meal_calories_kcal": int(round(value))} if value is not None else None
@@ -1272,9 +1401,14 @@ def _parse_field_value_from_follow_up(missing_field: str, query: str) -> dict[st
 
 
 def _find_recent_partial_payload(conversation_history: List["ChatMessage"], current_query: str) -> dict[str, Any]:
-    """Find most recent user payload fragment to merge with a follow-up answer."""
+    """Merge recent user payload fragments so follow-ups retain prior details.
+
+    Newer messages win for overlapping fields, while older messages can still
+    contribute missing fields (for example keep food name from an earlier turn).
+    """
     current_stripped = current_query.strip()
     skipped_current_user = False
+    merged: dict[str, Any] = {}
 
     for msg in reversed(conversation_history[-10:]):
         if not msg.isUser:
@@ -1289,10 +1423,11 @@ def _find_recent_partial_payload(conversation_history: List["ChatMessage"], curr
             continue
 
         cleaned = {k: v for k, v in prior.items() if k != "missing"}
-        if cleaned:
-            return cleaned
+        for key, value in cleaned.items():
+            if key not in merged:
+                merged[key] = value
 
-    return {}
+    return merged
 
 
 # Checks validity of payload for logging
@@ -1373,7 +1508,10 @@ async def _handle_logging_orchestration(request: ChatRequest, request_id: str) -
     # the active logging draft; user can resume logging after the lookup.
     if (
         has_active_draft
-        and _is_wellness_nutrition_topic(request.query)
+        and (
+            _is_wellness_nutrition_topic(request.query)
+            or (_is_explicit_search_request(request.query) and (_has_meal_context(draft.payload) or _has_exercise_context(draft.payload)))
+        )
         and _looks_like_wellness_web_search_request(request.query)
         and not _is_affirmative(request.query)
         and not _is_negative(request.query)
@@ -1424,6 +1562,11 @@ async def _handle_logging_orchestration(request: ChatRequest, request_id: str) -
     # Confirmation stage takes precedence once already asked.
     if draft.awaiting_confirmation:
         if _is_affirmative(request.query):
+            # Allow confirmation turns like "Yes ... at 7AM today" to set record_date.
+            parsed_record_date = _extract_record_date_from_text(request.query)
+            if parsed_record_date:
+                draft.payload["record_date"] = parsed_record_date
+
             tool_payload = _tool_payload_from_draft_payload(draft.payload)
             validation = _validate_or_missing(tool_payload)
             if not validation or validation.get("missing"):
@@ -1455,6 +1598,19 @@ async def _handle_logging_orchestration(request: ChatRequest, request_id: str) -
             draft.awaiting_confirmation = False
             draft.missing_field = "meal_calories_kcal"
             _touch_draft(draft)
+
+        # If user provides an explicit calorie value, treat it as an override
+        # and continue with normal deterministic logging flow.
+        elif _extract_calorie_number(request.query) is not None:
+            calories_value = int(round(_extract_calorie_number(request.query) or 0))
+            if calories_value > 0:
+                if _has_meal_context(draft.payload):
+                    draft.payload["meal_calories_kcal"] = calories_value
+                    draft.missing_field = None
+                elif _has_exercise_context(draft.payload):
+                    draft.payload["exercise_calories_burned_kcal"] = calories_value
+                draft.awaiting_confirmation = False
+                _touch_draft(draft)
 
         # Treat free text here as an update to the draft and continue.
         else:
@@ -1495,15 +1651,31 @@ async def _handle_logging_orchestration(request: ChatRequest, request_id: str) -
             )
 
     parsed = _parse_wellness_log_request(request.query)
-    parsed = _resolve_logging_follow_up(request.query, request.conversationHistory, parsed)
+    parsed = _resolve_logging_follow_up(request.query, request.recentMessages, parsed)
 
     if parsed is None:
         # Keep draft alive for short follow-up answers.
         return True, _logging_clarification_prompt()
 
+    if parsed.get("missing"):
+        for k, v in parsed.items():
+            if k != "missing":
+                draft.payload[k] = v
+        draft.missing_field = str(parsed["missing"])
+        _touch_draft(draft)
+        return True, _missing_field_prompt(draft.missing_field)
+
     # Merge any new values into draft.
     for k, v in parsed.items():
         if k != "missing":
+            # Do not overwrite an existing specific meal description with a placeholder.
+            if (
+                k == "meal_description"
+                and str(v).strip().lower() == "logged meal"
+                and str(draft.payload.get("meal_description", "")).strip()
+                and str(draft.payload.get("meal_description", "")).strip().lower() != "logged meal"
+            ):
+                continue
             draft.payload[k] = v
 
     validation = _validate_or_missing(draft.payload)
@@ -1520,6 +1692,15 @@ async def _handle_logging_orchestration(request: ChatRequest, request_id: str) -
 
     draft.payload = validation
     draft.missing_field = None
+
+    if (
+        _has_exercise_context(draft.payload)
+        and "exercise_calories_burned_kcal" not in draft.payload
+        and _has_uncertainty_language(request.query)
+    ):
+        draft.awaiting_confirmation = True
+        _touch_draft(draft)
+        return True, _exercise_calorie_backend_estimate_prompt(draft.payload)
 
     if _has_uncertainty_language(request.query):
         draft.awaiting_confirmation = True
@@ -1548,7 +1729,7 @@ def _extract_calorie_number(text: str) -> float | None:
 
 
 # Extract meal description from user input - avoid storing whole prompt
-def _extract_meal_description(query: str) -> str:
+def _extract_meal_description(query: str) -> str | None:
     """Extract a concise food description instead of storing the whole user prompt."""
     text = query.strip()
 
@@ -1568,7 +1749,38 @@ def _extract_meal_description(query: str) -> str:
     text = re.sub(r"^(?:i\s+am\s+not\s+sure|i'm\s+not\s+sure|not\s+sure|maybe|i\s+think)\s*,?\s*", "", text, flags=re.IGNORECASE)
     text = text.strip(" .,!?:;\"'")
 
-    return text[:120] if text else "Logged Meal"
+    # Ignore generic logging intents; they are not food names.
+    generic_intent_patterns = [
+        r"^help\s+me\s+log\s+(?:a\s+)?(?:food|meal)\s+entry$",
+        r"^log\s+(?:a\s+)?(?:food|meal)\s+entry$",
+        r"^(?:food|meal)\s+entry$",
+        r"^log\s+(?:food|meal)$",
+        r"^i\s+want\s+to\s+log\s+(?:a\s+)?(?:food|meal)\s+entry$",
+        r"^i\s+want\s+to\s+log\s+(?:food|meal)$",
+        r"^i\s+want\s+to\s+record\s+(?:a\s+)?(?:food|meal)\s+entry$",
+        r"^i\s+want\s+to\s+record\s+(?:food|meal)$",
+    ]
+    if any(re.match(pattern, text, re.IGNORECASE) for pattern in generic_intent_patterns):
+        return None
+
+    # Calorie-only replies are numeric metadata, not food names.
+    if re.match(r"^\d+(?:\.\d+)?\s*(?:kcal|calories?|cals?)$", text, re.IGNORECASE):
+        return None
+
+    # Avoid saving a plain meal type as the meal description.
+    if text.lower() in {
+        "breakfast",
+        "brunch",
+        "lunch",
+        "dinner",
+        "snack",
+        "dessert",
+        "beverage",
+        "other",
+    }:
+        return None
+
+    return text[:120] if text else None
 
 
 # Parse log request based on corresponding details
@@ -1578,46 +1790,49 @@ def _parse_wellness_log_request(query: str) -> dict[str, Any] | None:
     if any(keyword in lowered for keyword in ["water", "hydration", "drink", "drank"]):
         amount = _extract_water_ml(query)
         if amount is None:
-            return {"missing": "water_intake_ml"}
-        return {"water_intake_ml": int(round(amount))}
+            return _attach_record_date({"missing": "water_intake_ml"}, query)
+        return _attach_record_date({"water_intake_ml": int(round(amount))}, query)
 
     if "weight" in lowered:
         amount = _extract_weight_kg(query)
         if amount is None:
-            return {"missing": "weight_kg"}
-        return {"weight_kg": amount}
+            return _attach_record_date({"missing": "weight_kg"}, query)
+        return _attach_record_date({"weight_kg": amount}, query)
 
     if "mood" in lowered:
         amount = _extract_mood_rating(query)
         if amount is None:
-            return {"missing": "mood_rating"}
-        return {"mood_rating": int(round(amount))}
+            return _attach_record_date({"missing": "mood_rating"}, query)
+        return _attach_record_date({"mood_rating": int(round(amount))}, query)
 
     if any(keyword in lowered for keyword in ["sleep", "slept"]):
         minutes = _extract_sleep_minutes(query)
         quality = _extract_sleep_quality_rating(query)
         if minutes is None and quality is None:
-            return {"missing": "sleep_minutes"}
+            return _attach_record_date({"missing": "sleep_minutes"}, query)
 
         payload: dict[str, Any] = {}
         if minutes is not None:
             payload["sleep_minutes"] = int(round(minutes))
         if quality is not None:
             payload["sleep_quality_rating"] = int(round(quality))
-        return payload
+        return _attach_record_date(payload, query)
 
     if any(keyword in lowered for keyword in ["breakfast", "lunch", "dinner", "snack", "brunch", "meal", "eat", "ate", "food", "had"]):
         calories = _extract_calorie_number(query)
         meal_type = _extract_meal_type(query)
+        meal_description = _extract_meal_description(query)
 
-        payload: dict[str, Any] = {
-            "meal_description": _extract_meal_description(query),
-        }
+        payload: dict[str, Any] = {}
         if meal_type is not None:
             payload["meal_type"] = meal_type
+        if meal_description:
+            payload["meal_description"] = meal_description
         if calories is not None:
             payload["meal_calories_kcal"] = int(round(calories))
-        return payload
+        if not payload:
+            return _attach_record_date({"missing": "meal_type"}, query)
+        return _attach_record_date(payload, query)
 
     exercise_type = _extract_exercise_type(query)
     has_exercise_keyword = any(
@@ -1653,7 +1868,7 @@ def _parse_wellness_log_request(query: str) -> dict[str, Any] | None:
             payload["exercise_duration_minutes"] = int(round(duration))
 
         if not payload:
-            return None
+            return _attach_record_date({"missing": "exercise_type"}, query)
 
         distance_match = re.search(r"(\d+(?:\.\d+)?)\s*km", query, re.IGNORECASE)
         if distance_match:
@@ -1663,7 +1878,7 @@ def _parse_wellness_log_request(query: str) -> dict[str, Any] | None:
         if calories_match:
             payload["exercise_calories_burned_kcal"] = int(round(float(calories_match.group(1))))
 
-        return payload
+        return _attach_record_date(payload, query)
 
     return None
 
@@ -1738,23 +1953,23 @@ async def ask_agent(request: ChatRequest, request_id: str) -> str:
         })
 
     # Recent messages are added in order to preserve natural flow of the conversation
-    for msg in request.conversationHistory:
+    for msg in request.recentMessages:
         role = "user" if msg.isUser else "assistant"
         conversation_messages.append({"role": role, "content": msg.text})
 
     # Avoid duplicating the latest user turn when the client already
-    # includes the freshly sent query in conversationHistory.
+    # includes the freshly sent query in recentMessages.
     if not (
-        request.conversationHistory
-        and request.conversationHistory[-1].isUser
-        and request.conversationHistory[-1].text.strip() == request.query.strip()
+        request.recentMessages
+        and request.recentMessages[-1].isUser
+        and request.recentMessages[-1].text.strip() == request.query.strip()
     ):
         conversation_messages.append({"role": "user", "content": request.query})
 
     logger.info(
         "[%s] Processing chat query. history=%s relevant=%s",
         request_id,
-        len(request.conversationHistory),
+        len(request.recentMessages),
         len(request.relevantPastMessages),
     )
     result = await agent.ainvoke({"messages": conversation_messages})

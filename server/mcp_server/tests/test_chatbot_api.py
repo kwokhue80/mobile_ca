@@ -1,11 +1,11 @@
 import asyncio
 import importlib
 import sys
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-## ----------------------------------------------------------------- ##
 #   AUTHOR(S): Amelia
 #   PURPOSE: Run tests as tasks instead of manually testing
 ## ----------------------------------------------------------------- ##
@@ -85,6 +85,263 @@ def test_logging_complete_payload_saves_without_llm(monkeypatch):
     assert captured["exercise_duration_minutes"] == 30
 
 
+def test_exercise_category_follow_up_prompts_for_type_then_duration(monkeypatch):
+    first = _client().post(
+        "/api/chat",
+        json={
+            "query": "Hello, I want to log an exercise.",
+            "recentMessages": [],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert first.status_code == 200
+    assert "exercise" in first.json()["answer"].lower()
+
+    second = _client().post(
+        "/api/chat",
+        json={
+            "query": "Exercise",
+            "recentMessages": [
+                {"text": "Hello, I want to log an exercise.", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "Exercise", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert second.status_code == 200
+    second_answer = second.json()["answer"].lower()
+    assert "type of exercise" in second_answer
+    assert "could you share the key details" not in second_answer
+
+    third = _client().post(
+        "/api/chat",
+        json={
+            "query": "running",
+            "recentMessages": [
+                {"text": "Hello, I want to log an exercise.", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "Exercise", "isUser": True},
+                {"text": second.json()["answer"], "isUser": False},
+                {"text": "running", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert third.status_code == 200
+    assert "how long was the exercise session" in third.json()["answer"].lower()
+
+
+def test_hydration_log_with_today_time_sets_record_date(monkeypatch):
+    captured = {}
+
+    async def fake_log_wellness_entry(**kwargs):
+        captured.update(kwargs)
+        return {
+            "status": "logged",
+            "categoriesLogged": ["hydration"],
+            "submittedFields": ["record_date", "water_intake_ml"],
+        }
+
+    monkeypatch.setattr(mcp_agent_wellness, "direct_log_wellness_entry", fake_log_wellness_entry)
+
+    response = _client().post(
+        "/api/chat",
+        json={
+            "query": "I drank 500 ml water today at 7am",
+            "conversationHistory": [],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+
+    assert response.status_code == 200
+    assert "logged your hydration entry successfully" in response.json()["answer"].lower()
+    assert captured["water_intake_ml"] == 500
+    expected_date = datetime.now().strftime("%Y-%m-%d")
+    assert captured["record_date"].startswith(f"{expected_date} 07:00:00")
+
+
+def test_meal_missing_field_flow_preserves_record_date(monkeypatch):
+    captured = {}
+
+    async def fake_log_wellness_entry(**kwargs):
+        captured.update(kwargs)
+        return {
+            "status": "logged",
+            "categoriesLogged": ["food"],
+            "submittedFields": ["record_date", "meal_type", "meal_calories_kcal", "meal_description"],
+        }
+
+    monkeypatch.setattr(mcp_agent_wellness, "direct_log_wellness_entry", fake_log_wellness_entry)
+
+    first = _client().post(
+        "/api/chat",
+        json={
+            "query": "I had chicken rice for dinner yesterday at 8:15 PM",
+            "conversationHistory": [],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert first.status_code == 200
+    assert "interested in logging" in first.json()["answer"].lower()
+
+    second = _client().post(
+        "/api/chat",
+        json={
+            "query": "yes",
+            "recentMessages": [
+                {"text": "I had chicken rice for dinner yesterday at 8:15 PM", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "yes", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert second.status_code == 200
+    assert "calorie" in second.json()["answer"].lower()
+
+    third = _client().post(
+        "/api/chat",
+        json={
+            "query": "550 kcal",
+            "recentMessages": [
+                {"text": "I had chicken rice for dinner yesterday at 8:15 PM", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "yes", "isUser": True},
+                {"text": second.json()["answer"], "isUser": False},
+                {"text": "550 kcal", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+
+    assert third.status_code == 200
+    assert "logged your food entry successfully" in third.json()["answer"].lower()
+    assert captured["meal_type"] == "dinner"
+    assert captured["meal_calories_kcal"] == 550
+    expected_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+    assert captured["record_date"].startswith(f"{expected_date} 20:15:00")
+
+
+def test_meal_type_then_requires_food_name_before_calories(monkeypatch):
+    call_count = {"log": 0}
+
+    async def fake_log_wellness_entry(**kwargs):
+        _ = kwargs
+        call_count["log"] += 1
+        return {
+            "status": "logged",
+            "categoriesLogged": ["food"],
+            "submittedFields": ["meal_type", "meal_description", "meal_calories_kcal"],
+        }
+
+    monkeypatch.setattr(mcp_agent_wellness, "direct_log_wellness_entry", fake_log_wellness_entry)
+
+    first = _client().post(
+        "/api/chat",
+        json={
+            "query": "Help me log a food entry",
+            "recentMessages": [],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert first.status_code == 200
+    assert "meal type" in first.json()["answer"].lower()
+
+    second = _client().post(
+        "/api/chat",
+        json={
+            "query": "Breakfast",
+            "recentMessages": [
+                {"text": "Help me log a food entry", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "Breakfast", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert second.status_code == 200
+    second_answer = second.json()["answer"].lower()
+    assert "what food did you have" in second_answer or "food name" in second_answer
+    assert "calorie" not in second_answer
+    assert call_count["log"] == 0
+
+
+def test_food_entry_after_exercise_context_asks_food_name_before_calories(monkeypatch):
+    first = _client().post(
+        "/api/chat",
+        json={
+            "query": "Exercise",
+            "recentMessages": [],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert first.status_code == 200
+
+    second = _client().post(
+        "/api/chat",
+        json={
+            "query": "I want to log a food entry",
+            "recentMessages": [
+                {"text": "Exercise", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "I want to log a food entry", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert second.status_code == 200
+    assert "meal type" in second.json()["answer"].lower()
+
+    third = _client().post(
+        "/api/chat",
+        json={
+            "query": "Lunch",
+            "recentMessages": [
+                {"text": "Exercise", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "I want to log a food entry", "isUser": True},
+                {"text": second.json()["answer"], "isUser": False},
+                {"text": "Lunch", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert third.status_code == 200
+    third_answer = third.json()["answer"].lower()
+    assert "what food did you have" in third_answer or "food name" in third_answer
+    assert "calorie" not in third_answer
+
+
+def test_food_entry_intent_first_turn_prompts_meal_type_not_generic_details():
+    response = _client().post(
+        "/api/chat",
+        json={
+            "query": "I want to log a food entry.",
+            "recentMessages": [],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+
+    assert response.status_code == 200
+    answer = response.json()["answer"].lower()
+    assert "what meal type" in answer
+    assert "could you share the key details" not in answer
+
+
 def test_logging_multi_turn_follow_up_merges_missing_fields(monkeypatch):
     captured = {}
 
@@ -123,6 +380,53 @@ def test_logging_multi_turn_follow_up_merges_missing_fields(monkeypatch):
     assert captured["exercise_duration_minutes"] == 25
 
 
+def test_exercise_uncertain_calories_uses_backend_estimation_message_and_logs(monkeypatch):
+    captured = {}
+
+    async def fake_log_wellness_entry(**kwargs):
+        captured.update(kwargs)
+        return {
+            "status": "logged",
+            "categoriesLogged": ["exercise"],
+            "submittedFields": ["exercise_type", "exercise_duration_minutes"],
+        }
+
+    monkeypatch.setattr(mcp_agent_wellness, "direct_log_wellness_entry", fake_log_wellness_entry)
+
+    first = _client().post(
+        "/api/chat",
+        json={
+            "query": "I ran for 30 minutes and I don't know calories burned",
+            "recentMessages": [],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert first.status_code == 200
+    first_answer = first.json()["answer"].lower()
+    assert "estimate calories burned" in first_answer
+    assert "would you like me to proceed" in first_answer
+
+    second = _client().post(
+        "/api/chat",
+        json={
+            "query": "yes",
+            "recentMessages": [
+                {"text": "I ran for 30 minutes and I don't know calories burned", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "yes", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert second.status_code == 200
+    assert "logged your exercise entry successfully" in second.json()["answer"].lower()
+    assert captured["exercise_type"] == "running"
+    assert captured["exercise_duration_minutes"] == 30
+    assert "exercise_calories_burned_kcal" not in captured
+
+
 def test_exercise_calorie_question_estimates_first_then_logs_on_confirmation(monkeypatch):
     captured = {}
     call_count = {"log": 0}
@@ -136,15 +440,10 @@ def test_exercise_calorie_question_estimates_first_then_logs_on_confirmation(mon
             "submittedFields": [
                 "exercise_type",
                 "exercise_duration_minutes",
-                "exercise_calories_burned_kcal",
             ],
         }
 
-    def fake_web_search(_query: str):
-        return "Running for 30 minutes typically burns around 280 kcal for many adults."
-
     monkeypatch.setattr(mcp_agent_wellness, "direct_log_wellness_entry", fake_log_wellness_entry)
-    monkeypatch.setattr(mcp_agent_wellness, "direct_web_search", fake_web_search)
 
     first_turn = {
         "query": "How many calories did I burn when I ran 30 minutes today?",
@@ -154,8 +453,8 @@ def test_exercise_calorie_question_estimates_first_then_logs_on_confirmation(mon
     first = _client().post("/api/chat", json=first_turn, headers=_auth_headers())
     assert first.status_code == 200
     first_answer = first.json()["answer"].lower()
-    assert "estimated calorie burn" in first_answer
-    assert "would you like me to log this exercise now" in first_answer
+    assert "estimate calories burned" in first_answer
+    assert "would you like me to proceed" in first_answer
     assert call_count["log"] == 0
 
     second_turn = {
@@ -173,7 +472,103 @@ def test_exercise_calorie_question_estimates_first_then_logs_on_confirmation(mon
     assert call_count["log"] == 1
     assert captured["exercise_type"] == "running"
     assert captured["exercise_duration_minutes"] == 30
-    assert captured["exercise_calories_burned_kcal"] == 280
+    assert "exercise_calories_burned_kcal" not in captured
+
+
+def test_exercise_confirmation_with_today_time_sets_record_date(monkeypatch):
+    captured = {}
+
+    async def fake_log_wellness_entry(**kwargs):
+        captured.update(kwargs)
+        return {
+            "status": "logged",
+            "categoriesLogged": ["exercise"],
+            "submittedFields": [
+                "record_date",
+                "exercise_type",
+                "exercise_duration_minutes",
+            ],
+        }
+
+    monkeypatch.setattr(mcp_agent_wellness, "direct_log_wellness_entry", fake_log_wellness_entry)
+
+    first = _client().post(
+        "/api/chat",
+        json={
+            "query": "How many calories did I burn when I ran 30 minutes today?",
+            "conversationHistory": [],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert first.status_code == 200
+
+    second = _client().post(
+        "/api/chat",
+        json={
+            "query": "Yes, I ran in the morning at 7AM today",
+            "conversationHistory": [
+                {"text": "How many calories did I burn when I ran 30 minutes today?", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "Yes, I ran in the morning at 7AM today", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert second.status_code == 200
+    assert "logged your exercise entry successfully" in second.json()["answer"].lower()
+
+    expected_date = datetime.now().strftime("%Y-%m-%d")
+    assert captured["record_date"].startswith(f"{expected_date} 07:00:00")
+
+
+def test_exercise_confirmation_with_yesterday_time_sets_record_date(monkeypatch):
+    captured = {}
+
+    async def fake_log_wellness_entry(**kwargs):
+        captured.update(kwargs)
+        return {
+            "status": "logged",
+            "categoriesLogged": ["exercise"],
+            "submittedFields": [
+                "record_date",
+                "exercise_type",
+                "exercise_duration_minutes",
+            ],
+        }
+
+    monkeypatch.setattr(mcp_agent_wellness, "direct_log_wellness_entry", fake_log_wellness_entry)
+
+    first = _client().post(
+        "/api/chat",
+        json={
+            "query": "How many calories did I burn when I ran 30 minutes?",
+            "conversationHistory": [],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert first.status_code == 200
+
+    second = _client().post(
+        "/api/chat",
+        json={
+            "query": "Yes, I ran yesterday at 6:30 PM",
+            "conversationHistory": [
+                {"text": "How many calories did I burn when I ran 30 minutes?", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "Yes, I ran yesterday at 6:30 PM", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert second.status_code == 200
+    assert "logged your exercise entry successfully" in second.json()["answer"].lower()
+
+    expected_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+    assert captured["record_date"].startswith(f"{expected_date} 18:30:00")
 
 
 def test_exercise_calorie_estimate_not_now_does_not_log(monkeypatch):
@@ -188,15 +583,10 @@ def test_exercise_calorie_estimate_not_now_does_not_log(monkeypatch):
             "submittedFields": [
                 "exercise_type",
                 "exercise_duration_minutes",
-                "exercise_calories_burned_kcal",
             ],
         }
 
-    def fake_web_search(_query: str):
-        return "Running for 30 minutes typically burns around 280 kcal for many adults."
-
     monkeypatch.setattr(mcp_agent_wellness, "direct_log_wellness_entry", fake_log_wellness_entry)
-    monkeypatch.setattr(mcp_agent_wellness, "direct_web_search", fake_web_search)
 
     first = _client().post(
         "/api/chat",
@@ -208,7 +598,7 @@ def test_exercise_calorie_estimate_not_now_does_not_log(monkeypatch):
         headers=_auth_headers(),
     )
     assert first.status_code == 200
-    assert "would you like me to log this exercise now" in first.json()["answer"].lower()
+    assert "would you like me to proceed" in first.json()["answer"].lower()
 
     second = _client().post(
         "/api/chat",
@@ -371,15 +761,10 @@ def test_exercise_calorie_question_without_question_mark_still_estimates_first(m
             "submittedFields": [
                 "exercise_type",
                 "exercise_duration_minutes",
-                "exercise_calories_burned_kcal",
             ],
         }
 
-    def fake_web_search(_query: str):
-        return "Running for 30 minutes commonly burns around 300 kcal."
-
     monkeypatch.setattr(mcp_agent_wellness, "direct_log_wellness_entry", fake_log_wellness_entry)
-    monkeypatch.setattr(mcp_agent_wellness, "direct_web_search", fake_web_search)
 
     first = _client().post(
         "/api/chat",
@@ -392,8 +777,8 @@ def test_exercise_calorie_question_without_question_mark_still_estimates_first(m
     )
     assert first.status_code == 200
     first_answer = first.json()["answer"].lower()
-    assert "estimated calorie burn" in first_answer
-    assert "would you like me to log this exercise now" in first_answer
+    assert "estimate calories burned" in first_answer
+    assert "would you like me to proceed" in first_answer
     assert call_count["log"] == 0
 
     second = _client().post(
@@ -414,15 +799,10 @@ def test_exercise_calorie_question_without_question_mark_still_estimates_first(m
     assert call_count["log"] == 1
     assert captured["exercise_type"] == "running"
     assert captured["exercise_duration_minutes"] == 30
-    assert captured["exercise_calories_burned_kcal"] == 300
+    assert "exercise_calories_burned_kcal" not in captured
 
 
 def test_exercise_calorie_question_uses_exercise_wording_not_meal(monkeypatch):
-    def fake_web_search(_query: str):
-        return "Running for 30 minutes typically burns around 260 kcal."
-
-    monkeypatch.setattr(mcp_agent_wellness, "direct_web_search", fake_web_search)
-
     response = _client().post(
         "/api/chat",
         json={
@@ -434,7 +814,7 @@ def test_exercise_calorie_question_uses_exercise_wording_not_meal(monkeypatch):
     )
     assert response.status_code == 200
     answer = response.json()["answer"].lower()
-    assert "log this exercise now" in answer
+    assert "would you like me to proceed" in answer
     assert "log this meal now" not in answer
 
 
@@ -771,6 +1151,85 @@ def test_meal_unknown_calories_triggers_web_estimate_then_confirms(monkeypatch):
     assert captured["meal_calories_kcal"] == 550
 
 
+def test_meal_type_follow_up_does_not_replace_food_name(monkeypatch):
+    captured = {}
+
+    async def fake_log_wellness_entry(**kwargs):
+        captured.update(kwargs)
+        return {
+            "status": "logged",
+            "categoriesLogged": ["food"],
+            "submittedFields": ["meal_type", "meal_calories_kcal", "meal_description"],
+        }
+
+    monkeypatch.setattr(mcp_agent_wellness, "direct_log_wellness_entry", fake_log_wellness_entry)
+
+    first = _client().post(
+        "/api/chat",
+        json={"query": "I had chicken alfredo", "conversationHistory": [], "relevantPastMessages": []},
+        headers=_auth_headers(),
+    )
+    assert first.status_code == 200
+    assert "interested in logging" in first.json()["answer"].lower()
+
+    second = _client().post(
+        "/api/chat",
+        json={
+            "query": "yes",
+            "recentMessages": [
+                {"text": "I had chicken alfredo", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "yes", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert second.status_code == 200
+    assert "meal type" in second.json()["answer"].lower()
+
+    third = _client().post(
+        "/api/chat",
+        json={
+            "query": "Lunch",
+            "recentMessages": [
+                {"text": "I had chicken alfredo", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "yes", "isUser": True},
+                {"text": second.json()["answer"], "isUser": False},
+                {"text": "Lunch", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert third.status_code == 200
+    assert "calorie" in third.json()["answer"].lower()
+
+    fourth = _client().post(
+        "/api/chat",
+        json={
+            "query": "650 kcal",
+            "recentMessages": [
+                {"text": "I had chicken alfredo", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "yes", "isUser": True},
+                {"text": second.json()["answer"], "isUser": False},
+                {"text": "Lunch", "isUser": True},
+                {"text": third.json()["answer"], "isUser": False},
+                {"text": "650 kcal", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert fourth.status_code == 200
+    assert "logged your food entry successfully" in fourth.json()["answer"].lower()
+    assert captured["meal_type"] == "lunch"
+    assert captured["meal_calories_kcal"] == 650
+    assert captured["meal_description"].lower() == "chicken alfredo"
+
+
 def test_meal_portion_size_reply_triggers_web_estimate(monkeypatch):
     captured = {}
 
@@ -851,6 +1310,184 @@ def test_meal_portion_size_reply_triggers_web_estimate(monkeypatch):
     assert fourth.status_code == 200
     assert "logged your food entry successfully" in fourth.json()["answer"].lower()
     assert captured["meal_calories_kcal"] == 600
+
+
+def test_meal_type_reply_does_not_become_meal_description(monkeypatch):
+    captured = {}
+
+    async def fake_log_wellness_entry(**kwargs):
+        captured.update(kwargs)
+        return {
+            "status": "logged",
+            "categoriesLogged": ["food"],
+            "submittedFields": ["meal_type", "meal_calories_kcal", "meal_description"],
+        }
+
+    def fake_web_search(_query: str):
+        return "Typical lunch plate around 280 to 310 kcal for 350 grams."
+
+    monkeypatch.setattr(mcp_agent_wellness, "direct_log_wellness_entry", fake_log_wellness_entry)
+    monkeypatch.setattr(mcp_agent_wellness, "direct_web_search", fake_web_search)
+
+    first = _client().post(
+        "/api/chat",
+        json={"query": "I had a meal", "conversationHistory": [], "relevantPastMessages": []},
+        headers=_auth_headers(),
+    )
+    assert first.status_code == 200
+    assert "interested in logging" in first.json()["answer"].lower()
+
+    second = _client().post(
+        "/api/chat",
+        json={
+            "query": "yes",
+            "conversationHistory": [
+                {"text": "I had a meal", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "yes", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert second.status_code == 200
+    assert "meal type" in second.json()["answer"].lower()
+
+    third = _client().post(
+        "/api/chat",
+        json={
+            "query": "Lunch",
+            "conversationHistory": [
+                {"text": "I had a meal", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "yes", "isUser": True},
+                {"text": second.json()["answer"], "isUser": False},
+                {"text": "Lunch", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert third.status_code == 200
+    assert "calorie" in third.json()["answer"].lower()
+
+    fourth = _client().post(
+        "/api/chat",
+        json={
+            "query": "I don't know, portion size was about 350 grams",
+            "conversationHistory": [
+                {"text": "I had a meal", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "yes", "isUser": True},
+                {"text": second.json()["answer"], "isUser": False},
+                {"text": "Lunch", "isUser": True},
+                {"text": third.json()["answer"], "isUser": False},
+                {"text": "I don't know, portion size was about 350 grams", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert fourth.status_code == 200
+    assert "would you like me to log this estimate now" in fourth.json()["answer"].lower()
+
+    fifth = _client().post(
+        "/api/chat",
+        json={
+            "query": "Yes",
+            "conversationHistory": [
+                {"text": "I had a meal", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "yes", "isUser": True},
+                {"text": second.json()["answer"], "isUser": False},
+                {"text": "Lunch", "isUser": True},
+                {"text": third.json()["answer"], "isUser": False},
+                {"text": "I don't know, portion size was about 350 grams", "isUser": True},
+                {"text": fourth.json()["answer"], "isUser": False},
+                {"text": "Yes", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert fifth.status_code == 200
+    assert "logged your food entry successfully" in fifth.json()["answer"].lower()
+    assert captured["meal_type"] == "lunch"
+    assert captured["meal_description"].lower() != "lunch"
+
+
+def test_meal_calorie_prompt_accepts_grams_phrase_without_portion_keywords(monkeypatch):
+    def fake_web_search(_query: str):
+        return "Pancakes are often around 220 to 260 kcal per 100 grams depending on recipe and toppings."
+
+    monkeypatch.setattr(mcp_agent_wellness, "direct_web_search", fake_web_search)
+
+    first = _client().post(
+        "/api/chat",
+        json={
+            "query": "Help me log a food entry",
+            "recentMessages": [],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert first.status_code == 200
+
+    second = _client().post(
+        "/api/chat",
+        json={
+            "query": "Breakfast",
+            "recentMessages": [
+                {"text": "Help me log a food entry", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "Breakfast", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert second.status_code == 200
+    assert "what food did you have" in second.json()["answer"].lower()
+
+    third = _client().post(
+        "/api/chat",
+        json={
+            "query": "Pancakes",
+            "recentMessages": [
+                {"text": "Help me log a food entry", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "Breakfast", "isUser": True},
+                {"text": second.json()["answer"], "isUser": False},
+                {"text": "Pancakes", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert third.status_code == 200
+    assert "calorie" in third.json()["answer"].lower()
+
+    fourth = _client().post(
+        "/api/chat",
+        json={
+            "query": "About 300 grams of pancakes",
+            "recentMessages": [
+                {"text": "Help me log a food entry", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "Breakfast", "isUser": True},
+                {"text": second.json()["answer"], "isUser": False},
+                {"text": "Pancakes", "isUser": True},
+                {"text": third.json()["answer"], "isUser": False},
+                {"text": "About 300 grams of pancakes", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert fourth.status_code == 200
+    fourth_answer = fourth.json()["answer"].lower()
+    assert "would you like me to log this estimate now" in fourth_answer
+    assert "could you share the key details" not in fourth_answer
 
 
 def test_meal_calorie_lookup_query_uses_web_search_and_asks_to_log(monkeypatch):
@@ -969,7 +1606,7 @@ def test_active_meal_draft_pauses_for_wellness_lookup_and_resumes(monkeypatch):
         "/api/chat",
         json={
             "query": "yes",
-            "conversationHistory": [
+            "recentMessages": [
                 {"text": "i had salmon for dinner", "isUser": True},
                 {"text": first.json()["answer"], "isUser": False},
                 {"text": "yes", "isUser": True},
@@ -985,7 +1622,7 @@ def test_active_meal_draft_pauses_for_wellness_lookup_and_resumes(monkeypatch):
         "/api/chat",
         json={
             "query": "what are the nutrition facts of salmon?",
-            "conversationHistory": [
+            "recentMessages": [
                 {"text": "i had salmon for dinner", "isUser": True},
                 {"text": first.json()["answer"], "isUser": False},
                 {"text": "yes", "isUser": True},
@@ -1003,7 +1640,7 @@ def test_active_meal_draft_pauses_for_wellness_lookup_and_resumes(monkeypatch):
         "/api/chat",
         json={
             "query": "500 kcal",
-            "conversationHistory": [
+            "recentMessages": [
                 {"text": "i had salmon for dinner", "isUser": True},
                 {"text": first.json()["answer"], "isUser": False},
                 {"text": "yes", "isUser": True},
@@ -1020,6 +1657,115 @@ def test_active_meal_draft_pauses_for_wellness_lookup_and_resumes(monkeypatch):
     assert "logged your food entry successfully" in fourth.json()["answer"].lower()
     assert captured["meal_type"] == "dinner"
     assert captured["meal_calories_kcal"] == 500
+
+
+def test_active_meal_confirmation_allows_explicit_search_and_resumes(monkeypatch):
+    captured = {}
+
+    async def fake_log_wellness_entry(**kwargs):
+        captured.update(kwargs)
+        return {
+            "status": "logged",
+            "categoriesLogged": ["food"],
+            "submittedFields": ["meal_type", "meal_calories_kcal", "meal_description"],
+        }
+
+    def fake_web_search(query: str):
+        lowered = query.lower()
+        if "singapore chicken rice" in lowered:
+            return "Singapore chicken rice is often around 450 to 550 calories per serving."
+        return "Chicken rice is commonly around 500 to 600 calories per serving."
+
+    monkeypatch.setattr(mcp_agent_wellness, "direct_log_wellness_entry", fake_log_wellness_entry)
+    monkeypatch.setattr(mcp_agent_wellness, "direct_web_search", fake_web_search)
+
+    first = _client().post(
+        "/api/chat",
+        json={"query": "I had chicken rice for lunch", "conversationHistory": [], "relevantPastMessages": []},
+        headers=_auth_headers(),
+    )
+    assert first.status_code == 200
+    assert "interested in logging" in first.json()["answer"].lower()
+
+    second = _client().post(
+        "/api/chat",
+        json={
+            "query": "yes",
+            "conversationHistory": [
+                {"text": "I had chicken rice for lunch", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "yes", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert second.status_code == 200
+    assert "calorie" in second.json()["answer"].lower()
+
+    third = _client().post(
+        "/api/chat",
+        json={
+            "query": "I don't know, portion size was about 350 grams",
+            "conversationHistory": [
+                {"text": "I had chicken rice for lunch", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "yes", "isUser": True},
+                {"text": second.json()["answer"], "isUser": False},
+                {"text": "I don't know, portion size was about 350 grams", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert third.status_code == 200
+    assert "would you like me to log this estimate now" in third.json()["answer"].lower()
+
+    fourth = _client().post(
+        "/api/chat",
+        json={
+            "query": "Search for Singapore chicken rice",
+            "conversationHistory": [
+                {"text": "I had chicken rice for lunch", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "yes", "isUser": True},
+                {"text": second.json()["answer"], "isUser": False},
+                {"text": "I don't know, portion size was about 350 grams", "isUser": True},
+                {"text": third.json()["answer"], "isUser": False},
+                {"text": "Search for Singapore chicken rice", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert fourth.status_code == 200
+    fourth_answer = fourth.json()["answer"].lower()
+    assert "web search" in fourth_answer
+    assert "singapore chicken rice" in fourth_answer
+    assert "could you share the key details" not in fourth_answer
+
+    fifth = _client().post(
+        "/api/chat",
+        json={
+            "query": "yes",
+            "conversationHistory": [
+                {"text": "I had chicken rice for lunch", "isUser": True},
+                {"text": first.json()["answer"], "isUser": False},
+                {"text": "yes", "isUser": True},
+                {"text": second.json()["answer"], "isUser": False},
+                {"text": "I don't know, portion size was about 350 grams", "isUser": True},
+                {"text": third.json()["answer"], "isUser": False},
+                {"text": "Search for Singapore chicken rice", "isUser": True},
+                {"text": fourth.json()["answer"], "isUser": False},
+                {"text": "yes", "isUser": True},
+            ],
+            "relevantPastMessages": [],
+        },
+        headers=_auth_headers(),
+    )
+    assert fifth.status_code == 200
+    assert "logged your food entry successfully" in fifth.json()["answer"].lower()
+    assert captured["meal_type"] == "lunch"
 
 
 def test_calorie_web_search_confirmation_logs_meal(monkeypatch):
@@ -1167,14 +1913,10 @@ def test_active_meal_draft_then_exercise_calorie_query_stays_exercise_context(mo
             "submittedFields": [
                 "exercise_type",
                 "exercise_duration_minutes",
-                "exercise_calories_burned_kcal",
             ],
         }
 
     def fake_web_search(query: str):
-        lowered = query.lower()
-        if "ran" in lowered or "run" in lowered:
-            return "Running for 30 minutes commonly burns around 406 kcal."
         return "General wellness guidance about hydration and sleep."
 
     monkeypatch.setattr(mcp_agent_wellness, "direct_log_wellness_entry", fake_log_wellness_entry)
@@ -1225,8 +1967,8 @@ def test_active_meal_draft_then_exercise_calorie_query_stays_exercise_context(mo
     )
     assert third.status_code == 200
     third_answer = third.json()["answer"].lower()
-    assert "estimated calorie burn" in third_answer
-    assert "log this exercise now" in third_answer
+    assert "estimate calories burned" in third_answer
+    assert "would you like me to proceed" in third_answer
     assert "meal type" not in third_answer
     assert call_count["log"] == 0
 
@@ -1252,5 +1994,5 @@ def test_active_meal_draft_then_exercise_calorie_query_stays_exercise_context(mo
     assert call_count["log"] == 1
     assert captured["exercise_type"] == "running"
     assert captured["exercise_duration_minutes"] == 30
-    assert captured["exercise_calories_burned_kcal"] == 406
+    assert "exercise_calories_burned_kcal" not in captured
     assert "meal_type" not in captured

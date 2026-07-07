@@ -9,12 +9,12 @@ class BackendRepository(
 ) {
     suspend fun answer(
         query: String,
-        conversationHistory: List<ChatMessage>,
+        recentMessages: List<ChatMessage>,
         relevantPastMessages: List<ChatMessage>
     ): String {
         return try {
             // Payload shape must match FastAPI ChatRequest in mcp_agent_wellness.py
-            val request = ChatRequest(query, conversationHistory, relevantPastMessages)
+            val request = ChatRequest(query, recentMessages, relevantPastMessages)
             val response = backendApi.sendQuery(request)
             response.answer
         } catch (error: HttpException) {

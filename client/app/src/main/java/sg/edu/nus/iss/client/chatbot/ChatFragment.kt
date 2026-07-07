@@ -43,7 +43,7 @@ class ChatFragment : Fragment() {
         layoutManager.stackFromEnd = true
         binding.recyclerViewChat.layoutManager = layoutManager
 
-        // redraws any messages already in the notebook previously
+        // redraws any messages already in the chat window previously
         adapter.notifyDataSetChanged()
         if (viewModel.messages.isNotEmpty()) {
             binding.recyclerViewChat.scrollToPosition(viewModel.messages.size - 1)
