@@ -84,7 +84,7 @@ class LoginFragment : Fragment() {
                             sessionManager.saveEncryptedAuthToken(state.token, null)
 
                             // If the user previously enabled biometrics, prompt them
-                            // to secure this brand NEW token with their fingerprint right now.
+                            // to secure this brand-NEW token with their fingerprint right now.
                             if (sessionManager.isBiometricEnabled()) {
                                 promptToSecureNewToken()
                             } else {
@@ -172,7 +172,7 @@ class LoginFragment : Fragment() {
                         navigateToMainActivity()
                     },
                     onError = {
-                        // If they cancel the prompt, let them in anyway using the standard token
+                        // If they cancel the prompt, let them in any way using the standard token
                         Toast.makeText(requireContext(), "Login successful", Toast.LENGTH_SHORT).show()
                         viewModel.resetState()
                         navigateToMainActivity()

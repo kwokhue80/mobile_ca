@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">client</string>
+    <string name="app_name">Nova Health</string>
     <string name="base_url">http://10.0.2.2:8000/</string>
     <string name="credential_emailAddress">Email Address</string>
     <string name="credential_password">Password</string>
