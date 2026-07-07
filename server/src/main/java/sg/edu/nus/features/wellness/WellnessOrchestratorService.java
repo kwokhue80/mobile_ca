@@ -310,7 +310,7 @@ public class WellnessOrchestratorService {
     // ---------------------- RECOMMENDATION LOGIC ---------------------- //
     public RecommendationResponse getLatestRecommendation(UUID userId) {
         Map<GoalType, BigDecimal> goalTargets = new HashMap<>();
-        for (UserGoal goal : userGoalRepo.findByIdUserId(userId)) {
+        for (UserGoal goal : userGoalRepo.findByUserId(userId)) {
             goalTargets.put(goal.getId().getGoalType(), goal.getTargetValue());
         }
 
