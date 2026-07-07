@@ -7,7 +7,6 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
-import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
 
 interface AuthApiService {
 
@@ -38,10 +37,15 @@ interface AuthApiService {
     @POST("api/wellness/reset-today")
     suspend fun resetToday(): Response<Void>
 
-    @GET("api/dashboard/daily")
-    suspend fun getDailyDashboard(
-        @Query("date") date: String     // Format: "yyyy-MM-dd"
-    ): Response<DashboardDailyResponse>
+    // Fetch today's aggregated wellness summary (server-computed "today", Asia/Singapore).
+    // Populates the dashboard's Distance/Calories/Sleep/Hydration/Weight/Mental Health cards.
+    @GET("api/wellness/daily-summary")
+    suspend fun getDailyWellnessSummary(): Response<DailyWellnessSummary>
+
+    // Fetch the last 7 days of logged exercise sessions. Populates the Home
+    // "Activity Tracked" list and the History screen.
+    @GET("api/wellness/weekly-exercise")
+    suspend fun getWeeklyExercise(): Response<List<ExerciseLogResponse>>
 
     @GET("api/wellness/recommendations/latest")
     suspend fun getLatestRecommendation(): Response<RecommendationResponse>
@@ -73,12 +77,6 @@ interface AuthApiService {
         @Query("startDate") startDate: String,  // Format: "yyyy-MM-dd"
         @Query("endDate") endDate: String       // Format: "yyyy-MM-dd"
     ): Response<List<DailyWellnessSummary>>
-
-    // Fetch structured exercise sessions (duration/distance/calories/start-end time)
-    @GET("api/wellness/exercise-logs")
-    suspend fun getExerciseLogs(
-        @Query("days") days: Int = 30
-    ): Response<List<ExerciseLogResponse>>
 }
 
 data class LogoutResponse(val token: String?)
@@ -132,11 +130,6 @@ data class UserGoalResponse(
 )
 
 data class UserGoalUpsertRequest(val targetValue: Double)
-
-data class DashboardDailyResponse(
-    val dailyWellnessSummary: DailyWellnessSummary,
-    val activityRecords: List<ActivityRecord>
-)
 
 data class DailyWellnessSummary(
     val id: Long? = null,

@@ -12,15 +12,14 @@ import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
 import sg.edu.nus.iss.client.network.DailyWellnessSummary
 import sg.edu.nus.iss.client.network.ExerciseLogResponse
 import sg.edu.nus.iss.client.network.RetrofitClient
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 /** Shared source of "today's" wellness data for the dashboard cards, the Home
  *  "Activity Tracked" list, and the History screen. Backed by
- *  `/api/dashboard/daily` (today's summary) and `/api/wellness/exercise-logs`
- *  (structured exercise sessions), refreshed after every Add-sheet / Add-Activity
- *  save via [refreshToday]. */
+ *  `/api/wellness/daily-summary` (today's summary, server-computed "today") and
+ *  `/api/wellness/weekly-exercise` (last 7 days of exercise sessions), refreshed
+ *  after every Add-sheet / Add-Activity save via [refreshToday]. */
 class DashboardViewModel(application: Application) : AndroidViewModel(application) {
 
     private val apiService = RetrofitClient.getApiService(application)
@@ -39,17 +38,16 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     fun refreshToday() {
         viewModelScope.launch {
             try {
-                val today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
-                val response = apiService.getDailyDashboard(today)
+                val response = apiService.getDailyWellnessSummary()
                 if (response.isSuccessful) {
-                    _todaySummary.value = response.body()?.dailyWellnessSummary
+                    _todaySummary.value = response.body()
                 }
             } catch (e: Exception) {
                 // Keep the previous summary if the refresh fails (e.g. offline).
             }
 
             try {
-                val logsResponse = apiService.getExerciseLogs()
+                val logsResponse = apiService.getWeeklyExercise()
                 val logs = logsResponse.body()
                 if (logsResponse.isSuccessful && logs != null) {
                     _activityRecords.value = logs.map(::toActivityRecord)

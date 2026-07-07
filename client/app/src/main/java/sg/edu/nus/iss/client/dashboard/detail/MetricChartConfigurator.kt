@@ -17,7 +17,9 @@ object MetricChartConfigurator {
 
     private const val AXIS_TEXT_COLOR = "#7A7A7A"
     private const val SPARSE_LABEL_THRESHOLD = 12
-    private const val TARGET_SPARSE_LABEL_COUNT = 6
+    // Evenly-spaced indices + the forced last index -> 5 labels for the Day view's
+    // 24 hourly bars (e.g. 12AM/6AM/12PM/6PM/11PM).
+    private const val TARGET_SPARSE_LABEL_COUNT = 4
     private const val CHART_EXTRA_BOTTOM_OFFSET_DP = 20f
 
     fun configure(
