@@ -47,11 +47,11 @@ interface AuthApiService {
     suspend fun getLatestRecommendation(): Response<RecommendationResponse>
 
     // Fetch current user's profile (name/DOB/gender/height); fields are null until first saved
-    @GET("api/user-profile")
+    @GET("api/user/profile")
     suspend fun getUserProfile(): Response<UserProfileResponse>
 
     // Create or update the current user's profile
-    @PUT("api/user-profile")
+    @PUT("api/user/profile")
     suspend fun updateUserProfile(
         @Body request: UserProfileUpdateRequest
     ): Response<UserProfileResponse>

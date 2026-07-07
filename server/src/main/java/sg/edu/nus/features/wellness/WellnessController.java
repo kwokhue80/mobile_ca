@@ -1,24 +1,26 @@
 package sg.edu.nus.features.wellness;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import sg.edu.nus.features.user.account.User;
-import sg.edu.nus.features.user.account.UserService;
+import sg.edu.nus.security.UserPrincipal;
 import sg.edu.nus.features.wellness.dto.WellnessRecordPayload;
 import sg.edu.nus.features.wellness.dto.ActivityRecordDto;
 import sg.edu.nus.features.wellness.dto.ExerciseLogResponse;
+import sg.edu.nus.features.wellness.model.DailyWellnessSummary;
+import sg.edu.nus.features.wellness.model.ExerciseLog;
 import sg.edu.nus.features.wellness.dto.RecommendationResponse;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
 @RestController
@@ -27,40 +29,38 @@ import sg.edu.nus.features.wellness.dto.RecommendationResponse;
 public class WellnessController {
 
     private final WellnessOrchestratorService orchestratorService;
-    private final WellnessRecommendationService wellnessRecommendationService;
-    private final UserService userService;
 
     @PostMapping("/records")
     public ResponseEntity<Void> saveRecord(
-            @RequestBody WellnessRecordPayload payload,
-            Authentication authentication) {
-        User currentUser = findAuthenticatedUser(authentication);
-
-        log.info("Received wellness record payload from user email: {}", currentUser.getEmailAddress());
+        @RequestBody WellnessRecordPayload payload,
+        @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        log.info("Received wellness record payload from user email: {}", userPrincipal.getUsername());
         log.info("Payload recordDate: {}", payload.getRecordDate());
 
-        orchestratorService.processMonolithicRecord(currentUser, payload);
-
-        log.info("Successfully processed wellness record for user ID: {}", currentUser.getId());
-
+        orchestratorService.processMonolithicRecord(userPrincipal.getId(), payload);
+        log.info("Successfully processed wellness record for user ID: {}", userPrincipal.getId());
         return ResponseEntity.ok().build();
     }
-    
-    @GetMapping("/activity")
-    public ResponseEntity<List<ActivityRecordDto>> getActivityHistory(
-            @RequestParam(defaultValue = "7") int days,
-            Authentication authentication) {
-        User currentUser = findAuthenticatedUser(authentication);
-        List<ActivityRecordDto> history = orchestratorService.getActivityHistory(currentUser, days);
+
+    @GetMapping("/daily-summary")
+    public ResponseEntity<DailyWellnessSummary> getDailyWellnessSummary(
+        @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        DailyWellnessSummary summary = orchestratorService.getDailyWellnessSummary(userPrincipal.getId());
+        return ResponseEntity.ok(summary);
+    }
+
+    @GetMapping("/weekly-exercise")
+    public ResponseEntity<List<ExerciseLog>> getWeeklyExercise(
+        @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<ExerciseLog> history = orchestratorService.getWeeklyExercise(userPrincipal.getId());
         return ResponseEntity.ok(history);
     }
 
     @GetMapping("/exercise-logs")
     public ResponseEntity<List<ExerciseLogResponse>> getExerciseLogs(
             @RequestParam(defaultValue = "30") int days,
-            Authentication authentication) {
-        User currentUser = findAuthenticatedUser(authentication);
-        List<ExerciseLogResponse> logs = orchestratorService.getExerciseLogs(currentUser, days);
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<ExerciseLogResponse> logs = orchestratorService.getExerciseLogs(userPrincipal.getId(), days);
         return ResponseEntity.ok(logs);
     }
 
@@ -68,25 +68,24 @@ public class WellnessController {
     // (sleep/hydration/weight/mood/exercise + the aggregated daily summary), leaving
     // goals and profile untouched. Called by the client on every login.
     @PostMapping("/reset-today")
-    public ResponseEntity<Void> resetToday(Authentication authentication) {
-        User currentUser = findAuthenticatedUser(authentication);
-        orchestratorService.resetToday(currentUser);
+    public ResponseEntity<Void> resetToday(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        orchestratorService.resetToday(userPrincipal.getId());
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/recommendations/latest")
-    public ResponseEntity<RecommendationResponse> getLatestRecommendation(Authentication authentication) {
-        User currentUser = findAuthenticatedUser(authentication);
-
-        RecommendationResponse recommendation = wellnessRecommendationService.getLatestRecommendation(currentUser);
+    @GetMapping("/recommendations")
+    public ResponseEntity<RecommendationResponse> getLatestRecommendation(
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        RecommendationResponse recommendation = orchestratorService.getLatestRecommendation(userPrincipal.getId());
         return ResponseEntity.ok(recommendation);
     }
 
-    private User findAuthenticatedUser(Authentication authentication) {
-        if (authentication == null || authentication.getName() == null) {
-            throw new RuntimeException("User is not authenticated");
-        }
+    // @GetMapping("/activity")
+    // public ResponseEntity<List<ActivityRecordDto>> getActivityHistory(
+    //     @RequestParam(defaultValue = "7") int days,
+    //     @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    //     List<ActivityRecordDto> history = orchestratorService.getActivityHistory(userPrincipal.getId(), days);
+    //     return ResponseEntity.ok(history);
+    // }
 
-        return userService.getByEmail(authentication.getName());
-    }
 }

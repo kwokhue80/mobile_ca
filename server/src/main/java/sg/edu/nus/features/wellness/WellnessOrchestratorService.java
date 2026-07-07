@@ -2,19 +2,33 @@ package sg.edu.nus.features.wellness;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import sg.edu.nus.features.wellness.dto.ActivityRecordDto;
 import sg.edu.nus.features.wellness.dto.ExerciseLogResponse;
+import sg.edu.nus.features.wellness.dto.RecommendationResponse;
+
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import sg.edu.nus.features.user.account.User;
+import sg.edu.nus.features.user.account.UserService;
+import sg.edu.nus.features.user.goal.UserGoalRepository;
+import sg.edu.nus.features.user.goal.model.UserGoal;
+import sg.edu.nus.features.user.goal.model.enums.GoalType;
 import sg.edu.nus.features.wellness.dto.WellnessRecordPayload;
 
 import sg.edu.nus.features.wellness.model.ActivityRecord;
@@ -45,6 +59,8 @@ public class WellnessOrchestratorService {
     
     private final DailyWellnessSummaryRepository summaryRepo;
     private final ActivityRecordRepository activityRepo;
+    private final UserGoalRepository userGoalRepo;
+    private final UserService userService;
     
     private final SleepLogRepository sleepRepo;
     private final FoodLogRepository foodRepo;
@@ -53,13 +69,32 @@ public class WellnessOrchestratorService {
     private final ExerciseLogRepository exerciseRepo;
     private final MoodLogRepository moodRepo;
     
+
+    // ---------------------- CRUD LOGIC ---------------------- //
+
+    public DailyWellnessSummary getDailyWellnessSummary(UUID userId) {
+        User currentUser = userService.getById(userId);
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Singapore"));
+
+        return summaryRepo.findByUserIdAndSummaryDate(userId, today)
+            .orElse(DailyWellnessSummary.builder()
+                .user(currentUser)
+                .summaryDate(today)
+                .totalWaterMl(0)
+                .totalCaloriesIntake(0)
+                .totalCaloriesBurned(0)
+                .totalExerciseMinutes(0)
+                .build());
+    }
+    
     @Transactional
-    public void processMonolithicRecord(User currentUser, WellnessRecordPayload payload) {
+    public void processMonolithicRecord(UUID userId, WellnessRecordPayload payload) {
+        User currentUser = userService.getById(userId);
         LocalDateTime recordDate = payload.getRecordDate();
         LocalDate summaryDate = recordDate.toLocalDate();
 
         // 1. Fetch/Initialize the DailyWellnessSummary
-        DailyWellnessSummary summary = summaryRepo.findByUserIdAndSummaryDate(currentUser.getId(), summaryDate)
+        DailyWellnessSummary summary = summaryRepo.findByUserIdAndSummaryDate(userId, summaryDate)
             .orElse(DailyWellnessSummary.builder()
                 .user(currentUser)
                 .summaryDate(summaryDate)
@@ -124,8 +159,8 @@ public class WellnessOrchestratorService {
             food = foodRepo.save(food);
 
             saveActivityRecord(currentUser, food.getId(), "FOOD", "Meal Logged (" + payload.getMealType() + ")", 
-            	    (payload.getMealDescription() != null ? payload.getMealDescription() : "Logged Meal") + " - " + payload.getMealCaloriesKcal() + " kcal", 
-            	    recordDate);
+                (payload.getMealDescription() != null ? payload.getMealDescription() : "Logged Meal") 
+                + " - " + payload.getMealCaloriesKcal() + " kcal", recordDate);
             // saveActivityRecord(currentUser, food.getId(), "FOOD", "Meal Logged (" + payload.getMealType() + ")", payload.getMealCaloriesKcal() + " kcal", recordDate);
 
             summary.setTotalCaloriesIntake(summary.getTotalCaloriesIntake() + payload.getMealCaloriesKcal());
@@ -145,14 +180,20 @@ public class WellnessOrchestratorService {
                 .build();
             exercise = exerciseRepo.save(exercise);
 
-            saveActivityRecord(currentUser, exercise.getId(), "EXERCISE", "Exercise: " + payload.getExerciseType(), payload.getExerciseDurationMinutes() + " mins", recordDate);
+            saveActivityRecord(currentUser, exercise.getId(), "EXERCISE", "Exercise: " 
+                + payload.getExerciseType(), payload.getExerciseDurationMinutes() + " mins", recordDate);
 
             summary.setTotalExerciseMinutes(summary.getTotalExerciseMinutes() + payload.getExerciseDurationMinutes());
+            
+            if (payload.getExerciseDistanceKm() != null) {
+                BigDecimal currentDistance = summary.getTotalDistanceKm() != null
+                    ? summary.getTotalDistanceKm()
+                    : BigDecimal.ZERO;
+                summary.setTotalDistanceKm(currentDistance.add(BigDecimal.valueOf(payload.getExerciseDistanceKm())));
+            }
+
             if (payload.getExerciseCaloriesBurnedKcal() != null) {
                 summary.setTotalCaloriesBurned(summary.getTotalCaloriesBurned() + payload.getExerciseCaloriesBurnedKcal());
-            }
-            if (payload.getExerciseDistanceKm() != null) {
-                summary.setTotalDistanceKm(summary.getTotalDistanceKm().add(BigDecimal.valueOf(payload.getExerciseDistanceKm())));
             }
         }
 
@@ -172,7 +213,7 @@ public class WellnessOrchestratorService {
             int hours = payload.getSleepMinutes() / 60;
             int mins = payload.getSleepMinutes() % 60;
             saveActivityRecord(currentUser, sleep.getId(), "SLEEP", "Sleep Logged", 
-                               hours + "h " + mins + "m", recordDate);
+                hours + "h " + mins + "m", recordDate);
 
             summary.setSleepMinutes(payload.getSleepMinutes()); // Overwrites to latest logged sleep for the day
             summary.setSleepQualityScore(payload.getSleepQualityRating());
@@ -193,40 +234,46 @@ public class WellnessOrchestratorService {
             .build();
         activityRepo.save(record);
     }
-    
- // Retrieves a user's logged activity history over a given number of
- // past days. Uses the existing activity_records table, which already
- // stores a short readable title and description for every logged event.
-    public List<ActivityRecordDto> getActivityHistory(User currentUser, int numberOfDays) {
-    LocalDateTime endTime = LocalDateTime.now();
-    LocalDateTime startTime = endTime.minusDays(numberOfDays);
 
-    List<ActivityRecord> records = activityRepo.findByUserIdAndRecordedAtBetweenOrderByRecordedAtDesc(
-        currentUser.getId(), startTime, endTime
-    );
+    public List<ExerciseLog> getWeeklyExercise(UUID userId) {
+        LocalDateTime endTime = LocalDateTime.now();
+        LocalDateTime startTime = endTime.minusDays(7);
 
-    List<ActivityRecordDto> result = new ArrayList<>();
-    for (ActivityRecord record : records) {
-        ActivityRecordDto dto = new ActivityRecordDto(
-            record.getActivityType().toString(),
-            record.getTitle(),
-            record.getDescription(),
-            record.getRecordedAt()
-        );
-        result.add(dto);
+        return exerciseRepo.findByUserIdAndLoggedAtBetweenOrderByLoggedAtDesc(userId, startTime, endTime);
     }
-    return result;
-}
+    // Retrieves a user's logged activity history over a given number of
+    // past days. Uses the existing activity_records table, which already
+    // stores a short readable title and description for every logged event.
+    public List<ActivityRecordDto> getActivityHistory(UUID userId, int numberOfDays) {
+        LocalDateTime endTime = LocalDateTime.now();
+        LocalDateTime startTime = endTime.minusDays(numberOfDays);
+
+        List<ActivityRecord> records = activityRepo.findByUserIdAndRecordedAtBetweenOrderByRecordedAtDesc(
+            userId, startTime, endTime
+        );
+
+        List<ActivityRecordDto> result = new ArrayList<>();
+        for (ActivityRecord record : records) {
+            ActivityRecordDto dto = new ActivityRecordDto(
+                record.getActivityType().toString(),
+                record.getTitle(),
+                record.getDescription(),
+                record.getRecordedAt()
+            );
+            result.add(dto);
+        }
+        return result;
+    }
 
     // Retrieves a user's logged exercise sessions (structured: duration, distance,
     // calories, start/end time) over a given number of past days. Backs the Home
     // "Activity Tracked" list and the History screen.
-    public List<ExerciseLogResponse> getExerciseLogs(User currentUser, int numberOfDays) {
+    public List<ExerciseLogResponse> getExerciseLogs(UUID userId, int numberOfDays) {
         LocalDateTime endTime = LocalDateTime.now();
         LocalDateTime startTime = endTime.minusDays(numberOfDays);
 
         return exerciseRepo.findByUserIdAndLoggedAtBetweenOrderByLoggedAtDesc(
-                currentUser.getId(), startTime, endTime
+                userId, startTime, endTime
         ).stream()
             .map(log -> ExerciseLogResponse.builder()
                 .id(log.getId())
@@ -246,11 +293,10 @@ public class WellnessOrchestratorService {
     // leaving user_goals and user_profile untouched. Used to reset a test account
     // to a clean slate on every app login.
     @Transactional
-    public void resetToday(User currentUser) {
+    public void resetToday(UUID userId) {
         LocalDate today = LocalDate.now();
         LocalDateTime startOfDay = today.atStartOfDay();
         LocalDateTime endOfDay = today.plusDays(1).atStartOfDay().minusNanos(1);
-        UUID userId = currentUser.getId();
 
         sleepRepo.deleteByUserIdAndStartTimeBetween(userId, startOfDay, endOfDay);
         hydrationRepo.deleteByUserIdAndLoggedAtBetween(userId, startOfDay, endOfDay);
@@ -259,5 +305,109 @@ public class WellnessOrchestratorService {
         exerciseRepo.deleteByUserIdAndLoggedAtBetween(userId, startOfDay, endOfDay);
         activityRepo.deleteByUserIdAndRecordedAtBetween(userId, startOfDay, endOfDay);
         summaryRepo.deleteByUserIdAndSummaryDate(userId, today);
+    }
+
+    // ---------------------- RECOMMENDATION LOGIC ---------------------- //
+    public RecommendationResponse getLatestRecommendation(UUID userId) {
+        Map<GoalType, BigDecimal> goalTargets = new HashMap<>();
+        for (UserGoal goal : userGoalRepo.findByIdUserId(userId)) {
+            goalTargets.put(goal.getId().getGoalType(), goal.getTargetValue());
+        }
+
+        DailyWellnessSummary latestSummary = summaryRepo
+            .findAllByUserIdOrderBySummaryDateDesc(userId)
+            .stream()
+            .findFirst()
+            .orElse(null);
+
+        String recommendation;
+        if (latestSummary == null) {
+            recommendation = "Start by logging an entry today so we can personalize your wellness tips!";
+        } else {
+
+            // Daily target values - no weight for now
+            BigDecimal hydrationTargetMl = goalTargets.getOrDefault(GoalType.HYDRATION, BigDecimal.valueOf(2000));
+            BigDecimal sleepTargetMinutes = goalTargets
+                .getOrDefault(GoalType.SLEEP, BigDecimal.valueOf(7))
+                .multiply(BigDecimal.valueOf(60)); // Conv to minutes to compare with actual minutes stored
+            BigDecimal caloriesTargetKcal = goalTargets.getOrDefault(GoalType.CALORIES, BigDecimal.valueOf(300));
+            BigDecimal exerciseTargetMinutes = goalTargets.getOrDefault(GoalType.EXERCISE, BigDecimal.valueOf(30));
+
+            // Actual values - removed distance
+            BigDecimal waterActualMl = BigDecimal
+                .valueOf(latestSummary.getTotalWaterMl() != null 
+                    ? latestSummary.getTotalWaterMl() : 0);
+            BigDecimal sleepActualMinutes = BigDecimal
+                .valueOf(latestSummary.getSleepMinutes() != null 
+                    ? latestSummary.getSleepMinutes() : 0);
+            BigDecimal caloriesActualKcal = BigDecimal
+                .valueOf(latestSummary.getTotalCaloriesBurned() != null 
+                    ? latestSummary.getTotalCaloriesBurned() : 0);
+            BigDecimal exerciseActualMinutes = BigDecimal
+                .valueOf(latestSummary.getTotalExerciseMinutes() != null 
+                    ? latestSummary.getTotalExerciseMinutes() : 0);
+
+            // Compile list of need score based on ratio of deficit by goal type
+            List<NeedScore> needs = List.of(
+                NeedScore.of("HYDRATION", hydrationTargetMl, waterActualMl,
+                    String.format(
+                        "Hydration is below target today (%d/%d ml). Add 2 to 3 glasses of water in the next few hours.",
+                        waterActualMl.intValue(),
+                        hydrationTargetMl.intValue()
+                    )),
+                NeedScore.of("SLEEP", sleepTargetMinutes, sleepActualMinutes,
+                    String.format(
+                        "Sleep is below target today (%d/%d minutes). Try winding down earlier for better recovery.",
+                        sleepActualMinutes.intValue(),
+                        sleepTargetMinutes.intValue()
+                    )),
+                NeedScore.of("CALORIES", caloriesTargetKcal, caloriesActualKcal,
+                    String.format(
+                        "Active calories are below target today (%d/%d kcal). Try logging a short walk or light session.",
+                        caloriesActualKcal.intValue(),
+                        caloriesTargetKcal.intValue()
+                    )),
+                NeedScore.of("EXERCISE", exerciseTargetMinutes, exerciseActualMinutes,
+                    String.format(
+                        "Movement is low today (%d/%d minutes). A 10 to 15 minute activity break can help.",
+                        exerciseActualMinutes.intValue(),
+                        exerciseTargetMinutes.intValue()
+                    ))
+            );
+
+            recommendation = needs.stream()
+                .filter(need -> need.deficitRatio.compareTo(BigDecimal.ZERO) > 0)
+                .max(Comparator.comparing(need -> need.deficitRatio))
+                .map(need -> need.message)
+                .orElse("Great consistency today. Keep your hydration, sleep, and activity patterns steady.");
+        }
+
+        // Generate recommendation timestamp in SGT and round to 3-hour buckets for poller cadence.
+        ZoneId sgtZone = ZoneId.of("Asia/Singapore");
+        ZonedDateTime nowSgt = ZonedDateTime.now(sgtZone);
+        int bucketHour = (nowSgt.getHour() / 3) * 3;
+        OffsetDateTime generatedAt = nowSgt
+            .withHour(bucketHour)
+            .withMinute(0)
+            .withSecond(0)
+            .withNano(0)
+            .toOffsetDateTime();
+
+        return new RecommendationResponse(recommendation, generatedAt);
+    }
+
+    // Need score based on ratio derived from deficit between actual and target values
+    private record NeedScore(String name, BigDecimal deficitRatio, String message) {
+        static NeedScore of(String name, BigDecimal target, BigDecimal actual, String message) {
+            if (target == null || target.compareTo(BigDecimal.ZERO) <= 0) {
+                return new NeedScore(name, BigDecimal.ZERO, message);
+            }
+
+            BigDecimal deficit = target.subtract(actual == null ? BigDecimal.ZERO : actual);
+            BigDecimal ratio = deficit.compareTo(BigDecimal.ZERO) > 0
+                ? deficit.divide(target, 4, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
+            return new NeedScore(name, ratio, message);
+        }
     }
 }

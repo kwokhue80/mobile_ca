@@ -62,6 +62,11 @@ class LoginFragment : Fragment() {
             }
         }
 
+        // Move new users to registration so they can create an account.
+        binding.btnGoToRegister.setOnClickListener {
+            RouteManager.toRegister(this)
+        }
+
         binding.btnFingerprint.setOnClickListener {
             checkBiometricSupportAndAuthenticate()
         }

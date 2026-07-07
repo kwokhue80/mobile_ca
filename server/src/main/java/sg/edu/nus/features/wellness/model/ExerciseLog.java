@@ -3,6 +3,8 @@ package sg.edu.nus.features.wellness.model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -61,6 +63,7 @@ public class ExerciseLog extends Creatable {
     // ASSOCIATIONS
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+	@JsonIgnore
 	private User user;
 
 }

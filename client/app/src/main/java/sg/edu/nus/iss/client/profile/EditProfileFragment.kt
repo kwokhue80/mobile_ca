@@ -144,7 +144,7 @@ class EditProfileFragment : Fragment() {
             binding.etHeight.error = "Enter a valid height"
             return
         }
-        val gender = binding.spinnerGender.selectedItem.toString()
+        val gender = binding.spinnerGender.selectedItem.toString().uppercase(java.util.Locale.ROOT)
 
         profileViewModel.saveProfile(
             fullName = fullName,

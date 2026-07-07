@@ -21,7 +21,6 @@ import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
 import sg.edu.nus.iss.client.dashboard.util.ActivityDateFormatter
 import sg.edu.nus.iss.client.databinding.FragmentActivityDetailBinding
 import sg.edu.nus.iss.client.navigation.RouteManager
-import kotlin.math.roundToInt
 
 class ActivityDetailFragment : Fragment() {
 
@@ -77,28 +76,21 @@ class ActivityDetailFragment : Fragment() {
         applyAccentTheme(exerciseType)
 
         val endTime = record.timestamp.plusMinutes(record.durationMinutes.toLong())
-        binding.tvTimeRange.text = "${ActivityDateFormatter.formatTimeOnly(record.timestamp)} - " +
-            ActivityDateFormatter.formatTimeOnly(endTime)
+        val timeRange = "${ActivityDateFormatter.formatTimeOnly(record.timestamp)} - ${ActivityDateFormatter.formatTimeOnly(endTime)}"
+        binding.tvTimeRange.text = timeRange
         binding.tvDuration.text = "${record.durationMinutes} min"
-
         binding.tvDistance.text = "%.2f".format(record.distanceKm)
-        binding.tvPace.text = formatPace(record.durationMinutes, record.distanceKm)
-
         binding.tvCalories.text = "${record.calories}"
-    }
 
-    // Pace (min/km) = total duration (min) ÷ total distance (km)
-    private fun formatPace(durationMinutes: Int, distanceKm: Double): String {
-        if (distanceKm <= 0.0) return "--"
-
-        val paceMinutesTotal = durationMinutes / distanceKm
-        var wholeMinutes = paceMinutesTotal.toInt()
-        var seconds = ((paceMinutesTotal - wholeMinutes) * 60).roundToInt()
-        if (seconds == 60) {
-            seconds = 0
-            wholeMinutes += 1
+        if (record.distanceKm > 0) {
+            val totalSeconds = record.durationMinutes * 60
+            val secondsPerKm = totalSeconds / record.distanceKm
+            val paceMinutes = (secondsPerKm / 60).toInt()
+            val paceSeconds = (secondsPerKm % 60).toInt()
+            binding.tvPace.text = "%d'%02d".format(paceMinutes, paceSeconds)
+        } else {
+            binding.tvPace.text = "--'--"
         }
-        return "$wholeMinutes'${seconds.toString().padStart(2, '0')}\""
     }
 
     private fun applyAccentTheme(exerciseType: ExerciseType?) {

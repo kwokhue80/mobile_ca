@@ -7,12 +7,13 @@ import sg.edu.nus.features.user.account.User;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.UUID;
 
 public class UserPrincipal implements UserDetails {
 
     private static final String DEFAULT_ROLE = "ROLE_USER";
 
-    private final String id;
+    private final UUID id;
     private final String emailAddress;
     private final String password;
     private final boolean enabled;
@@ -24,7 +25,7 @@ public class UserPrincipal implements UserDetails {
     }
 
     public UserPrincipal(User user, String role) {
-        this.id = user.getId().toString();
+        this.id = user.getId();
         this.emailAddress = user.getEmailAddress();
         this.password = user.getPasswordHash();
         this.enabled = user.getEnabled();
@@ -36,7 +37,7 @@ public class UserPrincipal implements UserDetails {
      * Custom Method Required by Controllers Layers (e.g., WellnessController)
      * to fetch the UUID for database foreign key relations.
      */
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
