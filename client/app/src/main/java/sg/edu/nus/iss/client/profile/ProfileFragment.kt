@@ -2,17 +2,12 @@ package sg.edu.nus.iss.client.profile
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
-import androidx.core.view.MenuHost
-import androidx.core.view.MenuProvider
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -25,6 +20,7 @@ import sg.edu.nus.iss.client.databinding.FragmentProfileBinding
 import sg.edu.nus.iss.client.navigation.RouteManager
 import sg.edu.nus.iss.client.network.AuthApiService
 import sg.edu.nus.iss.client.network.RetrofitClient
+import sg.edu.nus.iss.client.util.BiometricHelper
 import sg.edu.nus.iss.client.util.SessionManager
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -38,7 +34,7 @@ class ProfileFragment : Fragment() {
     private lateinit var authApiService: AuthApiService
     private lateinit var profileViewModel: ProfileViewModel
     private lateinit var logoutViewModel: LogoutViewModel
-
+    private lateinit var biometricHelper: BiometricHelper
     private val dateDisplayFormatter = DateTimeFormatter.ofPattern("d MMM yyyy")
     private var isFirstResume = true
 
@@ -55,6 +51,8 @@ class ProfileFragment : Fragment() {
 
         sessionManager = SessionManager(requireContext())
         authApiService = RetrofitClient.getApiService(requireContext())
+        biometricHelper = BiometricHelper(this)
+
         profileViewModel = ViewModelProvider(
             this,
             ProfileViewModelFactory(authApiService)
@@ -68,7 +66,19 @@ class ProfileFragment : Fragment() {
         binding.btnEdit.setOnClickListener { RouteManager.toEditProfile(this) }
         binding.btnLogout.setOnClickListener { confirmLogout() }
 
-        setupOverflowMenu()
+        // --- NEW BIOMETRIC SWITCH LOGIC --- //
+        // 1. Set initial state of the switch based on preferences
+        binding.switchBiometric.isChecked = sessionManager.isBiometricEnabled()
+
+        // 2. Listen for switch toggles
+        binding.switchBiometric.setOnCheckedChangeListener { buttonView, isChecked ->
+            // isPressed ensures the code only runs when the USER physically taps it,
+            // preventing loops when we change it programmatically during an error
+            if (buttonView.isPressed) {
+                handleBiometricToggle(isChecked)
+            }
+        }
+        // ---------------------------------- //
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -91,6 +101,47 @@ class ProfileFragment : Fragment() {
             isFirstResume = false
         } else {
             profileViewModel.loadProfile()
+        }
+    }
+
+    // --- BIOMETRIC HELPER METHODS --- //
+    private fun handleBiometricToggle(enable: Boolean) {
+        if (enable) {
+            // TURN ON logic
+            val status = biometricHelper.canAuthenticate()
+            if (status == androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS) {
+                try {
+                    val cipher = sessionManager.getInitializedCipherForEncryption()
+                    val cryptoObject = androidx.biometric.BiometricPrompt.CryptoObject(cipher)
+
+                    biometricHelper.showBiometricPrompt(
+                        cryptoObject = cryptoObject,
+                        onSuccess = { unlockedCipher ->
+                            val token = sessionManager.getDecryptedTokenFromMemory()
+                            if (token != null && unlockedCipher != null) {
+                                sessionManager.saveEncryptedAuthToken(token, unlockedCipher)
+                                sessionManager.setBiometricEnabled(true)
+                                Toast.makeText(requireContext(), getString(R.string.token_encrypted), Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        onError = { err ->
+                            binding.switchBiometric.isChecked = false
+                            Toast.makeText(requireContext(), "${getString(R.string.biometric_error_unsupported)}: $err", Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                } catch (e: Exception) {
+                    binding.switchBiometric.isChecked = false
+                    Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                binding.switchBiometric.isChecked = false
+                Toast.makeText(requireContext(), getString(R.string.biometric_error_no_hardware), Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            // TURN OFF logic
+            sessionManager.setBiometricEnabled(false)
+            sessionManager.saveEncryptedAuthToken(sessionManager.getDecryptedTokenFromMemory() ?: "", null)
+            Toast.makeText(requireContext(), getString(R.string.biometric_disabled), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -151,55 +202,6 @@ class ProfileFragment : Fragment() {
             .setPositiveButton("Logout") { _, _ -> logoutViewModel.logout() }
             .setNegativeButton("Cancel", null)
             .show()
-    }
-
-    private fun setupOverflowMenu() {
-        val menuHost: MenuHost = requireActivity()
-        menuHost.addMenuProvider(object : MenuProvider {
-
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                // Old behavior retained for traceability.
-                // No overflow menu was configured on Profile.
-                menuInflater.inflate(R.menu._profile_menu, menu)
-
-                val biometricItem = menu.findItem(R.id.action_toggle_biometric)
-                val isEnabled = sessionManager.isBiometricEnabled()
-                biometricItem.isChecked = isEnabled
-                biometricItem.title = if (isEnabled) {
-                    getString(R.string.biometric_enabled)
-                } else {
-                    getString(R.string.biometric_disabled)
-                }
-            }
-
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                return when (menuItem.itemId) {
-                    R.id.action_toggle_biometric -> {
-                        val updated = !menuItem.isChecked
-                        menuItem.isChecked = updated
-                        sessionManager.setBiometricEnabled(updated)
-                        menuItem.title = if (updated) {
-                            getString(R.string.biometric_enabled)
-                        } else {
-                            getString(R.string.biometric_disabled)
-                        }
-                        Toast.makeText(
-                            requireContext(),
-                            if (updated) getString(R.string.biometric_enabled) else getString(R.string.biometric_disabled),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        true
-                    }
-
-                    R.id.action_logout -> {
-                        confirmLogout()
-                        true
-                    }
-
-                    else -> false
-                }
-            }
-        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     override fun onDestroyView() {
