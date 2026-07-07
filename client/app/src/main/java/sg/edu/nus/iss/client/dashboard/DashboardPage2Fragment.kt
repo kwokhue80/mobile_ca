@@ -86,6 +86,11 @@ class DashboardPage2Fragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        ViewModelProvider(requireActivity())[DashboardViewModel::class.java].refreshToday()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

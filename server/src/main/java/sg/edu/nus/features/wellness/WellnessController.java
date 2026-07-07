@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import sg.edu.nus.security.UserPrincipal;
 import sg.edu.nus.features.wellness.dto.WellnessRecordPayload;
-import sg.edu.nus.features.wellness.dto.ActivityRecordDto;
 import sg.edu.nus.features.wellness.dto.BadgeProgressResponse;
 import sg.edu.nus.features.wellness.dto.ExerciseLogResponse;
 import sg.edu.nus.features.wellness.dto.HourlyWellnessResponse;
