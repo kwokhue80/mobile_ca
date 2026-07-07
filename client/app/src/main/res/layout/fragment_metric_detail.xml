@@ -345,6 +345,18 @@
 
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/tvSleepQuality"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:text="Sleep quality: --"
+            android:textColor="#1F1F1F"
+            android:textSize="15sp"
+            android:visibility="gone" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvSummaryRows"
             android:layout_width="match_parent"

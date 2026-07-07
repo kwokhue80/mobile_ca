@@ -1,5 +1,6 @@
 package sg.edu.nus.features.wellness.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,5 +11,7 @@ import sg.edu.nus.features.wellness.model.HydrationLog;
 public interface HydrationLogRepository extends JpaRepository<HydrationLog, Long> {
 
 	List<HydrationLog> findAllByUserIdOrderByLoggedAtDesc(UUID userId);
+
+	void deleteByUserIdAndLoggedAtBetween(UUID userId, LocalDateTime start, LocalDateTime end);
 
 }

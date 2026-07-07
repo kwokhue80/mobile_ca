@@ -308,16 +308,18 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
 
     private fun buildAverageSubtitle(average: Double, goal: Double, total: Double): String {
         val totalLabel = "${metricType.formatValue(total)} ${metricType.unit}"
+        val totalAction = if (metricType == MetricType.FOOD_INTAKE) "consumed" else "covered"
         return if (average >= goal) {
-            "You hit your goal. You covered a total of $totalLabel."
+            "You hit your goal. You $totalAction a total of $totalLabel."
         } else {
-            "You didn't hit your goal. You covered a total of $totalLabel."
+            "You didn't hit your goal. You $totalAction a total of $totalLabel."
         }
     }
 
     private fun buildDaysMetSubtitle(daysMet: Int, total: Double): String {
         val totalLabel = "${metricType.formatValue(total)} ${metricType.unit}"
-        return "You hit your goal on $daysMet days. You took a total of $totalLabel."
+        val totalAction = if (metricType == MetricType.FOOD_INTAKE) "consumed" else "took"
+        return "You hit your goal on $daysMet days. You $totalAction a total of $totalLabel."
     }
 
     private fun buildGoalSubtitle(total: Double, goal: Double): String = if (total >= goal) {
@@ -327,8 +329,15 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
     }
 
     private fun randomBarValue(random: Random, biasHigh: Boolean = false): Double {
-        val max = currentGoal * if (biasHigh) 1.3 else 0.4
-        val raw = random.nextDouble() * max
+        // Weight and Sleep are bounded to realistic human ranges regardless of the
+        // user's goal (unlike Distance/Calories/Hydration, whose mock trend is still
+        // goal-scaled) - a goal-scaled formula could otherwise mock a 0kg weight or
+        // an unrealistic sleep duration.
+        val raw = when (metricType) {
+            MetricType.WEIGHT -> random.nextDouble(40.0, 100.0)
+            MetricType.SLEEP -> random.nextDouble(5.0, 12.0)
+            else -> random.nextDouble() * (currentGoal * if (biasHigh) 1.3 else 0.4)
+        }
         return if (metricType.decimalPlaces == 0) {
             Math.round(raw).toDouble()
         } else {

@@ -75,9 +75,9 @@ public class DailyWellnessSummary extends Updatable {
 	private BigDecimal weightKg;
 
     // ASSOCIATIONS
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
-	@JsonIgnore
 	private User user;
 
 }

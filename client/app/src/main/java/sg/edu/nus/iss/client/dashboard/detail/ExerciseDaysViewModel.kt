@@ -54,6 +54,23 @@ data class ExerciseDaysUiState(
 
 class ExerciseDaysViewModel : ViewModel() {
 
+    companion object {
+        // Sunday-first weeks, matching the reference design (S M T W T F S).
+        private fun weekStartOfDate(date: LocalDate): LocalDate {
+            val daysSinceSunday = date.dayOfWeek.value % 7
+            return date.minusDays(daysSinceSunday.toLong())
+        }
+
+        /** Distinct days this week (Sunday-start, containing [referenceDate]) that have
+         *  at least one exercise record. Shared by the Exercise Days summary card
+         *  (DashboardPage2Fragment) and this ViewModel's own week view. */
+        fun daysExercisedThisWeek(records: List<ActivityRecord>, referenceDate: LocalDate = LocalDate.now()): Int {
+            val exerciseDates = records.map { it.timestamp.toLocalDate() }.toSet()
+            val weekStart = weekStartOfDate(referenceDate)
+            return (0 until 7).count { i -> exerciseDates.contains(weekStart.plusDays(i.toLong())) }
+        }
+    }
+
     // Sunday-first weeks, matching the reference design (S M T W T F S).
     private val today: LocalDate = LocalDate.now()
     private var mode = ExerciseViewMode.WEEK
@@ -123,10 +140,7 @@ class ExerciseDaysViewModel : ViewModel() {
         refresh()
     }
 
-    private fun weekStartOf(date: LocalDate): LocalDate {
-        val daysSinceSunday = date.dayOfWeek.value % 7 // Monday=1..Sunday=7 -> Sunday=0
-        return date.minusDays(daysSinceSunday.toLong())
-    }
+    private fun weekStartOf(date: LocalDate): LocalDate = weekStartOfDate(date)
 
     private fun currentWeekStart(): LocalDate = weekStartOf(weekReferenceDate)
 
