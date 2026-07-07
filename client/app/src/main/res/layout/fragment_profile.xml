@@ -33,15 +33,22 @@
                 android:src="@drawable/ic_back_arrow"
                 app:tint="#1B4332" />
 
-            <ImageButton
+            <TextView
                 android:id="@+id/btnEdit"
-                android:layout_width="40dp"
+                android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:layout_gravity="end|center_vertical"
-                android:background="@drawable/bg_edit_button_circle"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
                 android:contentDescription="Edit profile"
-                android:padding="9dp"
-                android:src="@drawable/ic_edit_pencil" />
+                android:gravity="center"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Edit"
+                android:textColor="#1B4332"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
         </FrameLayout>
 

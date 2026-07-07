@@ -2,6 +2,7 @@ package sg.edu.nus.iss.client.profile
 
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.text.InputFilter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,6 +33,21 @@ class EditProfileFragment : Fragment() {
     private var selectedDateOfBirth: LocalDate? = null
     private val dateDisplayFormatter = DateTimeFormatter.ofPattern("d MMM yyyy")
 
+    companion object {
+        private const val MAX_HEIGHT_CM = 300.0
+    }
+
+    // Rejects any edit (including programmatic setText, e.g. loading a stale saved
+    // value) that would push the height above MAX_HEIGHT_CM. The numberDecimal input
+    // type already blocks negative values, so only the upper bound needs guarding here.
+    private val heightRangeFilter = InputFilter { source, start, end, dest, dstart, dend ->
+        val proposed = dest.toString().substring(0, dstart) +
+            source.subSequence(start, end) +
+            dest.toString().substring(dend)
+        val value = proposed.toDoubleOrNull()
+        if (proposed.isNotEmpty() && proposed != "." && value != null && value > MAX_HEIGHT_CM) "" else null
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -56,6 +72,8 @@ class EditProfileFragment : Fragment() {
         )
         genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinnerGender.adapter = genderAdapter
+
+        binding.etHeight.filters = arrayOf(heightRangeFilter)
 
         binding.btnBack.setOnClickListener { RouteManager.back(this) }
         binding.btnCancel.setOnClickListener { RouteManager.back(this) }
@@ -140,8 +158,8 @@ class EditProfileFragment : Fragment() {
             return
         }
         val heightCm = heightText.toDoubleOrNull()
-        if (heightCm == null || heightCm <= 0) {
-            binding.etHeight.error = "Enter a valid height"
+        if (heightCm == null || heightCm <= 0 || heightCm > MAX_HEIGHT_CM) {
+            binding.etHeight.error = "Enter a height between 0 and ${MAX_HEIGHT_CM.toInt()} cm"
             return
         }
         val gender = binding.spinnerGender.selectedItem.toString().uppercase(java.util.Locale.ROOT)

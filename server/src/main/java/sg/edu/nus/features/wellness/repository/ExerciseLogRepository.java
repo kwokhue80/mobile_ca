@@ -13,9 +13,8 @@ public interface ExerciseLogRepository extends JpaRepository<ExerciseLog, Long> 
 	List<ExerciseLog> findAllByUserIdOrderByLoggedAtDesc(UUID userId);
 
 	List<ExerciseLog> findByUserIdAndLoggedAtBetweenOrderByLoggedAtDesc(
-		UUID userId,
-		LocalDateTime startTime,
-		LocalDateTime endTime
-	);
+			UUID userId, LocalDateTime start, LocalDateTime end);
+
+	void deleteByUserIdAndLoggedAtBetween(UUID userId, LocalDateTime start, LocalDateTime end);
 
 }

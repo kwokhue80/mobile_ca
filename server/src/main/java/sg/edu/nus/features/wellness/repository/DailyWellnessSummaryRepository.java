@@ -20,10 +20,12 @@ public interface DailyWellnessSummaryRepository extends JpaRepository<DailyWelln
 	Optional<DailyWellnessSummary> findByUserIdAndSummaryDate(UUID userId, LocalDate summaryDate);
 
 	List<DailyWellnessSummary> findByUserIdAndSummaryDateBetweenOrderBySummaryDateAsc(
-		UUID userId, 
-		LocalDate startDate, 
+		UUID userId,
+		LocalDate startDate,
 		LocalDate endDate
 	);
+
+	void deleteByUserIdAndSummaryDate(UUID userId, LocalDate summaryDate);
 
     // UPDATE quantifiable metrics; only fields non null
 	@Modifying
