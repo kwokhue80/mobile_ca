@@ -43,10 +43,6 @@ interface AuthApiService {
     @GET("api/wellness/daily-summary")
     suspend fun getDailyWellnessSummary(): Response<DailyWellnessSummary>
 
-    // Fetch the last 7 days of logged exercise sessions.
-    @GET("api/wellness/weekly-exercise")
-    suspend fun getWeeklyExercise(): Response<List<ExerciseLogResponse>>
-
     // Fetch up to `days` days of logged exercise sessions (default 30 server-side).
     // Populates the Home "Activity Tracked" list, the History screen, and the
     // Exercise Days detail screen's week/month navigation.
@@ -58,7 +54,7 @@ interface AuthApiService {
     @DELETE("api/wellness/exercise-logs/{id}")
     suspend fun deleteExerciseLog(@Path("id") id: Long): Response<Void>
 
-    @GET("api/wellness/recommendations/latest")
+    @GET("api/wellness/recommendations")
     suspend fun getLatestRecommendation(): Response<RecommendationResponse>
 
     // All-time / rolling aggregates used to evaluate the Badges grid.
@@ -76,11 +72,11 @@ interface AuthApiService {
     ): Response<UserProfileResponse>
 
     // Fetch all of the current user's saved goals
-    @GET("api/user-goals")
+    @GET("api/user/goals")
     suspend fun getUserGoals(): Response<List<UserGoalResponse>>
 
     // Create or update the current user's goal for a given goal type (e.g. "DISTANCE", "EXERCISE")
-    @PUT("api/user-goals/{goalType}")
+    @PUT("api/user/goals/{goalType}")
     suspend fun updateUserGoal(
         @Path("goalType") goalType: String,
         @Body request: UserGoalUpsertRequest
