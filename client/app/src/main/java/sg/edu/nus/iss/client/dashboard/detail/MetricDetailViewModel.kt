@@ -308,16 +308,18 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
 
     private fun buildAverageSubtitle(average: Double, goal: Double, total: Double): String {
         val totalLabel = "${metricType.formatValue(total)} ${metricType.unit}"
+        val totalAction = if (metricType == MetricType.FOOD_INTAKE) "consumed" else "covered"
         return if (average >= goal) {
-            "You hit your goal. You covered a total of $totalLabel."
+            "You hit your goal. You $totalAction a total of $totalLabel."
         } else {
-            "You didn't hit your goal. You covered a total of $totalLabel."
+            "You didn't hit your goal. You $totalAction a total of $totalLabel."
         }
     }
 
     private fun buildDaysMetSubtitle(daysMet: Int, total: Double): String {
         val totalLabel = "${metricType.formatValue(total)} ${metricType.unit}"
-        return "You hit your goal on $daysMet days. You took a total of $totalLabel."
+        val totalAction = if (metricType == MetricType.FOOD_INTAKE) "consumed" else "took"
+        return "You hit your goal on $daysMet days. You $totalAction a total of $totalLabel."
     }
 
     private fun buildGoalSubtitle(total: Double, goal: Double): String = if (total >= goal) {
