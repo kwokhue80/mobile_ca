@@ -11,19 +11,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.databinding.FragmentMetricDetailBinding
-import sg.edu.nus.iss.client.dashboard.DashboardViewModel
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricDetailUiState
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricType
 import sg.edu.nus.iss.client.dashboard.detail.model.TimeRange
 import sg.edu.nus.iss.client.dashboard.goals.UserGoalsViewModel
 import sg.edu.nus.iss.client.dashboard.goals.model.ActivityGoalType
 import sg.edu.nus.iss.client.navigation.RouteManager
-import sg.edu.nus.iss.client.network.RetrofitClient
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 
 private fun MetricType.toActivityGoalTypeOrNull(): ActivityGoalType? = when (this) {
@@ -57,8 +53,6 @@ class MetricDetailFragment : Fragment() {
     private lateinit var viewModel: MetricDetailViewModel
     private lateinit var summaryRowAdapter: MetricSummaryRowAdapter
     private var currentGoalValue: Double = 0.0
-    private var selectedRangeForSleepQuality: TimeRange = TimeRange.DAY
-    private var sleepQualityJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -75,10 +69,9 @@ class MetricDetailFragment : Fragment() {
         summaryRowAdapter = MetricSummaryRowAdapter(metricType)
         currentGoalValue = metricType.defaultGoal
 
-        val factory = MetricDetailViewModelFactory(metricType)
+        val factory = MetricDetailViewModelFactory(requireActivity().application, metricType)
         viewModel = ViewModelProvider(this, factory)[MetricDetailViewModel::class.java]
         val userGoalsViewModel = ViewModelProvider(requireActivity())[UserGoalsViewModel::class.java]
-        val dashboardViewModel = ViewModelProvider(requireActivity())[DashboardViewModel::class.java]
 
         binding.tvMetricTitle.text = metricType.displayName
 
@@ -90,10 +83,10 @@ class MetricDetailFragment : Fragment() {
         binding.rvSummaryRows.adapter = summaryRowAdapter
         binding.rvSummaryRows.isNestedScrollingEnabled = false
 
-        binding.btnTabDay.setOnClickListener { viewModel.selectTimeRange(TimeRange.DAY); selectSleepQualityRange(TimeRange.DAY, dashboardViewModel) }
-        binding.btnTabWeek.setOnClickListener { viewModel.selectTimeRange(TimeRange.WEEK); selectSleepQualityRange(TimeRange.WEEK, dashboardViewModel) }
-        binding.btnTabMonth.setOnClickListener { viewModel.selectTimeRange(TimeRange.MONTH); selectSleepQualityRange(TimeRange.MONTH, dashboardViewModel) }
-        binding.btnTabSixMonth.setOnClickListener { viewModel.selectTimeRange(TimeRange.SIX_MONTH); selectSleepQualityRange(TimeRange.SIX_MONTH, dashboardViewModel) }
+        binding.btnTabDay.setOnClickListener { viewModel.selectTimeRange(TimeRange.DAY) }
+        binding.btnTabWeek.setOnClickListener { viewModel.selectTimeRange(TimeRange.WEEK) }
+        binding.btnTabMonth.setOnClickListener { viewModel.selectTimeRange(TimeRange.MONTH) }
+        binding.btnTabSixMonth.setOnClickListener { viewModel.selectTimeRange(TimeRange.SIX_MONTH) }
 
         binding.btnPrevPeriod.setOnClickListener { viewModel.goToPreviousPeriod() }
         binding.btnNextPeriod.setOnClickListener { viewModel.goToNextPeriod() }
@@ -118,58 +111,12 @@ class MetricDetailFragment : Fragment() {
 
         if (metricType == MetricType.SLEEP) {
             binding.tvSleepQuality.visibility = View.VISIBLE
-            viewLifecycleOwner.lifecycleScope.launch {
-                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    dashboardViewModel.todaySummary.collect {
-                        if (selectedRangeForSleepQuality == TimeRange.DAY) {
-                            renderSleepQuality(it?.sleepQualityScore?.toDouble())
-                        }
-                    }
-                }
-            }
         }
     }
 
-    // Sleep quality (1=poor..5=excellent) is sourced from real backend data, independent
-    // of the mock random bar chart above: Day reads today's already-loaded summary;
-    // Week/Month/6-Month average the sleepQualityScore over a fixed lookback window
-    // (7/30/180 days) via GET /api/dashboard/range.
-    private fun selectSleepQualityRange(range: TimeRange, dashboardViewModel: DashboardViewModel) {
-        if (metricType != MetricType.SLEEP) return
-        selectedRangeForSleepQuality = range
-        sleepQualityJob?.cancel()
-
-        if (range == TimeRange.DAY) {
-            renderSleepQuality(dashboardViewModel.todaySummary.value?.sleepQualityScore?.toDouble())
-            return
-        }
-
-        val lookbackDays = when (range) {
-            TimeRange.WEEK -> 7
-            TimeRange.MONTH -> 30
-            TimeRange.SIX_MONTH -> 180
-            TimeRange.DAY -> 1
-        }
-        sleepQualityJob = viewLifecycleOwner.lifecycleScope.launch {
-            renderSleepQuality(fetchAverageSleepQuality(lookbackDays))
-        }
-    }
-
-    private suspend fun fetchAverageSleepQuality(days: Int): Double? {
-        return try {
-            val endDate = LocalDate.now()
-            val startDate = endDate.minusDays((days - 1).toLong())
-            val response = RetrofitClient.getApiService(requireContext()).getDashboardRange(
-                startDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                endDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
-            )
-            val scores = response.body()?.mapNotNull { it.sleepQualityScore }.orEmpty()
-            if (scores.isEmpty()) null else scores.average()
-        } catch (e: Exception) {
-            null
-        }
-    }
-
+    // Sleep quality (1-10, real backend data) is now part of the ViewModel's per-day
+    // summary fetch (see MetricDetailUiState.sleepQualityScore), averaged over whatever
+    // date range is currently being viewed.
     private fun renderSleepQuality(quality: Double?) {
         binding.tvSleepQuality.text = if (quality != null) {
             "${sleepQualityEmoji(quality)} Sleep quality: ${"%.1f".format(quality)}/5 (1=poor, 5=excellent)"
@@ -189,6 +136,10 @@ class MetricDetailFragment : Fragment() {
     private fun render(state: MetricDetailUiState) {
         updateTabStyles(state.timeRange)
 
+        if (metricType == MetricType.SLEEP) {
+            renderSleepQuality(state.sleepQualityScore)
+        }
+
         binding.tvPeriodLabel.text = state.periodLabel
         binding.btnNextPeriod.isEnabled = state.canGoNext
         binding.btnNextPeriod.alpha = if (state.canGoNext) 1f else 0.4f
@@ -197,13 +148,18 @@ class MetricDetailFragment : Fragment() {
 
         val isWeight = metricType == MetricType.WEIGHT
         val isSleepDay = metricType == MetricType.SLEEP && state.timeRange == TimeRange.DAY
+        // Food Intake has no hourly breakdown (see MetricDetailViewModel.selectHourlyValue),
+        // so its Day view is a single total value with no chart, same as Sleep's Day view.
+        val isFoodIntakeDay = metricType == MetricType.FOOD_INTAKE && state.timeRange == TimeRange.DAY
+        val isSingleValueDay = isSleepDay || isFoodIntakeDay
 
         val selectedBar = state.selectedBarIndex?.let { state.bars.getOrNull(it) }
         if (selectedBar != null) {
             binding.layoutSummarySelected.visibility = View.VISIBLE
             binding.layoutSummaryDefault.visibility = View.GONE
             binding.tvSelectedValue.text = if (isWeight) {
-                "${metricType.formatValue(selectedBar.value)}${metricType.unit}"
+                val avgSuffix = if (state.timeRange == TimeRange.DAY) "" else "(avg)"
+                "${metricType.formatValue(selectedBar.value)}${metricType.unit}$avgSuffix"
             } else if (state.timeRange == TimeRange.SIX_MONTH) {
                 "${metricType.formatValue(selectedBar.value)} ${metricType.unit} per day (avg)"
             } else {
@@ -216,6 +172,8 @@ class MetricDetailFragment : Fragment() {
             val currentWeight = state.bars.lastOrNull { it.value > 0 }?.value ?: state.totalValue
             binding.tvSummaryDefaultValue.text = if (isSleepDay) {
                 "You slept ${metricType.formatValue(state.totalValue)}${metricType.unit} today."
+            } else if (isFoodIntakeDay) {
+                "You consumed ${metricType.formatValue(state.totalValue)} ${metricType.unit} today."
             } else if (isWeight) {
                 val avgSuffix = if (state.timeRange == TimeRange.DAY) "" else "(avg)"
                 "${metricType.formatValue(currentWeight)}${metricType.unit}$avgSuffix"
@@ -225,7 +183,7 @@ class MetricDetailFragment : Fragment() {
                 "${metricType.formatValue(state.totalValue)} of ${metricType.formatValue(state.goalValue)} ${metricType.unit}"
             }
             binding.tvSummarySubtitle.text = state.subtitle
-            binding.tvSummarySubtitle.visibility = if (isWeight || isSleepDay) View.GONE else View.VISIBLE
+            binding.tvSummarySubtitle.visibility = if (isWeight || isSingleValueDay) View.GONE else View.VISIBLE
         }
 
         val hasSummaryRows = state.summaryRows.isNotEmpty()
@@ -241,9 +199,9 @@ class MetricDetailFragment : Fragment() {
         } else {
             "Daily goal: ${metricType.formatValue(currentGoalValue)} ${metricType.unit}"
         }
-        binding.chartContainer.visibility = if (isWeightDay || isSleepDay) View.GONE else View.VISIBLE
-        binding.chartMetric.visibility = if (isWeight || isSleepDay) View.GONE else View.VISIBLE
-        binding.chartSelectionOverlay.visibility = if (isWeight || isSleepDay) View.GONE else View.VISIBLE
+        binding.chartContainer.visibility = if (isWeightDay || isSingleValueDay) View.GONE else View.VISIBLE
+        binding.chartMetric.visibility = if (isWeight || isSingleValueDay) View.GONE else View.VISIBLE
+        binding.chartSelectionOverlay.visibility = if (isWeight || isSingleValueDay) View.GONE else View.VISIBLE
         binding.chartMetricLine.visibility = if (isWeight) View.VISIBLE else View.GONE
         binding.cardBmi.visibility = if (isWeight) View.VISIBLE else View.GONE
 
@@ -256,8 +214,8 @@ class MetricDetailFragment : Fragment() {
             binding.bmiGauge.setBmi(bmiValue.toFloat())
         }
 
-        if (isWeightDay || isSleepDay) {
-            // No chart for Weight's/Sleep's Day view; the text summary above is enough.
+        if (isWeightDay || isSingleValueDay) {
+            // No chart for Weight's/Sleep's/Food Intake's Day view; the text summary above is enough.
         } else if (isWeight) {
             MetricLineChartConfigurator.configure(
                 chart = binding.chartMetricLine,

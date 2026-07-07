@@ -80,6 +80,7 @@ class MentalHealthDetailFragment : Fragment() {
         binding.btnPrevPeriod.setOnClickListener { viewModel.goToPreviousPeriod() }
         binding.btnNextPeriod.setOnClickListener { viewModel.goToNextPeriod() }
         binding.btnPickDate.setOnClickListener { showDatePicker() }
+        binding.btnClearMoodSelection.setOnClickListener { viewModel.clearSelection() }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -103,20 +104,37 @@ class MentalHealthDetailFragment : Fragment() {
         binding.layoutMoodNodes.visibility = if (isDay) View.GONE else View.VISIBLE
 
         if (isDay) {
+            binding.layoutMoodSelected.visibility = View.GONE
             renderDayMood(state.dayMoodValue)
         } else {
-            renderChart(state.points)
+            renderChart(state.points, state.selectedBarIndex)
             renderMoodNodes(state.moodNodes)
+
+            val selectedBar = state.selectedBarIndex?.let { state.points.getOrNull(it) }
+            if (selectedBar != null) {
+                binding.layoutMoodSelected.visibility = View.VISIBLE
+                val category = MentalHealthDetailViewModel.moodCategory(selectedBar.value)
+                binding.tvSelectedMoodValue.text = "%.1f/10, $category".format(selectedBar.value)
+                binding.tvSelectedMoodRange.text = selectedBar.rangeLabel
+            } else {
+                binding.layoutMoodSelected.visibility = View.GONE
+            }
         }
     }
 
-    private fun renderDayMood(value: Double) {
-        binding.tvDayMoodEmoji.text = MentalHealthDetailViewModel.moodEmoji(value)
-        binding.tvDayMoodWord.text = MentalHealthDetailViewModel.moodCategory(value)
-        binding.tvDayMoodValue.text = "%.1f/10".format(value)
+    private fun renderDayMood(value: Double?) {
+        if (value != null) {
+            binding.tvDayMoodEmoji.text = MentalHealthDetailViewModel.moodEmoji(value)
+            binding.tvDayMoodWord.text = MentalHealthDetailViewModel.moodCategory(value)
+            binding.tvDayMoodValue.text = "%.1f/10".format(value)
+        } else {
+            binding.tvDayMoodEmoji.text = "🤔"
+            binding.tvDayMoodWord.text = "No data"
+            binding.tvDayMoodValue.text = "--"
+        }
     }
 
-    private fun renderChart(points: List<MetricBar>) {
+    private fun renderChart(points: List<MetricBar>, selectedBarIndex: Int?) {
         MetricLineChartConfigurator.configure(
             chart = binding.chartMood,
             bars = points,
@@ -124,9 +142,9 @@ class MentalHealthDetailFragment : Fragment() {
             chartGoalValue = 0.0,
             baseColor = Color.parseColor(MOOD_COLOR),
             goalMetColor = Color.parseColor(MOOD_COLOR),
-            selectedBarIndex = null,
-            onBarSelected = {},
-            onSelectionCleared = {}
+            selectedBarIndex = selectedBarIndex,
+            onBarSelected = { index -> viewModel.selectBar(index) },
+            onSelectionCleared = { viewModel.clearSelection() }
         )
         binding.chartMood.axisLeft.axisMinimum = MOOD_AXIS_MIN
         binding.chartMood.axisLeft.axisMaximum = MOOD_AXIS_MAX
@@ -134,8 +152,10 @@ class MentalHealthDetailFragment : Fragment() {
         // Color each point (and the segment leading into it) by its own mood value.
         // MPAndroidChart only walks its multi-color list segment-by-segment in
         // LINEAR mode, so the shared configurator's cubic-bezier curve is swapped
-        // out here rather than in the reusable configurator.
-        val pointColors = points.map { moodColor(it.value) }
+        // out here rather than in the reusable configurator. Must match the
+        // configurator's own filtering (days with no data are dropped from the line),
+        // otherwise the color list would be longer than the actual plotted entries.
+        val pointColors = points.filter { it.value > 0.0 }.map { moodColor(it.value) }
         (binding.chartMood.data?.getDataSetByIndex(0) as? LineDataSet)?.apply {
             mode = LineDataSet.Mode.LINEAR
             setColors(pointColors)

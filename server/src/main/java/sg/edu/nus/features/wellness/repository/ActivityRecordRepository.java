@@ -23,4 +23,9 @@ public interface ActivityRecordRepository extends JpaRepository<ActivityRecord, 
     );
 
     void deleteByUserIdAndRecordedAtBetween(UUID userId, LocalDateTime start, LocalDateTime end);
+
+    // source_log_id isn't a type-safe FK (it points at whichever metric log table
+    // activityType names), so activityType must be included to avoid deleting an
+    // unrelated record that happens to share the same numeric id.
+    void deleteBySourceLogIdAndActivityType(Long sourceLogId, ActivityType activityType);
 }

@@ -1,7 +1,6 @@
 package sg.edu.nus.iss.client.dashboard
 
 import android.graphics.Color
-import android.graphics.PorterDuff
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +10,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.dashboard.badges.BadgesViewModel
@@ -26,12 +26,10 @@ import kotlin.math.roundToInt
 class DashboardPage1Fragment : Fragment() {
 
     companion object {
-        // All goal-reached checkmarks are the same green, regardless of card.
-        private val CHECKMARK_COLOR = Color.parseColor("#2E7D32")
-
-        // Slight transparency so they don't read as a harsh solid dot against the
-        // card's own softer palette.
-        private const val CHECKMARK_ALPHA = 0.75f
+        // Goal-reached style: a green ring around the card plus a matching top-right
+        // corner wedge, same color regardless of card.
+        private val GOAL_REACHED_COLOR = Color.parseColor("#22C55E")
+        private val GOAL_NOT_REACHED_COLOR = Color.TRANSPARENT
     }
 
     private var _binding: PageDashboard1Binding? = null
@@ -58,13 +56,6 @@ class DashboardPage1Fragment : Fragment() {
         binding.cardHydration.setOnClickListener { openMetricDetail(MetricType.HYDRATION) }
         binding.cardWeight.setOnClickListener { openMetricDetail(MetricType.WEIGHT) }
         binding.cardBadges.setOnClickListener { RouteManager.toBadges(this) }
-
-        listOf(
-            binding.checkDistance, binding.checkCalBurned, binding.checkSleep, binding.checkHydration
-        ).forEach { checkView ->
-            checkView.setColorFilter(CHECKMARK_COLOR, PorterDuff.Mode.SRC_IN)
-            checkView.alpha = CHECKMARK_ALPHA
-        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -103,24 +94,35 @@ class DashboardPage1Fragment : Fragment() {
         binding.tvDistance.text = "%.2fkm".format(distanceKm)
         binding.progressDistance.max = (distanceGoal * 100).roundToInt().coerceAtLeast(1)
         binding.progressDistance.progress = (distanceKm * 100).roundToInt()
-        binding.checkDistance.visibility = if (distanceKm >= distanceGoal) View.VISIBLE else View.GONE
+        setGoalReached(binding.cardDistance, binding.cornerWedgeDistance, binding.checkDistance, distanceKm >= distanceGoal)
 
         binding.tvCalBurned.text = "${caloriesBurned}Cal"
         binding.progressCalBurned.max = caloriesGoal.roundToInt().coerceAtLeast(1)
         binding.progressCalBurned.progress = caloriesBurned
-        binding.checkCalBurned.visibility = if (caloriesBurned >= caloriesGoal) View.VISIBLE else View.GONE
+        setGoalReached(binding.cardCalBurned, binding.cornerWedgeCalBurned, binding.checkCalBurned, caloriesBurned >= caloriesGoal)
 
         binding.tvSleep.text = formatSleepDuration(sleepMinutes)
         binding.progressSleep.max = (sleepGoal * 10).roundToInt().coerceAtLeast(1)
         binding.progressSleep.progress = (sleepMinutes / 60.0 * 10).roundToInt()
-        binding.checkSleep.visibility = if (sleepMinutes / 60.0 >= sleepGoal) View.VISIBLE else View.GONE
+        setGoalReached(binding.cardSleep, binding.cornerWedgeSleep, binding.checkSleep, sleepMinutes / 60.0 >= sleepGoal)
 
         binding.tvHydration.text = "${waterMl}ml"
         binding.progressHydration.max = hydrationGoal.roundToInt().coerceAtLeast(1)
         binding.progressHydration.progress = waterMl
-        binding.checkHydration.visibility = if (waterMl >= hydrationGoal) View.VISIBLE else View.GONE
+        setGoalReached(binding.cardHydration, binding.cornerWedgeHydration, binding.checkHydration, waterMl >= hydrationGoal)
 
         binding.tvWeight.text = if (weightKg != null) formatWeight(weightKg) else "--kg"
+    }
+
+    private fun setGoalReached(
+        card: MaterialCardView,
+        cornerWedge: View,
+        check: View,
+        reached: Boolean
+    ) {
+        card.strokeColor = if (reached) GOAL_REACHED_COLOR else GOAL_NOT_REACHED_COLOR
+        cornerWedge.visibility = if (reached) View.VISIBLE else View.GONE
+        check.visibility = if (reached) View.VISIBLE else View.GONE
     }
 
     private fun formatSleepDuration(totalMinutes: Int): String {

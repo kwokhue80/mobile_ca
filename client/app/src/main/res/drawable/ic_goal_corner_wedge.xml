@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Triangular wedge for the top-right corner of a goal-reached card. Occupies the
+     upper-right half of its square bounds (split by the top-left/bottom-right
+     diagonal); the MaterialCardView's own corner-clipping rounds off the outer tip. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="40dp"
+    android:height="40dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#22C55E"
+        android:pathData="M0,0 L48,0 L48,48 Z" />
+</vector>

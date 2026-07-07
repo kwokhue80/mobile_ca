@@ -13,7 +13,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import sg.edu.nus.features.wellness.dto.ActivityRecordDto;
+import sg.edu.nus.features.wellness.dto.BadgeProgressResponse;
 import sg.edu.nus.features.wellness.dto.ExerciseLogResponse;
+import sg.edu.nus.features.wellness.dto.HourlyWellnessResponse;
 import sg.edu.nus.features.wellness.dto.RecommendationResponse;
 
 import java.math.BigDecimal;
@@ -286,6 +288,136 @@ public class WellnessOrchestratorService {
                 .loggedAt(log.getLoggedAt())
                 .build())
             .toList();
+    }
+
+    // Deletes a single exercise session (Home "Activity Tracked" list's delete button)
+    // and reverses its contribution to that day's aggregated summary (distance,
+    // calories burned, exercise minutes), plus the matching activity-feed entry.
+    @Transactional
+    public void deleteExerciseLog(UUID userId, Long logId) {
+        ExerciseLog log = exerciseRepo.findById(logId)
+            .filter(l -> l.getUser().getId().equals(userId))
+            .orElseThrow(() -> new RuntimeException("Exercise log not found"));
+
+        LocalDate summaryDate = log.getLoggedAt().toLocalDate();
+        summaryRepo.findByUserIdAndSummaryDate(userId, summaryDate).ifPresent(summary -> {
+            summary.setTotalExerciseMinutes(
+                Math.max(0, summary.getTotalExerciseMinutes() - log.getDurationMinutes()));
+
+            if (log.getDistanceKm() != null && summary.getTotalDistanceKm() != null) {
+                BigDecimal newDistance = summary.getTotalDistanceKm().subtract(log.getDistanceKm());
+                summary.setTotalDistanceKm(newDistance.max(BigDecimal.ZERO));
+            }
+
+            if (log.getCaloriesBurnedKcal() != null) {
+                summary.setTotalCaloriesBurned(
+                    Math.max(0, summary.getTotalCaloriesBurned() - log.getCaloriesBurnedKcal()));
+            }
+
+            summaryRepo.save(summary);
+        });
+
+        activityRepo.deleteBySourceLogIdAndActivityType(logId, ActivityType.EXERCISE);
+        exerciseRepo.delete(log);
+    }
+
+    // Buckets a single date's exercise (distance/calories) and hydration (water) logs
+    // by the hour of their timestamp, returning a fixed 24-entry list (zero-filled for
+    // empty hours). Backs the Distance/Calories/Hydration detail screens' Day view.
+    public List<HourlyWellnessResponse> getHourlySummary(UUID userId, LocalDate date) {
+        LocalDateTime dayStart = date.atStartOfDay();
+        LocalDateTime dayEnd = date.plusDays(1).atStartOfDay();
+
+        BigDecimal[] distanceByHour = new BigDecimal[24];
+        int[] caloriesByHour = new int[24];
+        int[] waterByHour = new int[24];
+        for (int i = 0; i < 24; i++) {
+            distanceByHour[i] = BigDecimal.ZERO;
+        }
+
+        for (ExerciseLog log : exerciseRepo.findByUserIdAndLoggedAtBetweenOrderByLoggedAtDesc(userId, dayStart, dayEnd)) {
+            LocalDateTime attributedAt = log.getStartTime() != null ? log.getStartTime() : log.getLoggedAt();
+            int hour = attributedAt.getHour();
+            if (log.getDistanceKm() != null) {
+                distanceByHour[hour] = distanceByHour[hour].add(log.getDistanceKm());
+            }
+            caloriesByHour[hour] += log.getCaloriesBurnedKcal() != null ? log.getCaloriesBurnedKcal() : 0;
+        }
+
+        for (HydrationLog log : hydrationRepo.findByUserIdAndLoggedAtBetweenOrderByLoggedAtDesc(userId, dayStart, dayEnd)) {
+            int hour = log.getLoggedAt().getHour();
+            waterByHour[hour] += log.getVolumeMl() != null ? log.getVolumeMl() : 0;
+        }
+
+        List<HourlyWellnessResponse> result = new ArrayList<>(24);
+        for (int hour = 0; hour < 24; hour++) {
+            result.add(HourlyWellnessResponse.builder()
+                .hour(hour)
+                .distanceKm(distanceByHour[hour])
+                .caloriesBurnedKcal(caloriesByHour[hour])
+                .waterMl(waterByHour[hour])
+                .build());
+        }
+        return result;
+    }
+
+    // All-time / rolling aggregates backing the Badges grid's achievement conditions.
+    // Threshold comparisons (e.g. >= 1000km) live client-side alongside the badge
+    // descriptions; this just supplies the raw numbers.
+    public BadgeProgressResponse getBadgeProgress(UUID userId) {
+        List<ExerciseLog> exerciseLogs = exerciseRepo.findAllByUserIdOrderByLoggedAtDesc(userId);
+
+        BigDecimal totalRunDistanceKm = exerciseLogs.stream()
+            .filter(log -> log.getExerciseType() == ExerciseType.RUNNING && log.getDistanceKm() != null)
+            .map(ExerciseLog::getDistanceKm)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        int totalCaloriesBurned = exerciseLogs.stream()
+            .mapToInt(log -> log.getCaloriesBurnedKcal() != null ? log.getCaloriesBurnedKcal() : 0)
+            .sum();
+
+        int distinctExerciseDays = (int) exerciseLogs.stream()
+            .map(log -> log.getLoggedAt().toLocalDate())
+            .distinct()
+            .count();
+
+        int totalHydrationMl = hydrationRepo.findAllByUserIdOrderByLoggedAtDesc(userId).stream()
+            .mapToInt(log -> log.getVolumeMl() != null ? log.getVolumeMl() : 0)
+            .sum();
+
+        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+
+        List<Integer> recentSleepMinutes = sleepRepo.findAllByUserIdOrderByStartTimeDesc(userId).stream()
+            .filter(log -> log.getStartTime().isAfter(thirtyDaysAgo))
+            .map(SleepLog::getDurationMinutes)
+            .filter(minutes -> minutes != null)
+            .toList();
+        Double avgSleepHoursLast30Days = recentSleepMinutes.isEmpty() ? null :
+            recentSleepMinutes.stream().mapToInt(Integer::intValue).average().orElse(0.0) / 60.0;
+
+        List<Integer> recentMoodRatings = moodRepo.findAllByUserIdOrderByLoggedAtDesc(userId).stream()
+            .filter(log -> log.getLoggedAt().isAfter(thirtyDaysAgo))
+            .map(MoodLog::getMoodRating)
+            .toList();
+        Double avgMoodLast30Days = recentMoodRatings.isEmpty() ? null :
+            recentMoodRatings.stream().mapToInt(Integer::intValue).average().orElse(0.0);
+
+        LocalDate today = LocalDate.now();
+        BigDecimal todayWeightKg = weightRepo.findAllByUserIdOrderByLoggedAtDesc(userId).stream()
+            .filter(log -> log.getLoggedAt().toLocalDate().equals(today))
+            .findFirst()
+            .map(WeightLog::getWeightKg)
+            .orElse(null);
+
+        return BadgeProgressResponse.builder()
+            .totalRunDistanceKm(totalRunDistanceKm)
+            .totalCaloriesBurned(totalCaloriesBurned)
+            .totalHydrationMl(totalHydrationMl)
+            .avgSleepHoursLast30Days(avgSleepHoursLast30Days)
+            .avgMoodLast30Days(avgMoodLast30Days)
+            .distinctExerciseDays(distinctExerciseDays)
+            .todayWeightKg(todayWeightKg)
+            .build();
     }
 
     // Wipes today's logged wellness data (sleep/hydration/weight/mood/exercise, the

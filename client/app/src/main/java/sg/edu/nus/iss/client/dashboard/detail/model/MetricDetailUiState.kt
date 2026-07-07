@@ -11,5 +11,8 @@ data class MetricDetailUiState(
     val selectedBarIndex: Int? = null,
     val summaryRows: List<MetricSummaryRow> = emptyList(),
     val canGoNext: Boolean = false,
-    val canGoPrevious: Boolean = true
+    val canGoPrevious: Boolean = true,
+    // Sleep quality (1-10, real backend data), averaged over whatever date range this
+    // state represents. Only populated when metricType == SLEEP.
+    val sleepQualityScore: Double? = null
 )

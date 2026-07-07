@@ -2,6 +2,7 @@ package sg.edu.nus.iss.client.network
 
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -42,13 +43,27 @@ interface AuthApiService {
     @GET("api/wellness/daily-summary")
     suspend fun getDailyWellnessSummary(): Response<DailyWellnessSummary>
 
-    // Fetch the last 7 days of logged exercise sessions. Populates the Home
-    // "Activity Tracked" list and the History screen.
+    // Fetch the last 7 days of logged exercise sessions.
     @GET("api/wellness/weekly-exercise")
     suspend fun getWeeklyExercise(): Response<List<ExerciseLogResponse>>
 
+    // Fetch up to `days` days of logged exercise sessions (default 30 server-side).
+    // Populates the Home "Activity Tracked" list, the History screen, and the
+    // Exercise Days detail screen's week/month navigation.
+    @GET("api/wellness/exercise-logs")
+    suspend fun getExerciseLogs(@Query("days") days: Int = 30): Response<List<ExerciseLogResponse>>
+
+    // Deletes a single exercise session; backend also reverses its contribution to
+    // that day's distance/calories/exercise-minutes totals.
+    @DELETE("api/wellness/exercise-logs/{id}")
+    suspend fun deleteExerciseLog(@Path("id") id: Long): Response<Void>
+
     @GET("api/wellness/recommendations/latest")
     suspend fun getLatestRecommendation(): Response<RecommendationResponse>
+
+    // All-time / rolling aggregates used to evaluate the Badges grid.
+    @GET("api/wellness/badge-progress")
+    suspend fun getBadgeProgress(): Response<BadgeProgressResponse>
 
     // Fetch current user's profile (name/DOB/gender/height); fields are null until first saved
     @GET("api/user/profile")
@@ -71,12 +86,20 @@ interface AuthApiService {
         @Body request: UserGoalUpsertRequest
     ): Response<UserGoalResponse>
 
-    // Fetch a date range of daily summaries (used for sleep quality history)
+    // Fetch a date range of daily summaries (used for sleep/mood history and the
+    // Distance/Calories/Hydration/Sleep/Weight Week/Month/6-Month charts)
     @GET("api/dashboard/range")
     suspend fun getDashboardRange(
         @Query("startDate") startDate: String,  // Format: "yyyy-MM-dd"
         @Query("endDate") endDate: String       // Format: "yyyy-MM-dd"
     ): Response<List<DailyWellnessSummary>>
+
+    // Precise-to-the-hour breakdown of exercise distance/calories and hydration volume
+    // for a single date. Backs the Distance/Calories/Hydration detail screens' Day view.
+    @GET("api/wellness/hourly-summary")
+    suspend fun getHourlySummary(
+        @Query("date") date: String  // Format: "yyyy-MM-dd"
+    ): Response<List<HourlyWellnessResponse>>
 }
 
 data class LogoutResponse(val token: String?)
@@ -154,4 +177,21 @@ data class ExerciseLogResponse(
     val startTime: String? = null,   // ISO-8601, e.g. "2026-07-07T14:30:00" (no @JsonFormat on the backend field)
     val endTime: String? = null,     // ISO-8601
     val loggedAt: String              // ISO-8601
+)
+
+data class HourlyWellnessResponse(
+    val hour: Int,
+    val distanceKm: Double = 0.0,
+    val caloriesBurnedKcal: Int = 0,
+    val waterMl: Int = 0
+)
+
+data class BadgeProgressResponse(
+    val totalRunDistanceKm: Double = 0.0,
+    val totalCaloriesBurned: Int = 0,
+    val totalHydrationMl: Int = 0,
+    val avgSleepHoursLast30Days: Double? = null,
+    val avgMoodLast30Days: Double? = null,
+    val distinctExerciseDays: Int = 0,
+    val todayWeightKg: Double? = null
 )

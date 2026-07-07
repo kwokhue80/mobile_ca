@@ -27,7 +27,12 @@ object MetricLineChartConfigurator {
         onBarSelected: (Int) -> Unit,
         onSelectionCleared: () -> Unit
     ) {
-        val entries = bars.mapIndexed { index, bar -> Entry(index.toFloat(), bar.value.toFloat()) }
+        // Days with no logged data (value 0) are omitted from the line entirely
+        // (rather than plotted as a dip to zero), but keep their true index so the
+        // remaining points still land in their correct position along the x-axis.
+        val entries = bars.mapIndexedNotNull { index, bar ->
+            if (bar.value > 0.0) Entry(index.toFloat(), bar.value.toFloat()) else null
+        }
         val dataSet = LineDataSet(entries, "").apply {
             color = baseColor
             setDrawCircles(true)
@@ -60,6 +65,10 @@ object MetricLineChartConfigurator {
         chart.axisLeft.setDrawGridLines(false)
         chart.axisLeft.textColor = Color.parseColor(AXIS_TEXT_COLOR)
         chart.axisLeft.removeAllLimitLines()
+        // Always start the y-axis at 0 rather than auto-scaling to the data's own
+        // minimum - otherwise small real fluctuations (e.g. 50-55kg) get visually
+        // exaggerated by a floor that isn't actually zero.
+        chart.axisLeft.axisMinimum = 0f
         if (showGoalLine) {
             val limitLine = LimitLine(chartGoalValue.toFloat())
             limitLine.lineColor = goalMetColor
@@ -78,7 +87,17 @@ object MetricLineChartConfigurator {
         chart.xAxis.granularity = 1f
         chart.xAxis.textColor = Color.parseColor(AXIS_TEXT_COLOR)
         chart.xAxis.valueFormatter = IndexAxisValueFormatter(bars.map { it.axisLabel })
+        // Not forced: bars now always cover the full period (7 days, or the whole
+        // month), so an unforced "nice interval" placement lands exactly on every
+        // integer index. Forcing an exact count here previously divided the axis
+        // range by (count-1), which doesn't land on integers for a 7-wide range and
+        // silently dropped labels (e.g. Tue/Wed) instead of showing them.
         chart.xAxis.setLabelCount(bars.size.coerceAtMost(8), false)
+        // Always span the full period (e.g. Mon-Sun), even when some days have no
+        // data and were dropped from `entries` above - otherwise the chart would
+        // auto-scale to only the days with real points, squishing them together.
+        chart.xAxis.axisMinimum = -0.5f
+        chart.xAxis.axisMaximum = bars.size - 0.5f
         chart.setExtraBottomOffset(6f)
 
         if (selectedBarIndex != null && bars.getOrNull(selectedBarIndex) != null) {
