@@ -18,6 +18,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -77,32 +78,15 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             "OTHER"
         )
 
+        // Matches ExerciseType.entries.map { it.backendExerciseType } exactly, so the
+        // "Add" sheet and the "Add Activity" flow offer the same 6 exercise types.
         private val EXERCISE_TYPES = setOf(
-            "RUNNING",
             "WALKING",
+            "RUNNING",
             "SWIMMING",
             "HIKING",
             "CYCLING",
-            "JOGGING",
-            "STRENGTH_TRAINING",
-            "WEIGHTLIFTING",
-            "BODYWEIGHT_TRAINING",
-            "HIIT",
-            "CROSSFIT",
-            "YOGA",
-            "PILATES",
-            "STRETCHING",
-            "ROWING",
-            "JUMP_ROPE",
-            "DANCING",
-            "BASKETBALL",
-            "FOOTBALL",
-            "BADMINTON",
-            "TENNIS",
-            "VOLLEYBALL",
-            "MARTIAL_ARTS",
-            "CLIMBING",
-            "OTHER"
+            "YOGA"
         )
 
         fun newInstance(itemName: String): AddItemBottomSheetFragment {
@@ -595,6 +579,7 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
                         "$formName saved successfully",
                         Toast.LENGTH_SHORT
                     ).show()
+                    ViewModelProvider(requireActivity())[DashboardViewModel::class.java].refreshToday()
                     dismiss()
                 } else {
                     val errorBody = response.errorBody()?.string().orEmpty()

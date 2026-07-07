@@ -4,8 +4,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import sg.edu.nus.features.wellness.dto.ActivityRecordDto;
+import sg.edu.nus.features.wellness.dto.ExerciseLogResponse;
 import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -138,6 +140,8 @@ public class WellnessOrchestratorService {
                 .durationMinutes(payload.getExerciseDurationMinutes())
                 .distanceKm(payload.getExerciseDistanceKm() != null ? BigDecimal.valueOf(payload.getExerciseDistanceKm()) : null)
                 .caloriesBurnedKcal(payload.getExerciseCaloriesBurnedKcal() != null ? payload.getExerciseCaloriesBurnedKcal() : 0)
+                .startTime(payload.getExerciseStartTime())
+                .endTime(payload.getExerciseEndTime())
                 .build();
             exercise = exerciseRepo.save(exercise);
 
@@ -146,6 +150,9 @@ public class WellnessOrchestratorService {
             summary.setTotalExerciseMinutes(summary.getTotalExerciseMinutes() + payload.getExerciseDurationMinutes());
             if (payload.getExerciseCaloriesBurnedKcal() != null) {
                 summary.setTotalCaloriesBurned(summary.getTotalCaloriesBurned() + payload.getExerciseCaloriesBurnedKcal());
+            }
+            if (payload.getExerciseDistanceKm() != null) {
+                summary.setTotalDistanceKm(summary.getTotalDistanceKm().add(BigDecimal.valueOf(payload.getExerciseDistanceKm())));
             }
         }
 
@@ -210,4 +217,47 @@ public class WellnessOrchestratorService {
     }
     return result;
 }
+
+    // Retrieves a user's logged exercise sessions (structured: duration, distance,
+    // calories, start/end time) over a given number of past days. Backs the Home
+    // "Activity Tracked" list and the History screen.
+    public List<ExerciseLogResponse> getExerciseLogs(User currentUser, int numberOfDays) {
+        LocalDateTime endTime = LocalDateTime.now();
+        LocalDateTime startTime = endTime.minusDays(numberOfDays);
+
+        return exerciseRepo.findByUserIdAndLoggedAtBetweenOrderByLoggedAtDesc(
+                currentUser.getId(), startTime, endTime
+        ).stream()
+            .map(log -> ExerciseLogResponse.builder()
+                .id(log.getId())
+                .exerciseType(log.getExerciseType().toString())
+                .durationMinutes(log.getDurationMinutes())
+                .distanceKm(log.getDistanceKm())
+                .caloriesBurnedKcal(log.getCaloriesBurnedKcal())
+                .startTime(log.getStartTime())
+                .endTime(log.getEndTime())
+                .loggedAt(log.getLoggedAt())
+                .build())
+            .toList();
+    }
+
+    // Wipes today's logged wellness data (sleep/hydration/weight/mood/exercise, the
+    // generic activity feed, and the aggregated daily summary) for the given user,
+    // leaving user_goals and user_profile untouched. Used to reset a test account
+    // to a clean slate on every app login.
+    @Transactional
+    public void resetToday(User currentUser) {
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.plusDays(1).atStartOfDay().minusNanos(1);
+        UUID userId = currentUser.getId();
+
+        sleepRepo.deleteByUserIdAndStartTimeBetween(userId, startOfDay, endOfDay);
+        hydrationRepo.deleteByUserIdAndLoggedAtBetween(userId, startOfDay, endOfDay);
+        weightRepo.deleteByUserIdAndLoggedAtBetween(userId, startOfDay, endOfDay);
+        moodRepo.deleteByUserIdAndLoggedAtBetween(userId, startOfDay, endOfDay);
+        exerciseRepo.deleteByUserIdAndLoggedAtBetween(userId, startOfDay, endOfDay);
+        activityRepo.deleteByUserIdAndRecordedAtBetween(userId, startOfDay, endOfDay);
+        summaryRepo.deleteByUserIdAndSummaryDate(userId, today);
+    }
 }

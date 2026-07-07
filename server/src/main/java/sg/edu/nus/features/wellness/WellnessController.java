@@ -17,6 +17,7 @@ import sg.edu.nus.features.user.account.User;
 import sg.edu.nus.features.user.account.UserService;
 import sg.edu.nus.features.wellness.dto.WellnessRecordPayload;
 import sg.edu.nus.features.wellness.dto.ActivityRecordDto;
+import sg.edu.nus.features.wellness.dto.ExerciseLogResponse;
 import sg.edu.nus.features.wellness.dto.RecommendationResponse;
 
 @Slf4j
@@ -52,6 +53,25 @@ public class WellnessController {
         User currentUser = findAuthenticatedUser(authentication);
         List<ActivityRecordDto> history = orchestratorService.getActivityHistory(currentUser, days);
         return ResponseEntity.ok(history);
+    }
+
+    @GetMapping("/exercise-logs")
+    public ResponseEntity<List<ExerciseLogResponse>> getExerciseLogs(
+            @RequestParam(defaultValue = "30") int days,
+            Authentication authentication) {
+        User currentUser = findAuthenticatedUser(authentication);
+        List<ExerciseLogResponse> logs = orchestratorService.getExerciseLogs(currentUser, days);
+        return ResponseEntity.ok(logs);
+    }
+
+    // Testing convenience: wipes today's logged wellness data for the current user
+    // (sleep/hydration/weight/mood/exercise + the aggregated daily summary), leaving
+    // goals and profile untouched. Called by the client on every login.
+    @PostMapping("/reset-today")
+    public ResponseEntity<Void> resetToday(Authentication authentication) {
+        User currentUser = findAuthenticatedUser(authentication);
+        orchestratorService.resetToday(currentUser);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/recommendations/latest")

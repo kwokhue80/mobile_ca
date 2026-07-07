@@ -92,6 +92,18 @@
                         android:textSize="26sp" />
                 </LinearLayout>
 
+                <!-- 达标勾选，goal达成时显示 -->
+                <ImageView
+                    android:id="@+id/checkDistance"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_check_circle"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </FrameLayout>
@@ -181,6 +193,17 @@
                         android:textSize="26sp" />
                 </LinearLayout>
 
+                <ImageView
+                    android:id="@+id/checkCalBurned"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_check_circle"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </FrameLayout>
@@ -268,6 +291,17 @@
                         android:textSize="26sp" />
                 </LinearLayout>
 
+                <ImageView
+                    android:id="@+id/checkSleep"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_check_circle"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </FrameLayout>
@@ -354,6 +388,17 @@
                         android:text="1250ml"
                         android:textSize="26sp" />
                 </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/checkHydration"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_check_circle"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

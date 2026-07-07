@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -56,6 +57,10 @@ public class DailyWellnessSummary extends Updatable {
 	@Column(name = "total_exercise_minutes", nullable = false)
 	private Integer totalExerciseMinutes = 0;
 
+	@Builder.Default
+	@Column(name = "total_distance_km", nullable = false, precision = 6, scale = 2)
+	private BigDecimal totalDistanceKm = BigDecimal.ZERO;
+
 	@Column(name = "sleep_minutes")
 	private Integer sleepMinutes;
 
@@ -69,6 +74,7 @@ public class DailyWellnessSummary extends Updatable {
 	private BigDecimal weightKg;
 
     // ASSOCIATIONS
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
 	private User user;

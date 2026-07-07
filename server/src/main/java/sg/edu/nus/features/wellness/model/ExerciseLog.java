@@ -52,6 +52,12 @@ public class ExerciseLog extends Creatable {
 	@Column(name = "logged_at", nullable = false)
 	private LocalDateTime loggedAt;
 
+	@Column(name = "start_time")
+	private LocalDateTime startTime;
+
+	@Column(name = "end_time")
+	private LocalDateTime endTime;
+
     // ASSOCIATIONS
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)

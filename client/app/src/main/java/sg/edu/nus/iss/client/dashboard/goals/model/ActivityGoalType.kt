@@ -79,4 +79,13 @@ enum class ActivityGoalType(
     } else {
         "%.${decimalPlaces}f".format(value)
     }
+
+    // Backend's GoalType enum has no "_DAYS" suffix on EXERCISE; every other name matches as-is.
+    val backendGoalType: String
+        get() = if (this == EXERCISE_DAYS) "EXERCISE" else name
+
+    companion object {
+        fun fromBackendGoalType(value: String): ActivityGoalType? =
+            entries.firstOrNull { it.backendGoalType == value }
+    }
 }

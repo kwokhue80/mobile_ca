@@ -1,5 +1,6 @@
 package sg.edu.nus.features.wellness.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,5 +11,10 @@ import sg.edu.nus.features.wellness.model.ExerciseLog;
 public interface ExerciseLogRepository extends JpaRepository<ExerciseLog, Long> {
 
 	List<ExerciseLog> findAllByUserIdOrderByLoggedAtDesc(UUID userId);
+
+	List<ExerciseLog> findByUserIdAndLoggedAtBetweenOrderByLoggedAtDesc(
+			UUID userId, LocalDateTime start, LocalDateTime end);
+
+	void deleteByUserIdAndLoggedAtBetween(UUID userId, LocalDateTime start, LocalDateTime end);
 
 }
