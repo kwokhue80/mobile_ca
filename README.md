@@ -103,6 +103,7 @@ File: [server/src/main/resources/application.properties](server/src/main/resourc
 Important settings:
 
 - Server port: 8000
+- Chatbot bridge (FastAPI) port: 8001
 - MySQL datasource: wellness_db
 - JWT secret: JWT_SECRET environment variable
 - OpenRouter API key: OPENROUTER_API_KEY environment variable
@@ -131,6 +132,40 @@ macOS/Linux:
 	./mvnw spring-boot:run
 
 Backend will start on port 8000 by default.
+
+### 2a) Start Chatbot Bridge (FastAPI)
+
+From [server/mcp_server](server/mcp_server):
+
+Windows:
+	C:/Python314/python.exe -m uvicorn mcp_agent_wellness:app --app-dir "c:\Users\ameli\Documents\GDipSA\CAs\MobileCA\server\mcp_server" --host 0.0.0.0 --port 8001
+
+macOS/Linux:
+	python -m uvicorn mcp_agent_wellness:app --app-dir ./server/mcp_server --host 0.0.0.0 --port 8001
+
+Chatbot requests from Android are routed to the bridge on port 8001, while the bridge calls Spring endpoints on port 8000.
+
+### 2b) Start Both Services From VS Code
+
+You can start backend + chatbot bridge together using the configured VS Code task:
+
+- Run Task: Start Chat Stack
+
+You can start backend + chatbot bridge + Android client install/launch together using:
+
+- Run Task: Start Full Stack
+
+If no Android emulator/device is connected, the Android install/launch steps are skipped automatically and the backend/chat services still start.
+
+You can stop backend + chatbot bridge together using:
+
+- Run Task: Stop Chat Stack
+
+You can stop backend + chatbot bridge + Android client app using:
+
+- Run Task: Stop Full Stack
+
+Task configuration is in [.vscode/tasks.json](.vscode/tasks.json).
 
 ### 3) Start Android Client
 
