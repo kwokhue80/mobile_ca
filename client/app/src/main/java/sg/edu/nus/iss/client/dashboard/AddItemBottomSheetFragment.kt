@@ -195,7 +195,8 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         saveButton.setOnClickListener {
             val mealType = mealTypeInput.selectedItem?.toString().orEmpty()
             val foodName = foodNameInput.text.toString().trim()
-            val calories = caloriesInput.text.toString().trim().toIntOrNull()
+            val caloriesText = caloriesInput.text.toString().trim()
+            val calories = caloriesText.toIntOrNull()
 
             if (mealType !in MEAL_TYPES) {
                 Toast.makeText(
@@ -211,8 +212,13 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
                 return@setOnClickListener
             }
 
+            if (caloriesText.isEmpty()) {
+                caloriesInput.error = "Calories is required"
+                return@setOnClickListener
+            }
+
             if (calories == null || calories <= 0) {
-                caloriesInput.error = "Calories must be a positive number"
+                caloriesInput.error = "Calories must be greater than 0"
                 return@setOnClickListener
             }
 
@@ -335,6 +341,18 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
                 return@setOnClickListener
             }
 
+            val now = LocalDateTime.now()
+
+            if (sleepStartDateTime.isAfter(now)) {
+                startTimeInput.error = "Sleep start time cannot be in the future"
+                return@setOnClickListener
+            }
+
+            if (wakeUpDateTime.isAfter(now)) {
+                wakeUpTimeInput.error = "Wake up time cannot be in the future"
+                return@setOnClickListener
+            }
+
             val sleepMinutes = Duration.between(sleepStartDateTime, wakeUpDateTime).toMinutes().toInt()
 
             if (sleepMinutes <= 0) {
@@ -343,7 +361,7 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             }
 
             if (quality == null || quality !in 1..5) {
-                qualityInput.error = "Please enter a rating from 1 to 5"
+                qualityInput.error = "Sleep quality rating must be between 1 and 5"
                 return@setOnClickListener
             }
 
@@ -382,10 +400,16 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         val saveButton = addButton("Save Hydration")
 
         saveButton.setOnClickListener {
-            val waterMl = waterInput.text.toString().trim().toIntOrNull()
+            val waterText = waterInput.text.toString().trim()
+            val waterMl = waterText.toIntOrNull()
+
+            if (waterText.isEmpty()) {
+                waterInput.error = "Water amount is required"
+                return@setOnClickListener
+            }
 
             if (waterMl == null || waterMl <= 0) {
-                waterInput.error = "Water intake must be a positive number"
+                waterInput.error = "Water amount must be greater than 0"
                 return@setOnClickListener
             }
 
@@ -415,10 +439,16 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         val saveButton = addButton("Save Weight")
 
         saveButton.setOnClickListener {
-            val weightKg = weightInput.text.toString().trim().toDoubleOrNull()
+            val weightText = weightInput.text.toString().trim()
+            val weightKg = weightText.toDoubleOrNull()
+
+            if (weightText.isEmpty()) {
+                weightInput.error = "Weight is required"
+                return@setOnClickListener
+            }
 
             if (weightKg == null || weightKg <= 0.0) {
-                weightInput.error = "Weight must be a positive number"
+                weightInput.error = "Weight must be greater than 0"
                 return@setOnClickListener
             }
 
@@ -466,7 +496,8 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
 
         saveButton.setOnClickListener {
             val exerciseType = exerciseTypeInput.selectedItem?.toString().orEmpty()
-            val duration = durationInput.text.toString().trim().toIntOrNull()
+            val durationText = durationInput.text.toString().trim()
+            val duration = durationText.toIntOrNull()
 
             val distanceText = distanceInput.text.toString().trim()
             val caloriesText = caloriesBurnedInput.text.toString().trim()
@@ -484,18 +515,25 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
                 return@setOnClickListener
             }
 
+            if (durationText.isEmpty()) {
+                durationInput.error = "Duration is required"
+                return@setOnClickListener
+            }
+
             if (duration == null || duration <= 0) {
-                durationInput.error = "Duration must be a positive number"
+                durationInput.error = "Duration must be greater than 0"
                 return@setOnClickListener
             }
 
             if (distanceText.isNotEmpty() && (distance == null || distance < 0.0)) {
-                distanceInput.error = "Distance must be a valid number"
+                distanceInput.error =
+                    if (distance == null) "Distance must be a valid number" else "Distance cannot be negative"
                 return@setOnClickListener
             }
 
             if (caloriesText.isNotEmpty() && (caloriesBurned == null || caloriesBurned < 0)) {
-                caloriesBurnedInput.error = "Calories burned must be a valid number"
+                caloriesBurnedInput.error =
+                    if (caloriesBurned == null) "Calories burned must be a valid number" else "Calories burned cannot be negative"
                 return@setOnClickListener
             }
 
@@ -528,7 +566,13 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         val saveButton = addButton("Save Mood")
 
         saveButton.setOnClickListener {
-            val moodRating = moodInput.text.toString().trim().toIntOrNull()
+            val moodText = moodInput.text.toString().trim()
+            val moodRating = moodText.toIntOrNull()
+
+            if (moodText.isEmpty()) {
+                moodInput.error = "Mood rating is required"
+                return@setOnClickListener
+            }
 
             if (moodRating == null || moodRating !in 1..10) {
                 moodInput.error = "Please enter a rating from 1 to 10"
@@ -578,6 +622,10 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         record: WellnessRecord,
         saveButton: Button
     ) {
+        if (!validateRecordDateNotFuture(record.recordDate)) {
+            return
+        }
+
         saveButton.isEnabled = false
         saveButton.text = "Saving..."
 
@@ -692,6 +740,23 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             isCursorVisible = false
             keyListener = null
         }
+    }
+
+    private fun validateRecordDateNotFuture(recordDate: String): Boolean {
+        val parsedRecordDate = runCatching {
+            LocalDateTime.parse(recordDate, RECORD_DATE_FORMATTER)
+        }.getOrNull()
+
+        if (parsedRecordDate != null && parsedRecordDate.isAfter(LocalDateTime.now())) {
+            Toast.makeText(
+                requireContext(),
+                "Record date cannot be in the future",
+                Toast.LENGTH_SHORT
+            ).show()
+            return false
+        }
+
+        return true
     }
 
     private fun addSpinner(
