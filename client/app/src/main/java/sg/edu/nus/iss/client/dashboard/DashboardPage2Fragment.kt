@@ -19,8 +19,6 @@ import sg.edu.nus.iss.client.dashboard.goals.UserGoalsViewModel
 import sg.edu.nus.iss.client.dashboard.goals.model.ActivityGoalType
 import sg.edu.nus.iss.client.databinding.PageDashboard2Binding
 import sg.edu.nus.iss.client.navigation.RouteManager
-import sg.edu.nus.iss.client.network.RetrofitClient
-import java.time.LocalDate
 
 class DashboardPage2Fragment : Fragment() {
 
@@ -78,35 +76,13 @@ class DashboardPage2Fragment : Fragment() {
                     binding.tvMentalHealth.text = summary?.moodScore?.let {
                         MentalHealthDetailViewModel.moodCategory(it.toDouble())
                     } ?: "--"
+
+                    val calories = summary?.totalCaloriesIntake ?: 0
+                    binding.tvFoodIntake.text = "$calories kcal"
+                    binding.progressFoodIntake.progress =
+                        calories.coerceIn(0, binding.progressFoodIntake.max)
                 }
             }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        loadFoodIntake()
-    }
-
-    private fun loadFoodIntake() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            val today = LocalDate.now().toString()
-            val response = runCatching {
-                RetrofitClient
-                    .getApiService(requireContext())
-                    .getDailyDashboard(today)
-            }.getOrNull()
-
-            val calories = response
-                ?.takeIf { it.isSuccessful }
-                ?.body()
-                ?.dailyWellnessSummary
-                ?.totalCaloriesIntake
-                ?: 0
-
-            binding.tvFoodIntake.text = "$calories kcal"
-            binding.progressFoodIntake.progress =
-                calories.coerceIn(0, binding.progressFoodIntake.max)
         }
     }
 

@@ -123,13 +123,16 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
         }
     }
 
-    // Distance/Calories/Hydration select from the hourly buckets; Sleep/Weight select
-    // from a single day's aggregated summary (both real backend data).
+    // Distance/Calories/Hydration select from the hourly buckets; Sleep/Weight/Food
+    // Intake select from a single day's aggregated summary (all real backend data).
+    // Food Intake has no hourly breakdown (meals aren't bucketed by hour server-side),
+    // so it's never routed through this selector - see buildDayState()'s single-value
+    // branch - but the case is still needed for this "when" to stay exhaustive.
     private fun selectHourlyValue(entry: HourlyWellnessResponse?): Double = when (metricType) {
         MetricType.DISTANCE -> entry?.distanceKm ?: 0.0
         MetricType.CALORIES -> entry?.caloriesBurnedKcal?.toDouble() ?: 0.0
         MetricType.HYDRATION -> entry?.waterMl?.toDouble() ?: 0.0
-        MetricType.SLEEP, MetricType.WEIGHT -> 0.0
+        MetricType.SLEEP, MetricType.WEIGHT, MetricType.FOOD_INTAKE -> 0.0
     }
 
     private fun selectDailyValue(summary: DailyWellnessSummary?): Double = when (metricType) {
@@ -138,6 +141,7 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
         MetricType.HYDRATION -> summary?.totalWaterMl?.toDouble() ?: 0.0
         MetricType.SLEEP -> (summary?.sleepMinutes ?: 0) / 60.0
         MetricType.WEIGHT -> summary?.weightKg ?: 0.0
+        MetricType.FOOD_INTAKE -> summary?.totalCaloriesIntake?.toDouble() ?: 0.0
     }
 
     private suspend fun fetchRange(start: LocalDate, end: LocalDate): Map<LocalDate, DailyWellnessSummary> {
@@ -172,7 +176,7 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
         val periodLabel = if (referenceDate == today) "Today" else formatDayLabel(referenceDate)
         val canNext = referenceDate.isBefore(today)
 
-        if (metricType == MetricType.SLEEP || metricType == MetricType.WEIGHT) {
+        if (metricType == MetricType.SLEEP || metricType == MetricType.WEIGHT || metricType == MetricType.FOOD_INTAKE) {
             val summary = fetchRange(referenceDate, referenceDate)[referenceDate]
             val total = selectDailyValue(summary)
             return MetricDetailUiState(

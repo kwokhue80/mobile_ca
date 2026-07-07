@@ -148,6 +148,10 @@ class MetricDetailFragment : Fragment() {
 
         val isWeight = metricType == MetricType.WEIGHT
         val isSleepDay = metricType == MetricType.SLEEP && state.timeRange == TimeRange.DAY
+        // Food Intake has no hourly breakdown (see MetricDetailViewModel.selectHourlyValue),
+        // so its Day view is a single total value with no chart, same as Sleep's Day view.
+        val isFoodIntakeDay = metricType == MetricType.FOOD_INTAKE && state.timeRange == TimeRange.DAY
+        val isSingleValueDay = isSleepDay || isFoodIntakeDay
 
         val selectedBar = state.selectedBarIndex?.let { state.bars.getOrNull(it) }
         if (selectedBar != null) {
@@ -168,6 +172,8 @@ class MetricDetailFragment : Fragment() {
             val currentWeight = state.bars.lastOrNull { it.value > 0 }?.value ?: state.totalValue
             binding.tvSummaryDefaultValue.text = if (isSleepDay) {
                 "You slept ${metricType.formatValue(state.totalValue)}${metricType.unit} today."
+            } else if (isFoodIntakeDay) {
+                "You consumed ${metricType.formatValue(state.totalValue)} ${metricType.unit} today."
             } else if (isWeight) {
                 val avgSuffix = if (state.timeRange == TimeRange.DAY) "" else "(avg)"
                 "${metricType.formatValue(currentWeight)}${metricType.unit}$avgSuffix"
@@ -177,7 +183,7 @@ class MetricDetailFragment : Fragment() {
                 "${metricType.formatValue(state.totalValue)} of ${metricType.formatValue(state.goalValue)} ${metricType.unit}"
             }
             binding.tvSummarySubtitle.text = state.subtitle
-            binding.tvSummarySubtitle.visibility = if (isWeight || isSleepDay) View.GONE else View.VISIBLE
+            binding.tvSummarySubtitle.visibility = if (isWeight || isSingleValueDay) View.GONE else View.VISIBLE
         }
 
         val hasSummaryRows = state.summaryRows.isNotEmpty()
@@ -193,9 +199,9 @@ class MetricDetailFragment : Fragment() {
         } else {
             "Daily goal: ${metricType.formatValue(currentGoalValue)} ${metricType.unit}"
         }
-        binding.chartContainer.visibility = if (isWeightDay || isSleepDay) View.GONE else View.VISIBLE
-        binding.chartMetric.visibility = if (isWeight || isSleepDay) View.GONE else View.VISIBLE
-        binding.chartSelectionOverlay.visibility = if (isWeight || isSleepDay) View.GONE else View.VISIBLE
+        binding.chartContainer.visibility = if (isWeightDay || isSingleValueDay) View.GONE else View.VISIBLE
+        binding.chartMetric.visibility = if (isWeight || isSingleValueDay) View.GONE else View.VISIBLE
+        binding.chartSelectionOverlay.visibility = if (isWeight || isSingleValueDay) View.GONE else View.VISIBLE
         binding.chartMetricLine.visibility = if (isWeight) View.VISIBLE else View.GONE
         binding.cardBmi.visibility = if (isWeight) View.VISIBLE else View.GONE
 
@@ -208,8 +214,8 @@ class MetricDetailFragment : Fragment() {
             binding.bmiGauge.setBmi(bmiValue.toFloat())
         }
 
-        if (isWeightDay || isSleepDay) {
-            // No chart for Weight's/Sleep's Day view; the text summary above is enough.
+        if (isWeightDay || isSingleValueDay) {
+            // No chart for Weight's/Sleep's/Food Intake's Day view; the text summary above is enough.
         } else if (isWeight) {
             MetricLineChartConfigurator.configure(
                 chart = binding.chartMetricLine,
