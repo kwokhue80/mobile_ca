@@ -21,7 +21,6 @@ import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
 import sg.edu.nus.iss.client.dashboard.util.ActivityDateFormatter
 import sg.edu.nus.iss.client.databinding.FragmentActivityDetailBinding
 import sg.edu.nus.iss.client.navigation.RouteManager
-import kotlin.math.roundToInt
 
 class ActivityDetailFragment : Fragment() {
 
@@ -67,7 +66,7 @@ class ActivityDetailFragment : Fragment() {
     }
 
     private fun render(record: ActivityRecord) {
-        val exerciseType = ExerciseType.entries.firstOrNull { it.displayName == record.type }
+        val exerciseType = ExerciseType.fromDisplayName(record.type)
 
         binding.tvActivityTitle.text = record.type
         binding.tvActivityType.text = record.type
@@ -97,13 +96,20 @@ class ActivityDetailFragment : Fragment() {
     private fun applyAccentTheme(exerciseType: ExerciseType?) {
         val accentColor = exerciseType?.accentColor ?: DEFAULT_ACCENT_COLOR
         val accentBackground = exerciseType?.accentBackground ?: DEFAULT_ACCENT_BACKGROUND
+        val accentColorDark = ColorUtils.blendARGB(accentColor, Color.BLACK, 0.35f)
 
-        (binding.headerBanner.background.mutate() as GradientDrawable).setColor(accentBackground)
+        // Explicitly set both gradient stops to the same color rather than setColor(),
+        // since bg_activity_header.xml now declares a real <gradient> (for Add Activity's
+        // header) and setColor() alone wasn't reliably overriding it here - the XML's own
+        // default gradient colors kept showing through for every exercise type.
+        (binding.headerBanner.background.mutate() as GradientDrawable).colors =
+            intArrayOf(accentBackground, accentBackground)
         (binding.iconContainer.background.mutate() as GradientDrawable).setColor(0xFFFFFFFF.toInt())
+        (binding.durationCard.background.mutate() as GradientDrawable).colors =
+            intArrayOf(accentColor, accentColorDark)
 
-        listOf(
-            binding.iconDistance, binding.iconPace, binding.iconCalories
-        ).forEach { it.setColorFilter(accentColor, PorterDuff.Mode.SRC_IN) }
+        listOf(binding.iconDistance, binding.iconPace, binding.iconCalories)
+            .forEach { it.setColorFilter(accentColor, PorterDuff.Mode.SRC_IN) }
     }
 
     override fun onDestroyView() {

@@ -329,8 +329,15 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
     }
 
     private fun randomBarValue(random: Random, biasHigh: Boolean = false): Double {
-        val max = currentGoal * if (biasHigh) 1.3 else 0.4
-        val raw = random.nextDouble() * max
+        // Weight and Sleep are bounded to realistic human ranges regardless of the
+        // user's goal (unlike Distance/Calories/Hydration, whose mock trend is still
+        // goal-scaled) - a goal-scaled formula could otherwise mock a 0kg weight or
+        // an unrealistic sleep duration.
+        val raw = when (metricType) {
+            MetricType.WEIGHT -> random.nextDouble(40.0, 100.0)
+            MetricType.SLEEP -> random.nextDouble(5.0, 12.0)
+            else -> random.nextDouble() * (currentGoal * if (biasHigh) 1.3 else 0.4)
+        }
         return if (metricType.decimalPlaces == 0) {
             Math.round(raw).toDouble()
         } else {

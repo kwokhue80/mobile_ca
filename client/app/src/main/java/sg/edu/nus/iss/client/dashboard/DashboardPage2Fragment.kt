@@ -1,5 +1,7 @@
 package sg.edu.nus.iss.client.dashboard
 
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,8 +11,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricType
+import sg.edu.nus.iss.client.dashboard.detail.ExerciseDaysViewModel
 import sg.edu.nus.iss.client.dashboard.goals.UserGoalsViewModel
 import sg.edu.nus.iss.client.dashboard.goals.model.ActivityGoalType
 import sg.edu.nus.iss.client.databinding.PageDashboard2Binding
@@ -19,6 +23,14 @@ import sg.edu.nus.iss.client.network.RetrofitClient
 import java.time.LocalDate
 
 class DashboardPage2Fragment : Fragment() {
+
+    companion object {
+        // Matches DashboardPage1Fragment's checkmarks - same green, slight transparency
+        // so it doesn't read as a harsh solid dot against the card's softer palette.
+        private val CHECKMARK_COLOR = Color.parseColor("#2E7D32")
+        private const val CHECKMARK_ALPHA = 0.75f
+    }
+
     private var _binding: PageDashboard2Binding? = null
     private val binding get() = _binding!!
 
@@ -37,15 +49,31 @@ class DashboardPage2Fragment : Fragment() {
         binding.cardFoodIntake.setOnClickListener { RouteManager.toMetricDetail(this, MetricType.FOOD_INTAKE) }
 
         val userGoalsViewModel = ViewModelProvider(requireActivity())[UserGoalsViewModel::class.java]
-        val currentExerciseDays = binding.progressExerciseDays.progress
+        val dashboardViewModel = ViewModelProvider(requireActivity())[DashboardViewModel::class.java]
+
+        binding.checkExerciseDays.setColorFilter(CHECKMARK_COLOR, PorterDuff.Mode.SRC_IN)
+        binding.checkExerciseDays.alpha = CHECKMARK_ALPHA
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                userGoalsViewModel.goals.collect { goals ->
+                combine(dashboardViewModel.activityRecords, userGoalsViewModel.goals) { records, goals ->
+                    records to goals
+                }.collect { (records, goals) ->
                     val goalDays =
                         (goals[ActivityGoalType.EXERCISE_DAYS] ?: ActivityGoalType.EXERCISE_DAYS.defaultValue).toInt()
-                    binding.progressExerciseDays.max = goalDays
-                    binding.tvExerciseDays.text = "$currentExerciseDays of $goalDays"
+                    val exercisedDays = ExerciseDaysViewModel.daysExercisedThisWeek(records)
+                    binding.progressExerciseDays.max = goalDays.coerceAtLeast(1)
+                    binding.progressExerciseDays.progress = exercisedDays
+                    binding.tvExerciseDays.text = "$exercisedDays of $goalDays"
+                    binding.checkExerciseDays.visibility = if (exercisedDays >= goalDays) View.VISIBLE else View.GONE
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                dashboardViewModel.todaySummary.collect { summary ->
+                    binding.tvMentalHealth.text = summary?.moodScore?.let { "$it/10" } ?: "--"
                 }
             }
         }

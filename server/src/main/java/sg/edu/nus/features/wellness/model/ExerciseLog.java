@@ -3,6 +3,8 @@ package sg.edu.nus.features.wellness.model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -52,9 +54,16 @@ public class ExerciseLog extends Creatable {
 	@Column(name = "logged_at", nullable = false)
 	private LocalDateTime loggedAt;
 
+	@Column(name = "start_time")
+	private LocalDateTime startTime;
+
+	@Column(name = "end_time")
+	private LocalDateTime endTime;
+
     // ASSOCIATIONS
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+	@JsonIgnore
 	private User user;
 
 }

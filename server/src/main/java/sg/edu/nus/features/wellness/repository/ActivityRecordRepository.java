@@ -17,8 +17,10 @@ public interface ActivityRecordRepository extends JpaRepository<ActivityRecord, 
     Optional<ActivityRecord> findByUserIdAndActivityTypeAndRecordedAt(UUID userId, ActivityType activityType, LocalDateTime recordedAt);
 
     List<ActivityRecord> findByUserIdAndRecordedAtBetweenOrderByRecordedAtDesc(
-        UUID userId, 
-        LocalDateTime start, 
+        UUID userId,
+        LocalDateTime start,
         LocalDateTime end
     );
+
+    void deleteByUserIdAndRecordedAtBetween(UUID userId, LocalDateTime start, LocalDateTime end);
 }
