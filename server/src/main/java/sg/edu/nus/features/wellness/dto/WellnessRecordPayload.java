@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class WellnessRecordPayload {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime recordDate;
-    
     private Integer sleepMinutes;
     private Integer sleepQualityRating;
     private String mealType;

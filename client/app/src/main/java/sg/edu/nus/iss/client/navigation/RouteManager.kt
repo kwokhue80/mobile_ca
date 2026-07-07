@@ -17,16 +17,35 @@ object RouteManager {
 
     // Routing - start destination: Login
 
-    // To login fragment (on logout)
+    // To login fragment
     fun toLogin(host: Fragment) {
-        val navController = host.findNavController()
-        navController.popBackStack(R.id.homeFragment, true)
-        navController.navigate(R.id.loginFragment)
+        host.findNavController().navigate(R.id.loginFragment)
+    }
+
+    // Alias for clarity at logout call sites.
+    fun toLoginFromLogout(host: Fragment) {
+        host.findNavController().popBackStack(R.id.homeFragment, true)
+        toLogin(host)
     }
 
     // To home fragment
     fun toHome(host: Fragment) {
         host.findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
+    }
+
+    // To register fragment from login
+    fun toRegister(host: Fragment) {
+        host.findNavController().navigate(R.id.action_loginFragment_to_registerFragment)
+    }
+
+    // To home fragment after registration
+    fun toHomeFromRegister(host: Fragment) {
+        host.findNavController().navigate(R.id.action_registerFragment_to_homeFragment)
+    }
+
+    // Return to login from registration screen
+    fun toLoginFromRegister(host: Fragment) {
+        host.findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
     }
 
     // Home navigation to dashboard / chatbot
@@ -113,6 +132,11 @@ object RouteManager {
     // To user profile
     fun toProfile(host: Fragment) {
         host.findNavController().navigate(R.id.action_homeFragment_to_profileFragment)
+    }
+
+    // To recommendation history
+    fun toRecommendationHistory(host: Fragment) {
+        host.findNavController().navigate(R.id.action_homeFragment_to_recommendationHistoryFragment)
     }
 
     // To edit profile

@@ -5,6 +5,8 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
 import androidx.core.content.edit
+import org.json.JSONArray
+import org.json.JSONObject
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -12,6 +14,11 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
 class SessionManager(context: Context) {
+    data class RecommendationHistoryEntry(
+        val recommendation: String,
+        val generatedAt: String
+    )
+
     private val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
     companion object {
         private const val KEY_STORE_PROVIDER = "AndroidKeyStore"
@@ -27,6 +34,12 @@ class SessionManager(context: Context) {
         private const val PREF_STANDARD_TOKEN = "standard_auth_token"
         private const val PREF_STANDARD_IV = "standard_encryption_iv"
         private const val PREF_BIOMETRIC_ENABLED = "biometric_enabled"
+        private const val PREF_RECOMMENDATION_SIGNATURE = "recommendation_signature"
+        private const val PREF_RECOMMENDATION_UNREAD_COUNT = "recommendation_unread_count"
+        private const val PREF_LATEST_RECOMMENDATION_TEXT = "latest_recommendation_text"
+        private const val PREF_LATEST_RECOMMENDATION_TIME = "latest_recommendation_time"
+        private const val PREF_RECOMMENDATION_HISTORY = "recommendation_history"
+        private const val MAX_RECOMMENDATION_HISTORY = 30
 
         @Volatile
         private var inMemoryToken: String? = null
@@ -172,6 +185,150 @@ class SessionManager(context: Context) {
             remove(PREF_IV)
             remove(PREF_STANDARD_TOKEN)
             remove(PREF_STANDARD_IV)
+            remove(PREF_RECOMMENDATION_SIGNATURE)
+            remove(PREF_RECOMMENDATION_UNREAD_COUNT)
+            remove(PREF_LATEST_RECOMMENDATION_TEXT)
+            remove(PREF_LATEST_RECOMMENDATION_TIME)
+            remove(PREF_RECOMMENDATION_HISTORY)
+        }
+    }
+
+    fun getRecommendationSignature(): String? {
+        // Signature uniquely identifies the latest recommendation payload.
+        return sharedPreferences.getString(PREF_RECOMMENDATION_SIGNATURE, null)
+    }
+
+    fun setRecommendationSignature(signature: String) {
+        // Persist signature to avoid duplicate unread increments.
+        sharedPreferences.edit {
+            putString(PREF_RECOMMENDATION_SIGNATURE, signature)
+        }
+    }
+
+    fun getUnreadRecommendationCount(): Int {
+        // Returns unread recommendation badge count.
+        return sharedPreferences.getInt(PREF_RECOMMENDATION_UNREAD_COUNT, 0)
+    }
+
+    fun incrementUnreadRecommendationCount() {
+        // Atomically bump unread counter by one.
+        val currentCount = getUnreadRecommendationCount()
+        sharedPreferences.edit {
+            putInt(PREF_RECOMMENDATION_UNREAD_COUNT, currentCount + 1)
+        }
+    }
+
+    fun clearUnreadRecommendationCount() {
+        // Reset unread counter when inbox is viewed.
+        sharedPreferences.edit {
+            putInt(PREF_RECOMMENDATION_UNREAD_COUNT, 0)
+        }
+    }
+
+    fun getLatestRecommendationText(): String? {
+        // Retrieve cached recommendation text for inbox display.
+        return sharedPreferences.getString(PREF_LATEST_RECOMMENDATION_TEXT, null)
+    }
+
+    fun getLatestRecommendationTime(): String? {
+        // Retrieve cached generation time for inbox display.
+        return sharedPreferences.getString(PREF_LATEST_RECOMMENDATION_TIME, null)
+    }
+
+    fun setLatestRecommendation(text: String, generatedAt: String) {
+        // Store latest recommendation payload shown in notification inbox.
+        sharedPreferences.edit {
+            putString(PREF_LATEST_RECOMMENDATION_TEXT, text)
+            putString(PREF_LATEST_RECOMMENDATION_TIME, generatedAt)
+        }
+    }
+
+    fun upsertRecommendationAndDetectNew(recommendationText: String, generatedAt: String): Boolean {
+        // Build stable signature from server timestamp and message.
+        val text = recommendationText.trim()
+        val signature = "$generatedAt|$text"
+        val previousSignature = getRecommendationSignature()
+
+        if (previousSignature.isNullOrBlank()) {
+            // First payload initializes cache without triggering unread state.
+            setRecommendationSignature(signature)
+            setLatestRecommendation(text, generatedAt)
+            prependRecommendationHistory(text, generatedAt)
+            return false
+        }
+
+        if (signature == previousSignature) {
+            // Same payload means no new recommendation.
+            return false
+        }
+
+        // New payload updates cache and increments unread counter.
+        setRecommendationSignature(signature)
+        setLatestRecommendation(text, generatedAt)
+        prependRecommendationHistory(text, generatedAt)
+        incrementUnreadRecommendationCount()
+        return true
+    }
+
+    fun getRecommendationHistory(): List<RecommendationHistoryEntry> {
+        val json = sharedPreferences.getString(PREF_RECOMMENDATION_HISTORY, null).orEmpty()
+        if (json.isBlank()) return emptyList()
+
+        return runCatching {
+            val jsonArray = JSONArray(json)
+            buildList {
+                for (i in 0 until jsonArray.length()) {
+                    val obj = jsonArray.optJSONObject(i) ?: continue
+                    add(
+                        RecommendationHistoryEntry(
+                            recommendation = obj.optString("recommendation", ""),
+                            generatedAt = obj.optString("generatedAt", "")
+                        )
+                    )
+                }
+            }.filter { it.recommendation.isNotBlank() }
+        }.getOrDefault(emptyList())
+    }
+
+    private fun prependRecommendationHistory(recommendation: String, generatedAt: String) {
+        val history = getRecommendationHistory().toMutableList()
+        history.removeAll { it.recommendation == recommendation && it.generatedAt == generatedAt }
+        history.add(0, RecommendationHistoryEntry(recommendation = recommendation, generatedAt = generatedAt))
+
+        val trimmedHistory = history.take(MAX_RECOMMENDATION_HISTORY)
+        val jsonArray = JSONArray()
+        trimmedHistory.forEach { entry ->
+            jsonArray.put(
+                JSONObject()
+                    .put("recommendation", entry.recommendation)
+                    .put("generatedAt", entry.generatedAt)
+            )
+        }
+
+        sharedPreferences.edit {
+            putString(PREF_RECOMMENDATION_HISTORY, jsonArray.toString())
+        }
+    }
+
+    fun removeRecommendationFromHistory(recommendation: String, generatedAt: String) {
+        // Remove a single history item when user dismisses/cancels a recommendation.
+        val history = getRecommendationHistory().toMutableList()
+        val removed = history.removeAll {
+            it.recommendation == recommendation && it.generatedAt == generatedAt
+        }
+        if (!removed) return
+
+        val jsonArray = JSONArray()
+        history.forEach { entry ->
+            jsonArray.put(
+                JSONObject()
+                    .put("recommendation", entry.recommendation)
+                    .put("generatedAt", entry.generatedAt)
+            )
+        }
+
+        sharedPreferences.edit {
+            putString(PREF_RECOMMENDATION_HISTORY, jsonArray.toString())
         }
     }
 }

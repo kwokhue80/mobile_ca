@@ -83,7 +83,8 @@ class ActivityDurationFragment : Fragment() {
 
         binding.rowStartTime.ivIcon.setImageResource(R.drawable.ic_time)
         binding.rowEndTime.ivIcon.setImageResource(R.drawable.ic_time)
-        binding.rowDuration.ivIcon.setImageResource(R.drawable.ic_hourglass)        binding.rowDistance.ivIcon.setImageResource(R.drawable.distance_icon)
+        binding.rowDuration.ivIcon.setImageResource(R.drawable.ic_hourglass)
+        binding.rowDistance.ivIcon.setImageResource(R.drawable.distance_icon)
         binding.rowCalories.ivIcon.setImageResource(R.drawable.calories_icon)
         listOf(
             binding.rowStartTime.ivIcon, binding.rowEndTime.ivIcon, binding.rowDuration.ivIcon,
