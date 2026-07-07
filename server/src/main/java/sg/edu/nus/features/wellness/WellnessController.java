@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -16,7 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import sg.edu.nus.security.UserPrincipal;
 import sg.edu.nus.features.wellness.dto.WellnessRecordPayload;
-import sg.edu.nus.features.wellness.dto.ActivityRecordDto;
+import sg.edu.nus.features.wellness.model.DailyWellnessSummary;
+import sg.edu.nus.features.wellness.model.ExerciseLog;
 import sg.edu.nus.features.wellness.dto.RecommendationResponse;
 
 @Slf4j
@@ -38,12 +38,18 @@ public class WellnessController {
         log.info("Successfully processed wellness record for user ID: {}", userPrincipal.getId());
         return ResponseEntity.ok().build();
     }
-    
-    @GetMapping("/activity")
-    public ResponseEntity<List<ActivityRecordDto>> getActivityHistory(
-        @RequestParam(defaultValue = "7") int days,
+
+    @GetMapping("/daily-summary")
+    public ResponseEntity<DailyWellnessSummary> getDailyWellnessSummary(
         @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        List<ActivityRecordDto> history = orchestratorService.getActivityHistory(userPrincipal.getId(), days);
+        DailyWellnessSummary summary = orchestratorService.getDailyWellnessSummary(userPrincipal.getId());
+        return ResponseEntity.ok(summary);
+    }
+
+    @GetMapping("/weekly-exercise")
+    public ResponseEntity<List<ExerciseLog>> getWeeklyExercise(
+        @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<ExerciseLog> history = orchestratorService.getWeeklyExercise(userPrincipal.getId());
         return ResponseEntity.ok(history);
     }
 
@@ -53,4 +59,13 @@ public class WellnessController {
         RecommendationResponse recommendation = orchestratorService.getLatestRecommendation(userPrincipal.getId());
         return ResponseEntity.ok(recommendation);
     }
+    
+    // @GetMapping("/activity")
+    // public ResponseEntity<List<ActivityRecordDto>> getActivityHistory(
+    //     @RequestParam(defaultValue = "7") int days,
+    //     @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    //     List<ActivityRecordDto> history = orchestratorService.getActivityHistory(userPrincipal.getId(), days);
+    //     return ResponseEntity.ok(history);
+    // }
+
 }
