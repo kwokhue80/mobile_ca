@@ -12,6 +12,9 @@ public interface HydrationLogRepository extends JpaRepository<HydrationLog, Long
 
 	List<HydrationLog> findAllByUserIdOrderByLoggedAtDesc(UUID userId);
 
+	List<HydrationLog> findByUserIdAndLoggedAtBetweenOrderByLoggedAtDesc(
+			UUID userId, LocalDateTime start, LocalDateTime end);
+
 	void deleteByUserIdAndLoggedAtBetween(UUID userId, LocalDateTime start, LocalDateTime end);
 
 }

@@ -1,14 +1,21 @@
 package sg.edu.nus.iss.client.dashboard.detail
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricBar
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricDetailUiState
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricSummaryRow
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricType
 import sg.edu.nus.iss.client.dashboard.detail.model.TimeRange
+import sg.edu.nus.iss.client.network.DailyWellnessSummary
+import sg.edu.nus.iss.client.network.HourlyWellnessResponse
+import sg.edu.nus.iss.client.network.RetrofitClient
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -17,9 +24,9 @@ import java.time.YearMonth
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
 import java.util.Locale
-import kotlin.random.Random
 
-class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
+class MetricDetailViewModel(application: Application, private val metricType: MetricType) :
+    AndroidViewModel(application) {
 
     private enum class MonthAnchorMode { ROLLING, CALENDAR }
 
@@ -29,6 +36,8 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
         private const val MONTHLY_ROWS_COUNT = 7
     }
 
+    private val apiService = RetrofitClient.getApiService(application)
+
     private val today: LocalDate = LocalDate.now()
     private var referenceDate: LocalDate = today
     private var timeRange: TimeRange = TimeRange.DAY
@@ -37,6 +46,8 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MetricDetailUiState())
     val uiState: StateFlow<MetricDetailUiState> = _uiState.asStateFlow()
+
+    private var refreshJob: Job? = null
 
     init {
         refresh()
@@ -100,19 +111,87 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
     }
 
     private fun refresh() {
-        _uiState.value = when (timeRange) {
-            TimeRange.DAY -> buildDayState()
-            TimeRange.WEEK -> buildWeekState()
-            TimeRange.MONTH -> buildMonthState()
-            TimeRange.SIX_MONTH -> buildSixMonthState()
+        refreshJob?.cancel()
+        refreshJob = viewModelScope.launch {
+            val newState = when (timeRange) {
+                TimeRange.DAY -> buildDayState()
+                TimeRange.WEEK -> buildWeekState()
+                TimeRange.MONTH -> buildMonthState()
+                TimeRange.SIX_MONTH -> buildSixMonthState()
+            }
+            _uiState.value = newState
         }
     }
 
-    private fun buildDayState(): MetricDetailUiState {
-        val random = Random(referenceDate.toEpochDay())
+    // Distance/Calories/Hydration select from the hourly buckets; Sleep/Weight select
+    // from a single day's aggregated summary (both real backend data).
+    private fun selectHourlyValue(entry: HourlyWellnessResponse?): Double = when (metricType) {
+        MetricType.DISTANCE -> entry?.distanceKm ?: 0.0
+        MetricType.CALORIES -> entry?.caloriesBurnedKcal?.toDouble() ?: 0.0
+        MetricType.HYDRATION -> entry?.waterMl?.toDouble() ?: 0.0
+        MetricType.SLEEP, MetricType.WEIGHT -> 0.0
+    }
+
+    private fun selectDailyValue(summary: DailyWellnessSummary?): Double = when (metricType) {
+        MetricType.DISTANCE -> summary?.totalDistanceKm ?: 0.0
+        MetricType.CALORIES -> summary?.totalCaloriesBurned?.toDouble() ?: 0.0
+        MetricType.HYDRATION -> summary?.totalWaterMl?.toDouble() ?: 0.0
+        MetricType.SLEEP -> (summary?.sleepMinutes ?: 0) / 60.0
+        MetricType.WEIGHT -> summary?.weightKg ?: 0.0
+    }
+
+    private suspend fun fetchRange(start: LocalDate, end: LocalDate): Map<LocalDate, DailyWellnessSummary> {
+        return try {
+            val response = apiService.getDashboardRange(
+                start.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                end.format(DateTimeFormatter.ISO_LOCAL_DATE)
+            )
+            response.body().orEmpty().associateBy { LocalDate.parse(it.summaryDate) }
+        } catch (e: Exception) {
+            emptyMap()
+        }
+    }
+
+    private suspend fun fetchHourlySummary(date: LocalDate): List<HourlyWellnessResponse> {
+        return try {
+            val response = apiService.getHourlySummary(date.format(DateTimeFormatter.ISO_LOCAL_DATE))
+            response.body().orEmpty()
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    private fun averageSleepQuality(summaries: Collection<DailyWellnessSummary>): Double? {
+        if (metricType != MetricType.SLEEP) return null
+        val scores = summaries.mapNotNull { it.sleepQualityScore }
+        return if (scores.isEmpty()) null else scores.average()
+    }
+
+    private suspend fun buildDayState(): MetricDetailUiState {
+        val goal = currentGoal
+        val periodLabel = if (referenceDate == today) "Today" else formatDayLabel(referenceDate)
+        val canNext = referenceDate.isBefore(today)
+
+        if (metricType == MetricType.SLEEP || metricType == MetricType.WEIGHT) {
+            val summary = fetchRange(referenceDate, referenceDate)[referenceDate]
+            val total = selectDailyValue(summary)
+            return MetricDetailUiState(
+                timeRange = TimeRange.DAY,
+                periodLabel = periodLabel,
+                totalValue = total,
+                goalValue = goal,
+                subtitle = buildGoalSubtitle(total, goal),
+                bars = emptyList(),
+                selectedBarIndex = null,
+                summaryRows = emptyList(),
+                canGoNext = canNext,
+                sleepQualityScore = summary?.sleepQualityScore?.toDouble()
+            )
+        }
+
+        val hourly = fetchHourlySummary(referenceDate)
         val bars = (0 until 24).map { hour ->
-            val hasActivity = hour in 8..20 && random.nextInt(4) == 0
-            val value = if (hasActivity) randomBarValue(random) else 0.0
+            val value = selectHourlyValue(hourly.getOrNull(hour))
             MetricBar(
                 axisLabel = formatHourShort(hour),
                 value = value,
@@ -121,8 +200,6 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
             )
         }
         val total = bars.sumOf { it.value }
-        val goal = currentGoal
-        val periodLabel = if (referenceDate == today) "Today" else formatDayLabel(referenceDate)
         return MetricDetailUiState(
             timeRange = TimeRange.DAY,
             periodLabel = periodLabel,
@@ -132,18 +209,18 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
             bars = bars,
             selectedBarIndex = null,
             summaryRows = emptyList(),
-            canGoNext = referenceDate.isBefore(today)
+            canGoNext = canNext
         )
     }
 
-    private fun buildWeekState(): MetricDetailUiState {
+    private suspend fun buildWeekState(): MetricDetailUiState {
         val weekStart = referenceDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         val weekEnd = weekStart.plusDays(6)
-        val random = Random(weekStart.toEpochDay())
+        val summaries = fetchRange(weekStart, weekEnd)
         val dailyGoal = currentGoal
         val bars = (0 until 7).map { i ->
             val date = weekStart.plusDays(i.toLong())
-            val value = if (date.isAfter(today)) 0.0 else randomBarValue(random, biasHigh = true)
+            val value = if (date.isAfter(today)) 0.0 else selectDailyValue(summaries[date])
             MetricBar(
                 axisLabel = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(2),
                 value = value,
@@ -171,11 +248,12 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
             bars = bars,
             selectedBarIndex = null,
             summaryRows = summaryRows,
-            canGoNext = weekEnd.isBefore(today)
+            canGoNext = weekEnd.isBefore(today),
+            sleepQualityScore = averageSleepQuality(summaries.values)
         )
     }
 
-    private fun buildMonthState(): MetricDetailUiState {
+    private suspend fun buildMonthState(): MetricDetailUiState {
         val monthStart: LocalDate
         val monthEnd: LocalDate
         val periodLabel: String
@@ -194,12 +272,12 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
             canNext = monthEnd.isBefore(today)
         }
 
-        val random = Random(monthStart.toEpochDay())
         val dailyGoal = currentGoal
+        val summaries = fetchRange(monthStart, monthEnd)
         val totalDaysInWindow = ChronoUnit.DAYS.between(monthStart, monthEnd).toInt() + 1
         val bars = (0 until totalDaysInWindow).map { i ->
             val date = monthStart.plusDays(i.toLong())
-            val value = if (date.isAfter(today)) 0.0 else randomBarValue(random, biasHigh = true)
+            val value = if (date.isAfter(today)) 0.0 else selectDailyValue(summaries[date])
             MetricBar(
                 axisLabel = date.dayOfMonth.toString(),
                 value = value,
@@ -208,7 +286,10 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
             )
         }
         val total = bars.sumOf { it.value }
-        val average = total / bars.size
+        // Days with no logged data (value 0) are excluded from the average rather than
+        // dragging it down as if the user scored a real zero that day.
+        val nonZeroDays = bars.count { it.value > 0.0 }
+        val average = if (nonZeroDays > 0) total / nonZeroDays else 0.0
         return MetricDetailUiState(
             timeRange = TimeRange.MONTH,
             periodLabel = periodLabel,
@@ -220,14 +301,16 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
             selectedBarIndex = null,
             summaryRows = buildWeeklyAverageRows(monthEnd),
             canGoNext = canNext,
-            canGoPrevious = true
+            canGoPrevious = true,
+            sleepQualityScore = averageSleepQuality(summaries.values)
         )
     }
 
-    private fun buildSixMonthState(): MetricDetailUiState {
+    private suspend fun buildSixMonthState(): MetricDetailUiState {
         val periodEnd = referenceDate
         val periodStart = periodEnd.minusMonths(SIX_MONTH_COUNT - 1).withDayOfMonth(1)
         val dailyGoal = currentGoal
+        val summaries = fetchRange(periodStart, today)
 
         var totalAllDays = 0.0
         var totalDaysCounted = 0
@@ -235,14 +318,15 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
         val bars = mutableListOf<MetricBar>()
         var cursor = periodStart
         while (!cursor.isAfter(periodEnd)) {
-            val monthRandom = Random(cursor.toEpochDay())
             val daysInMonth = cursor.lengthOfMonth()
             var monthTotal = 0.0
             var monthDaysCounted = 0
             for (dayOffset in 0 until daysInMonth) {
                 val date = cursor.plusDays(dayOffset.toLong())
                 if (date.isAfter(today)) continue
-                val value = randomBarValue(monthRandom, biasHigh = true)
+                val value = selectDailyValue(summaries[date])
+                // Days with no logged data (value 0) are excluded from the average.
+                if (value <= 0.0) continue
                 monthTotal += value
                 monthDaysCounted++
                 if (value >= dailyGoal) daysGoalMet++
@@ -272,37 +356,47 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
             bars = bars,
             selectedBarIndex = null,
             summaryRows = buildMonthlyAverageRows(periodEnd),
-            canGoNext = periodEnd.isBefore(today)
+            canGoNext = periodEnd.isBefore(today),
+            sleepQualityScore = averageSleepQuality(summaries.values)
         )
     }
 
-    private fun buildWeeklyAverageRows(anchorDate: LocalDate): List<MetricSummaryRow> {
+    private suspend fun buildWeeklyAverageRows(anchorDate: LocalDate): List<MetricSummaryRow> {
         val currentWeekStart = anchorDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val earliestWeekStart = currentWeekStart.minusWeeks((WEEKLY_ROWS_COUNT - 1).toLong())
+        val summaries = fetchRange(earliestWeekStart, currentWeekStart.plusDays(6))
         return (0 until WEEKLY_ROWS_COUNT).map { weeksAgo ->
             val weekStart = currentWeekStart.minusWeeks(weeksAgo.toLong())
             val weekEnd = weekStart.plusDays(6)
-            val weekRandom = Random(weekStart.toEpochDay())
-            val weekTotal = (0 until 7).sumOf { dayOffset ->
+            // Days with no logged data (value 0) are excluded from the average.
+            val nonZeroValues = (0 until 7).mapNotNull { dayOffset ->
                 val date = weekStart.plusDays(dayOffset.toLong())
-                if (date.isAfter(today)) 0.0 else randomBarValue(weekRandom, biasHigh = true)
+                if (date.isAfter(today)) null else selectDailyValue(summaries[date]).takeIf { it > 0.0 }
             }
             val label = if (weeksAgo == 0) "This week" else "${formatShortDate(weekStart)} – ${formatShortDate(weekEnd)}"
-            MetricSummaryRow(label = label, value = weekTotal / 7, isCurrentPeriod = weeksAgo == 0)
+            val average = if (nonZeroValues.isNotEmpty()) nonZeroValues.average() else 0.0
+            MetricSummaryRow(label = label, value = average, isCurrentPeriod = weeksAgo == 0)
         }
     }
 
-    private fun buildMonthlyAverageRows(anchorDate: LocalDate): List<MetricSummaryRow> {
+    private suspend fun buildMonthlyAverageRows(anchorDate: LocalDate): List<MetricSummaryRow> {
+        val earliestMonth = anchorDate.minusMonths((MONTHLY_ROWS_COUNT - 1).toLong()).withDayOfMonth(1)
+        val summaries = fetchRange(earliestMonth, today)
         return (0 until MONTHLY_ROWS_COUNT).map { monthsAgo ->
             val monthDate = anchorDate.minusMonths(monthsAgo.toLong())
             val daysInMonth = monthDate.lengthOfMonth()
-            val monthRandom = Random(monthDate.withDayOfMonth(1).toEpochDay())
-            val monthTotal = (0 until daysInMonth).sumOf { randomBarValue(monthRandom, biasHigh = true) }
+            // Days with no logged data (value 0) are excluded from the average.
+            val nonZeroValues = (0 until daysInMonth).mapNotNull { dayOffset ->
+                val date = monthDate.withDayOfMonth(1).plusDays(dayOffset.toLong())
+                if (date.isAfter(today)) null else selectDailyValue(summaries[date]).takeIf { it > 0.0 }
+            }
             val label = if (monthsAgo == 0) {
                 "This month"
             } else {
                 monthDate.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault()))
             }
-            MetricSummaryRow(label = label, value = monthTotal / daysInMonth, isCurrentPeriod = monthsAgo == 0)
+            val average = if (nonZeroValues.isNotEmpty()) nonZeroValues.average() else 0.0
+            MetricSummaryRow(label = label, value = average, isCurrentPeriod = monthsAgo == 0)
         }
     }
 
@@ -324,23 +418,6 @@ class MetricDetailViewModel(private val metricType: MetricType) : ViewModel() {
         "You hit your goal!"
     } else {
         "You're ${metricType.formatValue(goal - total)} ${metricType.unit} away from hitting your goal."
-    }
-
-    private fun randomBarValue(random: Random, biasHigh: Boolean = false): Double {
-        // Weight and Sleep are bounded to realistic human ranges regardless of the
-        // user's goal (unlike Distance/Calories/Hydration, whose mock trend is still
-        // goal-scaled) - a goal-scaled formula could otherwise mock a 0kg weight or
-        // an unrealistic sleep duration.
-        val raw = when (metricType) {
-            MetricType.WEIGHT -> random.nextDouble(40.0, 100.0)
-            MetricType.SLEEP -> random.nextDouble(5.0, 12.0)
-            else -> random.nextDouble() * (currentGoal * if (biasHigh) 1.3 else 0.4)
-        }
-        return if (metricType.decimalPlaces == 0) {
-            Math.round(raw).toDouble()
-        } else {
-            Math.round(raw * 100) / 100.0
-        }
     }
 
     private fun formatHourShort(hour: Int): String {

@@ -180,6 +180,54 @@
 
         </LinearLayout>
 
+        <!-- Week/Month: selected-point summary, shown when a chart point is tapped -->
+        <LinearLayout
+            android:id="@+id/layoutMoodSelected"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="24dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvSelectedMoodValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0/10"
+                    android:textColor="#1F1F1F"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+
+                <ImageButton
+                    android:id="@+id/btnClearMoodSelection"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_circle_button"
+                    android:contentDescription="Clear selection"
+                    android:src="@drawable/ic_close" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvSelectedMoodRange"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Sat, 4 Jul"
+                android:textColor="#7A7A7A"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
         <!-- Week/Month: mood chart, fixed 1-10 scale, x-axis is time -->
         <FrameLayout
             android:id="@+id/chartMoodContainer"

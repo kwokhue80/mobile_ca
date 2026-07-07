@@ -17,16 +17,24 @@ class ActivityDurationViewModel : ViewModel() {
         private const val DEFAULT_DURATION_MINUTES = 30L
     }
 
-    private val initialStart: LocalTime = LocalTime.now().withSecond(0).withNano(0)
+    // A newly logged activity is assumed just-finished (end = now), not about to start
+    // (start = now) - the latter would save a loggedAt/endTime that's still in the
+    // future at save time, which excludes it from any "up to now" query (Activity
+    // Tracked, Exercise Days, History) until real time catches up to it.
+    private val initialEnd: LocalTime = LocalTime.now().withSecond(0).withNano(0)
 
-    private val _startTime = MutableStateFlow(initialStart)
-    val startTime: StateFlow<LocalTime> = _startTime.asStateFlow()
-
-    private val _endTime = MutableStateFlow(initialStart.plusMinutes(DEFAULT_DURATION_MINUTES))
+    private val _endTime = MutableStateFlow(initialEnd)
     val endTime: StateFlow<LocalTime> = _endTime.asStateFlow()
 
+    private val _startTime = MutableStateFlow(initialEnd.minusMinutes(DEFAULT_DURATION_MINUTES))
+    val startTime: StateFlow<LocalTime> = _startTime.asStateFlow()
+
     val durationMinutes: StateFlow<Int> = combine(_startTime, _endTime) { start, end ->
-        ChronoUnit.MINUTES.between(start, end).toInt().coerceAtLeast(0)
+        // LocalTime has no date, so a start/end pair straddling midnight (e.g.
+        // start=23:41, end=00:11) looks numerically backwards; wrap it forward a
+        // full day rather than clamping to 0.
+        val raw = ChronoUnit.MINUTES.between(start, end)
+        (if (raw < 0) raw + 24 * 60 else raw).toInt()
     }.stateIn(viewModelScope, SharingStarted.Eagerly, DEFAULT_DURATION_MINUTES.toInt())
 
     fun setStartTime(time: LocalTime) {

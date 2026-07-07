@@ -16,11 +16,18 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 /** Shared source of "today's" wellness data for the dashboard cards, the Home
- *  "Activity Tracked" list, and the History screen. Backed by
- *  `/api/wellness/daily-summary` (today's summary, server-computed "today") and
- *  `/api/wellness/weekly-exercise` (last 7 days of exercise sessions), refreshed
- *  after every Add-sheet / Add-Activity save via [refreshToday]. */
+ *  "Activity Tracked" list, the History screen, and the Exercise Days detail screen.
+ *  Backed by `/api/wellness/daily-summary` (today's summary, server-computed "today")
+ *  and `/api/wellness/exercise-logs` (full exercise history, not just the last 7 days,
+ *  so week/month navigation and day-counting work correctly beyond the current week),
+ *  refreshed after every Add-sheet / Add-Activity save via [refreshToday]. */
 class DashboardViewModel(application: Application) : AndroidViewModel(application) {
+
+    private companion object {
+        // Comfortably covers a full year of history; the exercise-logs endpoint has
+        // no server-side cap, so this just bounds how far back we ask for.
+        private const val ACTIVITY_HISTORY_DAYS = 365
+    }
 
     private val apiService = RetrofitClient.getApiService(application)
     private val recordDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
@@ -47,7 +54,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             }
 
             try {
-                val logsResponse = apiService.getWeeklyExercise()
+                val logsResponse = apiService.getExerciseLogs(ACTIVITY_HISTORY_DAYS)
                 val logs = logsResponse.body()
                 if (logsResponse.isSuccessful && logs != null) {
                     _activityRecords.value = logs.map(::toActivityRecord)
@@ -59,9 +66,19 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun removeRecord(id: String) {
-        // No backend delete endpoint exists yet for exercise logs; this only
-        // affects the in-memory list until the next refreshToday() call.
+        // Optimistically remove from the in-memory list immediately, then delete on
+        // the backend (which also reverses the log's contribution to that day's
+        // distance/calories/exercise-minutes totals) and re-sync everything - if the
+        // delete fails, refreshToday() below will restore the record on next load.
         _activityRecords.value = _activityRecords.value.filterNot { it.id == id }
+        viewModelScope.launch {
+            try {
+                apiService.deleteExerciseLog(id.toLong())
+            } catch (e: Exception) {
+                // Ignore; refreshToday() below will re-sync from the backend either way.
+            }
+            refreshToday()
+        }
     }
 
     private fun toActivityRecord(log: ExerciseLogResponse): ActivityRecord {
