@@ -30,8 +30,6 @@ class RagApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-
-
         copyPrebuiltDatabaseIfNeeded()
 
         boxStore = MyObjectBox.builder()

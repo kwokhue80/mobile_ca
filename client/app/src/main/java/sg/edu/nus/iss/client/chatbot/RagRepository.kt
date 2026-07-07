@@ -44,9 +44,9 @@ class RagRepository(
             }
         }
 
-        // Look through previously saved messages for anything relevant
-        // to the current question, separate from the recent messages
-        // already tracked on screen
+        // Search previously saved messages (separate from the recent
+        // messages already tracked on screen) for anything relevant
+        // to the current question,
         var relevantPastMessages: List<ChatMessage> = emptyList()
         if (FeatureFlags.ENABLE_CHAT_HISTORY_PERSISTENCE) {
             relevantPastMessages = chatHistoryRepository.searchMessages(queryVector, limit = 3)
@@ -136,8 +136,8 @@ class RagRepository(
 
     companion object {
         // Cosine distance ranges from 0 (identical) to 2 (completely different).
-        // A real match tends to score well under this cutoff, while
-        // unrelated dishes tend to score much higher.
+        // A real match will score well under this cutoff, while
+        // unrelated dishes will score much higher.
         private const val DISTANCE_THRESHOLD = 0.35
     }
 }

@@ -10,7 +10,7 @@ class ChatHistoryRepository(store: BoxStore) {
     private val box: Box<ChatMessageEntity> = store.boxFor(ChatMessageEntity::class.java)
 
     companion object {
-        // Highest number of chat messages kept in persistent storage
+        // Max number of chat messages kept in persistent storage
         private const val MAX_STORED_MESSAGES = 2500
 
         // Number of most recent messages reloaded into the chat window
@@ -52,6 +52,7 @@ class ChatHistoryRepository(store: BoxStore) {
 
     // Removes every stored chat message from the database, without
     // affecting any other data such as the dish records
+    // -- used to clear messages during testing
     fun clearAllMessages() {
         box.removeAll()
     }
