@@ -19,7 +19,7 @@
         app:cardCornerRadius="30dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/cardSteps"
+        app:layout_constraintEnd_toStartOf="@id/cardCalBurned"
         android:layout_marginTop="30dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="9dp">
@@ -97,9 +97,9 @@
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Steps 卡片 -->
+    <!-- Cal burned 卡片 -->
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardSteps"
+        android:id="@+id/cardCalBurned"
         android:layout_width="0dp"
         android:layout_height="58dp"
         android:clickable="true"
@@ -112,93 +112,6 @@
         android:layout_marginTop="30dp"
         android:layout_marginStart="9dp"
         android:layout_marginEnd="20dp">
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <!-- 填色进度条，撑满卡片背景 -->
-            <ProgressBar
-                android:id="@+id/progressSteps"
-                style="@android:style/Widget.ProgressBar.Horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:max="10000"
-                android:progress="6329"
-                android:progressBackgroundTint="#A6E2DD"
-                android:progressTint="#8327837B" />
-
-            <!-- 图标+文字层，浮在进度条上方 -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <!-- 40%位置参考线 -->
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guideline40Steps"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.38" />
-
-                <!-- 图标 -->
-                <ImageView
-                    android:id="@+id/iconSteps"
-                    android:layout_width="45dp"
-                    android:layout_height="70dp"
-                    android:src="@drawable/steps_icon"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:layout_marginStart="10dp" />
-
-                <!-- 文字组，左边贴住40%参考线 -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintStart_toStartOf="@id/guideline40Steps"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-medium"
-                        android:includeFontPadding="false"
-                        android:text="Steps"
-                        android:textColor="#37423F"
-                        android:textSize="19sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvSteps"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif"
-                        android:textStyle="bold"
-                        android:text="6329"
-                        android:textSize="26sp" />
-                </LinearLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </FrameLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Cal burned 卡片 -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardCalBurned"
-        android:layout_width="0dp"
-        android:layout_height="58dp"
-        android:clickable="true"
-        android:focusable="true"
-        app:strokeWidth="0dp"
-        app:cardCornerRadius="30dp"
-        app:layout_constraintTop_toBottomOf="@id/cardDistance"
-        app:layout_constraintStart_toStartOf="@id/cardDistance"
-        app:layout_constraintEnd_toEndOf="@id/cardDistance"
-        android:layout_marginTop="15dp">
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -226,7 +139,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.3" />
+                    app:layout_constraintGuide_percent="0.38" />
 
                 <!-- 图标 -->
                 <ImageView
@@ -282,9 +195,9 @@
         android:focusable="true"
         app:strokeWidth="0dp"
         app:cardCornerRadius="30dp"
-        app:layout_constraintTop_toBottomOf="@id/cardSteps"
-        app:layout_constraintStart_toStartOf="@id/cardSteps"
-        app:layout_constraintEnd_toEndOf="@id/cardSteps"
+        app:layout_constraintTop_toBottomOf="@id/cardDistance"
+        app:layout_constraintStart_toStartOf="@id/cardDistance"
+        app:layout_constraintEnd_toEndOf="@id/cardDistance"
         android:layout_marginTop="15dp">
 
         <FrameLayout
@@ -447,9 +360,9 @@
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Badges 卡片 -->
+    <!-- Weight 卡片 -->
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardBadges"
+        android:id="@+id/cardWeight"
         android:layout_width="0dp"
         android:layout_height="58dp"
         android:clickable="true"
@@ -459,6 +372,88 @@
         app:layout_constraintTop_toBottomOf="@id/cardSleep"
         app:layout_constraintStart_toStartOf="@id/cardSleep"
         app:layout_constraintEnd_toEndOf="@id/cardSleep"
+        android:layout_marginTop="15dp">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- 纯背景色 -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#A6E2DD" />
+
+            <!-- 图标+文字层，浮在进度条上方 -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <!-- 40%位置参考线 -->
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline40Weight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.38" />
+
+                <!-- 图标 -->
+                <ImageView
+                    android:id="@+id/iconWeight"
+                    android:layout_width="45dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/weight_icon"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginStart="10dp" />
+
+                <!-- 文字组，左边贴住40%参考线 -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintStart_toStartOf="@id/guideline40Weight"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:includeFontPadding="false"
+                        android:text="Weight"
+                        android:textColor="#37423F"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvWeight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
+                        android:textStyle="bold"
+                        android:text="68kg"
+                        android:textSize="26sp" />
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Badges 卡片 -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardBadges"
+        android:layout_width="0dp"
+        android:layout_height="58dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:strokeWidth="0dp"
+        app:cardCornerRadius="30dp"
+        app:layout_constraintTop_toBottomOf="@id/cardHydration"
+        app:layout_constraintStart_toStartOf="@id/cardHydration"
+        app:layout_constraintEnd_toEndOf="@id/cardHydration"
         android:layout_marginTop="15dp">
 
         <FrameLayout

@@ -32,20 +32,15 @@ class AddManuallyBottomSheetFragment : BottomSheetDialogFragment() {
             insets
         }
 
-        binding.btnAddDistance.setOnClickListener { openAddItem("Distance") }
-        binding.btnAddSteps.setOnClickListener { openAddItem("Steps") }
-        binding.btnAddCalories.setOnClickListener { openAddItem("Calories") }
+        binding.btnAddFood.setOnClickListener { openAddItem("Food") }
         binding.btnAddSleep.setOnClickListener { openAddItem("Sleep") }
         binding.btnAddHydration.setOnClickListener { openAddItem("Hydration") }
-        binding.btnAddBadges.setOnClickListener { openAddItem("Badges") }
         binding.btnAddWeight.setOnClickListener { openAddItem("Weight") }
-        binding.btnAddExerciseDays.setOnClickListener { openAddItem("Exercise Days") }
-        binding.btnAddMentalHealth.setOnClickListener { openAddItem("Mental Health") }
+        binding.btnAddExercise.setOnClickListener { openAddItem("Exercise") }
+        binding.btnAddMood.setOnClickListener { openAddItem("Mood") }
     }
 
     private fun openAddItem(itemName: String) {
-        // Navigate to the next bottom sheet
-        // Note: dismissal handled by navigation component
         RouteManager.showAddItem(this, itemName)
     }
 

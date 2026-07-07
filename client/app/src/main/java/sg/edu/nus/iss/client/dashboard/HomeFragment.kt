@@ -44,7 +44,7 @@ class HomeFragment : Fragment() {
         }
 
         binding.btnProfile.setOnClickListener {
-            // TODO: Show user profile
+            RouteManager.toProfile(this)
         }
 
         binding.bottomNavigation.setOnItemSelectedListener { item ->

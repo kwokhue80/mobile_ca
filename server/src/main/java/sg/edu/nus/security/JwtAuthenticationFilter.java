@@ -1,10 +1,8 @@
 package sg.edu.nus.security;
 
 import java.io.IOException;
-import java.util.Collections;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -16,6 +14,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import sg.edu.nus.features.user.account.User;
+import sg.edu.nus.features.user.account.UserService;
 
 /*
 *   AUTHOR: Amelia
@@ -29,6 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // public static final String AUTH_ROLE = "authRole";
 
     private final JwtService jwtService;
+    private final TokenBlacklistService tokenBlacklistService;
+    private final UserService userService;
 
     @Override
     protected void doFilterInternal(
@@ -51,6 +53,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        // ADDED token blacklist for revocation
+        if (tokenBlacklistService.isTokenRevoked(token)) {
+            handleUnauthorized(response);
+            return;
+        }
+
         // Try to parse and authenticate token
         Claims claims;
         try {
@@ -63,14 +71,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Get email and role from token
         String email = claims.getSubject();
         String role = claims.get("role", String.class);
-        if (role == null) {
-            role = "ROLE_USER";
-        }
 
-        // Authenticate request using JWT data
+        // Authenticate request using JWT data and a strongly typed principal.
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            User user;
+            try {
+                user = userService.getByEmail(email);
+            } catch (RuntimeException e) {
+                handleUnauthorized(response);
+                return;
+            }
+
+            if (!user.getEnabled()) {
+                handleUnauthorized(response);
+                return;
+            }
+
+            // Integrate UserPrincipal for use in Controllers
+            UserPrincipal principal = new UserPrincipal(user, role);
             UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(email, null, Collections.singletonList(new SimpleGrantedAuthority(role)));
+                new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
 
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authToken);

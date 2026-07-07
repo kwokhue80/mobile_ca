@@ -23,16 +23,6 @@ enum class ActivityGoalType(
         maxValue = 50.0,
         decimalPlaces = 1
     ),
-    STEPS(
-        displayName = "Steps",
-        unitLabel = "steps per day",
-        iconRes = R.drawable.steps_icon,
-        defaultValue = 10000.0,
-        step = 500.0,
-        minValue = 0.0,
-        maxValue = 50000.0,
-        decimalPlaces = 0
-    ),
     CALORIES(
         displayName = "Calories",
         unitLabel = "Cal per day",

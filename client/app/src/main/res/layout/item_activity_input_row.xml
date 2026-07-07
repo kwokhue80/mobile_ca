@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
+
+        <FrameLayout
+            android:id="@+id/iconCircle"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/bg_row_icon_circle">
+
+            <ImageView
+                android:id="@+id/ivIcon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:src="@drawable/distance_icon" />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:text="Distance"
+            android:textColor="#7A7A7A"
+            android:textSize="15sp" />
+
+        <EditText
+            android:id="@+id/etValue"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:gravity="end"
+            android:hint="0"
+            android:imeOptions="actionDone"
+            android:inputType="numberDecimal"
+            android:maxLines="1"
+            android:textColor="#1F1F1F"
+            android:textColorHint="#C4C4C4"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:text="km"
+            android:textColor="#1F1F1F"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/ivEditPencil"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_marginStart="8dp"
+            android:contentDescription="Editable"
+            android:src="@drawable/ic_edit_pencil"
+            android:tint="#B0B4BA" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/dividerRow"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E0E0E0" />
+
+</LinearLayout>

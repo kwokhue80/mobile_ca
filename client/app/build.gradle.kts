@@ -56,6 +56,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
     packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
         resources {
             pickFirst("tokenizer.json")
         }

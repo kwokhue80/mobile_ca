@@ -13,97 +13,326 @@
         android:orientation="vertical"
         android:paddingBottom="24dp">
 
-        <!-- Toolbar -->
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:paddingTop="48dp"
-            android:paddingBottom="12dp">
-
-            <ImageButton
-                android:id="@+id/btnBack"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="start|center_vertical"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Back"
-                android:src="@drawable/ic_back_arrow" />
-
-            <TextView
-                android:id="@+id/tvActivityTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Walk"
-                android:textColor="#1F1F1F"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-        </FrameLayout>
-
-        <!-- Icon + type + date header -->
+        <!-- Hero header: tinted per exercise type -->
         <LinearLayout
+            android:id="@+id/headerBanner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginTop="12dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:background="@drawable/bg_activity_header"
+            android:orientation="vertical"
+            android:paddingBottom="24dp">
 
+            <!-- Toolbar -->
             <FrameLayout
-                android:id="@+id/iconContainer"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:background="@drawable/bg_activity_icon_circle">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="48dp"
+                android:paddingBottom="12dp">
 
-                <ImageView
-                    android:id="@+id/iconActivityType"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
+                <ImageButton
+                    android:id="@+id/btnBack"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="start|center_vertical"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Back"
+                    android:src="@drawable/ic_back_arrow" />
+
+                <TextView
+                    android:id="@+id/tvActivityTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:src="@drawable/ic_activity_walk" />
+                    android:text="Walk"
+                    android:textColor="#1F1F1F"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
             </FrameLayout>
 
+            <!-- Icon + type + date -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="14dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/tvActivityType"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Walk"
-                    android:textColor="#1F1F1F"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                <FrameLayout
+                    android:id="@+id/iconContainer"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_activity_icon_circle">
 
-                <TextView
-                    android:id="@+id/tvActivityDate"
-                    android:layout_width="wrap_content"
+                    <ImageView
+                        android:id="@+id/iconActivityType"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_activity_walk" />
+
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="Today, 9:39 AM"
-                    android:textColor="#7A7A7A"
-                    android:textSize="14sp" />
+                    android:layout_marginStart="14dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvActivityType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Walk"
+                        android:textColor="#1F1F1F"
+                        android:textSize="22sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvActivityDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Today, 9:39 AM"
+                        android:textColor="#4A4A4A"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
         </LinearLayout>
 
-        <!-- Detail rows card -->
-        <com.google.android.material.card.MaterialCardView
+        <!-- Duration: gradient card with time range + big duration -->
+        <FrameLayout
+            android:id="@+id/durationCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
             android:layout_marginTop="20dp"
+            android:background="@drawable/bg_duration_gradient_card"
+            android:padding="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_time"
+                        android:tint="#FFFFFF" />
+
+                    <TextView
+                        android:id="@+id/tvTimeRange"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:text="9:39 AM - 10:09 AM"
+                        android:textColor="#FFFFFF"
+                        android:textSize="15sp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvDuration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="30 min"
+                    android:textColor="#FFFFFF"
+                    android:textSize="32sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_gravity="end|top"
+                android:background="@drawable/bg_circle_outline_white">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_time"
+                    android:tint="#FFFFFF" />
+
+            </FrameLayout>
+
+        </FrameLayout>
+
+        <!-- Distance + Avg Pace -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                app:cardBackgroundColor="#F5F6F8"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/iconDistance"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/distance_icon" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="Distance"
+                            android:textColor="#7A7A7A"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:gravity="bottom"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tvDistance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="2.50"
+                            android:textColor="#1F1F1F"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginBottom="2dp"
+                            android:text="km"
+                            android:textColor="#7A7A7A"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                app:cardBackgroundColor="#F5F6F8"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/iconPace"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_pace" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="Avg. Pace"
+                            android:textColor="#7A7A7A"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:gravity="bottom"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tvPace"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="12'00"
+                            android:textColor="#1F1F1F"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="2dp"
+                            android:layout_marginBottom="2dp"
+                            android:text="/km"
+                            android:textColor="#7A7A7A"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+        <!-- Calories -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="16dp"
             app:cardBackgroundColor="#F5F6F8"
             app:cardCornerRadius="20dp"
             app:cardElevation="0dp"
@@ -112,15 +341,41 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp">
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
 
-                <include layout="@layout/item_activity_detail_row" android:id="@+id/rowStartTime" />
-                <include layout="@layout/item_activity_detail_row" android:id="@+id/rowEndTime" />
-                <include layout="@layout/item_activity_detail_row" android:id="@+id/rowDuration" />
-                <include layout="@layout/item_activity_detail_row" android:id="@+id/rowDistance" />
-                <include layout="@layout/item_activity_detail_row" android:id="@+id/rowCalories" />
+                <ImageView
+                    android:id="@+id/iconCalories"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/calories_icon" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="10dp"
+                    android:text="Calories Burned"
+                    android:textColor="#7A7A7A"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/tvCalories"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="120"
+                    android:textColor="#1F1F1F"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="Cal"
+                    android:textColor="#7A7A7A"
+                    android:textSize="15sp" />
 
             </LinearLayout>
 

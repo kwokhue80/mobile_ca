@@ -19,8 +19,9 @@ object RouteManager {
 
     // To login fragment (on logout)
     fun toLogin(host: Fragment) {
-        // Navigate to login and clear backstack
-        host.findNavController().navigate(R.id.loginFragment)
+        val navController = host.findNavController()
+        navController.popBackStack(R.id.homeFragment, true)
+        navController.navigate(R.id.loginFragment)
     }
 
     // To home fragment
@@ -107,6 +108,16 @@ object RouteManager {
     // To badges
     fun toBadges(host: Fragment) {
         host.findNavController().navigate(R.id.action_homeFragment_to_badgesFragment)
+    }
+
+    // To user profile
+    fun toProfile(host: Fragment) {
+        host.findNavController().navigate(R.id.action_homeFragment_to_profileFragment)
+    }
+
+    // To edit profile
+    fun toEditProfile(host: Fragment) {
+        host.findNavController().navigate(R.id.action_profileFragment_to_editProfileFragment)
     }
 
     // To activity detail

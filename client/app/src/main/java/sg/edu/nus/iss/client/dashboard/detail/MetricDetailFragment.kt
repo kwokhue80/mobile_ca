@@ -23,7 +23,6 @@ import java.time.LocalDate
 
 private fun MetricType.toActivityGoalType(): ActivityGoalType = when (this) {
     MetricType.DISTANCE -> ActivityGoalType.DISTANCE
-    MetricType.STEPS -> ActivityGoalType.STEPS
     MetricType.CALORIES -> ActivityGoalType.CALORIES
     MetricType.SLEEP -> ActivityGoalType.SLEEP
     MetricType.HYDRATION -> ActivityGoalType.HYDRATION
@@ -118,6 +117,7 @@ class MetricDetailFragment : Fragment() {
         binding.btnPrevPeriod.alpha = if (state.canGoPrevious) 1f else 0.4f
 
         val isWeight = metricType == MetricType.WEIGHT
+        val isSleepDay = metricType == MetricType.SLEEP && state.timeRange == TimeRange.DAY
 
         val selectedBar = state.selectedBarIndex?.let { state.bars.getOrNull(it) }
         if (selectedBar != null) {
@@ -135,7 +135,9 @@ class MetricDetailFragment : Fragment() {
             binding.layoutSummarySelected.visibility = View.GONE
             binding.layoutSummaryDefault.visibility = View.VISIBLE
             val currentWeight = state.bars.lastOrNull { it.value > 0 }?.value ?: state.totalValue
-            binding.tvSummaryDefaultValue.text = if (isWeight) {
+            binding.tvSummaryDefaultValue.text = if (isSleepDay) {
+                "You slept ${metricType.formatValue(state.totalValue)}${metricType.unit} today."
+            } else if (isWeight) {
                 val avgSuffix = if (state.timeRange == TimeRange.DAY) "" else "(avg)"
                 "${metricType.formatValue(currentWeight)}${metricType.unit}$avgSuffix"
             } else if (state.timeRange == TimeRange.MONTH || state.timeRange == TimeRange.SIX_MONTH) {
@@ -144,7 +146,7 @@ class MetricDetailFragment : Fragment() {
                 "${metricType.formatValue(state.totalValue)} of ${metricType.formatValue(state.goalValue)} ${metricType.unit}"
             }
             binding.tvSummarySubtitle.text = state.subtitle
-            binding.tvSummarySubtitle.visibility = if (isWeight) View.GONE else View.VISIBLE
+            binding.tvSummarySubtitle.visibility = if (isWeight || isSleepDay) View.GONE else View.VISIBLE
         }
 
         val hasSummaryRows = state.summaryRows.isNotEmpty()
@@ -160,9 +162,9 @@ class MetricDetailFragment : Fragment() {
         } else {
             "Daily goal: ${metricType.formatValue(currentGoalValue)} ${metricType.unit}"
         }
-        binding.chartContainer.visibility = if (isWeightDay) View.GONE else View.VISIBLE
-        binding.chartMetric.visibility = if (isWeight) View.GONE else View.VISIBLE
-        binding.chartSelectionOverlay.visibility = if (isWeight) View.GONE else View.VISIBLE
+        binding.chartContainer.visibility = if (isWeightDay || isSleepDay) View.GONE else View.VISIBLE
+        binding.chartMetric.visibility = if (isWeight || isSleepDay) View.GONE else View.VISIBLE
+        binding.chartSelectionOverlay.visibility = if (isWeight || isSleepDay) View.GONE else View.VISIBLE
         binding.chartMetricLine.visibility = if (isWeight) View.VISIBLE else View.GONE
         binding.cardBmi.visibility = if (isWeight) View.VISIBLE else View.GONE
 
@@ -175,8 +177,8 @@ class MetricDetailFragment : Fragment() {
             binding.bmiGauge.setBmi(bmiValue.toFloat())
         }
 
-        if (isWeightDay) {
-            // No chart for Weight's Day view; the text summary above is enough.
+        if (isWeightDay || isSleepDay) {
+            // No chart for Weight's/Sleep's Day view; the text summary above is enough.
         } else if (isWeight) {
             MetricLineChartConfigurator.configure(
                 chart = binding.chartMetricLine,

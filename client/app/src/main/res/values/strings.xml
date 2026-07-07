@@ -15,9 +15,12 @@
     <string name="token_encrypted">Token Encrypted &amp; Saved</string>
     <string name="token_decrypted">Token Decrypted</string>
     <string name="token_error">Encryption Error</string>"
+    <string name="logout_label">Logout</string>
     <string name="logout_success">Logout Successful</string>
     <string name="biometric_title">Biometric Authentication</string>
     <string name="biometric_subtitle">Log in Using your Biometric Credential</string>
+    <string name="biometric_enabled">Enable Biometric Login</string>
+    <string name="biometric_disabled">Biometric Login Disabled</string>
     <string name="biometric_negativeButtonText">Cancel</string>
     <string name="biometric_error_no_hardware">No Biometric Features Available on this Device</string>
     <string name="biometric_error_hw_unavailable">Biometric Features are Currently Unavailable</string>
@@ -28,4 +31,9 @@
     <string name="biometric_login_failed">Please Login with Password First</string>
     <string name="add_item_title_preview">Add Item</string>
     <string name="close">Close</string>
+    <string-array name="gender_options">
+        <item>Male</item>
+        <item>Female</item>
+        <item>Other</item>
+    </string-array>
 </resources>
