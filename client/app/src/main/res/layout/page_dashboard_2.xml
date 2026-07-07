@@ -86,6 +86,10 @@
                         android:text="Exercise Days"
                         android:textColor="#37423F"
                         android:textSize="18sp"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="12sp"
+                        android:autoSizeMaxTextSize="18sp"
+                        android:autoSizeStepGranularity="1sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -97,7 +101,11 @@
                         android:fontFamily="sans-serif"
                         android:textStyle="bold"
                         android:text="2 of 5"
-                        android:textSize="24sp" />
+                        android:textSize="24sp"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="17sp"
+                        android:autoSizeMaxTextSize="24sp"
+                        android:autoSizeStepGranularity="1sp" />
                 </LinearLayout>
 
                 <ImageView
@@ -186,6 +194,10 @@
                         android:text="Mental Health"
                         android:textColor="#37423F"
                         android:textSize="18sp"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="12sp"
+                        android:autoSizeMaxTextSize="18sp"
+                        android:autoSizeStepGranularity="1sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -197,7 +209,11 @@
                         android:fontFamily="sans-serif"
                         android:textStyle="bold"
                         android:text="Good"
-                        android:textSize="26sp" />
+                        android:textSize="26sp"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="18sp"
+                        android:autoSizeMaxTextSize="26sp"
+                        android:autoSizeStepGranularity="1sp" />
                 </LinearLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>

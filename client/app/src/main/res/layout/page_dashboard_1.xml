@@ -52,7 +52,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.3" />
+                    app:layout_constraintGuide_percent="0.38" />
 
                 <!-- 图标 -->
                 <ImageView
@@ -86,6 +86,10 @@
                         android:text="Distance"
                         android:textColor="#37423F"
                         android:textSize="18sp"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="12sp"
+                        android:autoSizeMaxTextSize="18sp"
+                        android:autoSizeStepGranularity="1sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -97,7 +101,11 @@
                         android:fontFamily="sans-serif"
                         android:textStyle="bold"
                         android:text="0.68km"
-                        android:textSize="26sp" />
+                        android:textSize="26sp"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="18sp"
+                        android:autoSizeMaxTextSize="26sp"
+                        android:autoSizeStepGranularity="1sp" />
                 </LinearLayout>
 
                 <!-- 达标勾选，goal达成时显示 -->
@@ -195,6 +203,10 @@
                         android:text="Calories"
                         android:textColor="#37423F"
                         android:textSize="18sp"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="12sp"
+                        android:autoSizeMaxTextSize="18sp"
+                        android:autoSizeStepGranularity="1sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -206,7 +218,11 @@
                         android:fontFamily="sans-serif"
                         android:textStyle="bold"
                         android:text="203Cal"
-                        android:textSize="26sp" />
+                        android:textSize="26sp"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="18sp"
+                        android:autoSizeMaxTextSize="26sp"
+                        android:autoSizeStepGranularity="1sp" />
                 </LinearLayout>
 
                 <ImageView
@@ -300,6 +316,10 @@
                         android:text="Sleep"
                         android:textColor="#37423F"
                         android:textSize="18sp"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="12sp"
+                        android:autoSizeMaxTextSize="18sp"
+                        android:autoSizeStepGranularity="1sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -311,7 +331,11 @@
                         android:fontFamily="sans-serif"
                         android:textStyle="bold"
                         android:text="8h"
-                        android:textSize="26sp" />
+                        android:textSize="26sp"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="18sp"
+                        android:autoSizeMaxTextSize="26sp"
+                        android:autoSizeStepGranularity="1sp" />
                 </LinearLayout>
 
                 <ImageView
@@ -371,7 +395,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.3" />
+                    app:layout_constraintGuide_percent="0.38" />
 
                 <!-- 图标 -->
                 <ImageView
@@ -405,6 +429,10 @@
                         android:text="Hydration"
                         android:textColor="#37423F"
                         android:textSize="18sp"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="12sp"
+                        android:autoSizeMaxTextSize="18sp"
+                        android:autoSizeStepGranularity="1sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -416,7 +444,11 @@
                         android:fontFamily="sans-serif"
                         android:textStyle="bold"
                         android:text="1250ml"
-                        android:textSize="26sp" />
+                        android:textSize="26sp"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="18sp"
+                        android:autoSizeMaxTextSize="26sp"
+                        android:autoSizeStepGranularity="1sp" />
                 </LinearLayout>
 
                 <ImageView
@@ -505,6 +537,10 @@
                         android:text="Weight"
                         android:textColor="#37423F"
                         android:textSize="18sp"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="12sp"
+                        android:autoSizeMaxTextSize="18sp"
+                        android:autoSizeStepGranularity="1sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -516,7 +552,11 @@
                         android:fontFamily="sans-serif"
                         android:textStyle="bold"
                         android:text="68kg"
-                        android:textSize="26sp" />
+                        android:textSize="26sp"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="18sp"
+                        android:autoSizeMaxTextSize="26sp"
+                        android:autoSizeStepGranularity="1sp" />
                 </LinearLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -600,6 +640,10 @@
                         android:text="Badges"
                         android:textColor="#37423F"
                         android:textSize="18sp"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="12sp"
+                        android:autoSizeMaxTextSize="18sp"
+                        android:autoSizeStepGranularity="1sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -611,7 +655,11 @@
                         android:fontFamily="sans-serif"
                         android:textStyle="bold"
                         android:text="0 of 9"
-                        android:textSize="24sp" />
+                        android:textSize="24sp"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="17sp"
+                        android:autoSizeMaxTextSize="24sp"
+                        android:autoSizeStepGranularity="1sp" />
                 </LinearLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
