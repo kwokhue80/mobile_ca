@@ -1,7 +1,6 @@
 package sg.edu.nus.iss.client.dashboard
 
 import android.graphics.Color
-import android.graphics.PorterDuff
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,20 +14,19 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricType
 import sg.edu.nus.iss.client.dashboard.detail.ExerciseDaysViewModel
+import sg.edu.nus.iss.client.dashboard.detail.MentalHealthDetailViewModel
 import sg.edu.nus.iss.client.dashboard.goals.UserGoalsViewModel
 import sg.edu.nus.iss.client.dashboard.goals.model.ActivityGoalType
 import sg.edu.nus.iss.client.databinding.PageDashboard2Binding
 import sg.edu.nus.iss.client.navigation.RouteManager
-import sg.edu.nus.iss.client.network.RetrofitClient
-import java.time.LocalDate
 
 class DashboardPage2Fragment : Fragment() {
 
     companion object {
-        // Matches DashboardPage1Fragment's checkmarks - same green, slight transparency
-        // so it doesn't read as a harsh solid dot against the card's softer palette.
-        private val CHECKMARK_COLOR = Color.parseColor("#2E7D32")
-        private const val CHECKMARK_ALPHA = 0.75f
+        // Matches DashboardPage1Fragment's goal-reached style: green card border ring
+        // + top-right corner wedge, same color regardless of card.
+        private val GOAL_REACHED_COLOR = Color.parseColor("#22C55E")
+        private val GOAL_NOT_REACHED_COLOR = Color.TRANSPARENT
     }
 
     private var _binding: PageDashboard2Binding? = null
@@ -51,9 +49,6 @@ class DashboardPage2Fragment : Fragment() {
         val userGoalsViewModel = ViewModelProvider(requireActivity())[UserGoalsViewModel::class.java]
         val dashboardViewModel = ViewModelProvider(requireActivity())[DashboardViewModel::class.java]
 
-        binding.checkExerciseDays.setColorFilter(CHECKMARK_COLOR, PorterDuff.Mode.SRC_IN)
-        binding.checkExerciseDays.alpha = CHECKMARK_ALPHA
-
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 combine(dashboardViewModel.activityRecords, userGoalsViewModel.goals) { records, goals ->
@@ -62,10 +57,15 @@ class DashboardPage2Fragment : Fragment() {
                     val goalDays =
                         (goals[ActivityGoalType.EXERCISE_DAYS] ?: ActivityGoalType.EXERCISE_DAYS.defaultValue).toInt()
                     val exercisedDays = ExerciseDaysViewModel.daysExercisedThisWeek(records)
+                    // Goal only scales the progress bar's max; the card text always
+                    // counts against 7 (days in a week), since that's what this card tracks.
                     binding.progressExerciseDays.max = goalDays.coerceAtLeast(1)
                     binding.progressExerciseDays.progress = exercisedDays
-                    binding.tvExerciseDays.text = "$exercisedDays of $goalDays"
-                    binding.checkExerciseDays.visibility = if (exercisedDays >= goalDays) View.VISIBLE else View.GONE
+                    binding.tvExerciseDays.text = "$exercisedDays of 7"
+                    val reached = exercisedDays >= goalDays
+                    binding.cardExerciseDays.strokeColor = if (reached) GOAL_REACHED_COLOR else GOAL_NOT_REACHED_COLOR
+                    binding.cornerWedgeExerciseDays.visibility = if (reached) View.VISIBLE else View.GONE
+                    binding.checkExerciseDays.visibility = if (reached) View.VISIBLE else View.GONE
                 }
             }
         }
@@ -73,36 +73,16 @@ class DashboardPage2Fragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 dashboardViewModel.todaySummary.collect { summary ->
-                    binding.tvMentalHealth.text = summary?.moodScore?.let { "$it/10" } ?: "--"
+                    binding.tvMentalHealth.text = summary?.moodScore?.let {
+                        MentalHealthDetailViewModel.moodCategory(it.toDouble())
+                    } ?: "--"
+
+                    val calories = summary?.totalCaloriesIntake ?: 0
+                    binding.tvFoodIntake.text = "$calories kcal"
+                    binding.progressFoodIntake.progress =
+                        calories.coerceIn(0, binding.progressFoodIntake.max)
                 }
             }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        loadFoodIntake()
-    }
-
-    private fun loadFoodIntake() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            val today = LocalDate.now().toString()
-            val response = runCatching {
-                RetrofitClient
-                    .getApiService(requireContext())
-                    .getDailyDashboard(today)
-            }.getOrNull()
-
-            val calories = response
-                ?.takeIf { it.isSuccessful }
-                ?.body()
-                ?.dailyWellnessSummary
-                ?.totalCaloriesIntake
-                ?: 0
-
-            binding.tvFoodIntake.text = "$calories kcal"
-            binding.progressFoodIntake.progress =
-                calories.coerceIn(0, binding.progressFoodIntake.max)
         }
     }
 

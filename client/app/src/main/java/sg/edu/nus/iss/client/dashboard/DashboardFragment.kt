@@ -21,6 +21,11 @@ class DashboardFragment : Fragment() {
     companion object {
         private const val DOT_SIZE_DP = 10
         private const val DOT_MARGIN_DP = 10
+
+        // Home only teases the most recent activity; the full history (now that
+        // DashboardViewModel.activityRecords covers up to a year, not just 7 days)
+        // lives in the History screen instead.
+        private const val ACTIVITY_TRACKED_LIMIT = 20
     }
 
     private var _binding: FragmentDashboardBinding? = null
@@ -75,7 +80,7 @@ class DashboardFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.activityRecords.collect { records ->
-                    activityPagerAdapter.submitList(records)
+                    activityPagerAdapter.submitList(records.take(ACTIVITY_TRACKED_LIMIT))
                 }
             }
         }

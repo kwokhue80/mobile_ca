@@ -23,13 +23,17 @@ class ActivityRecordPagerAdapter(
 
     fun submitList(newRecords: List<ActivityRecord>) {
         records = newRecords
-        notifyDataSetChanged()
+        // ViewPager2 doesn't rebind the currently-displayed page on notifyDataSetChanged()
+        // when itemCount is unchanged (a known RecyclerView/ViewPager2 limitation), so the
+        // "Activity Tracked" list could go stale after an add/delete without a real page
+        // navigation. notifyItemRangeChanged() forces the visible page to rebind.
+        notifyItemRangeChanged(0, itemCount)
     }
 
     fun setCurrentPage(page: Int) {
         if (currentPage == page) return
         currentPage = page
-        notifyDataSetChanged()
+        notifyItemRangeChanged(0, itemCount)
     }
 
     override fun getItemCount(): Int =

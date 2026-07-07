@@ -33,6 +33,15 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
+        <ImageButton
+            android:id="@+id/btnPickDate"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="end|center_vertical"
+            android:background="@drawable/bg_circle_button"
+            android:contentDescription="Pick date"
+            android:src="@drawable/ic_calendar" />
+
     </FrameLayout>
 
     <androidx.viewpager2.widget.ViewPager2

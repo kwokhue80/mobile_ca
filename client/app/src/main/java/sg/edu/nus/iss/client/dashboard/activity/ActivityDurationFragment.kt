@@ -125,8 +125,11 @@ class ActivityDurationFragment : Fragment() {
             }
 
             val today = LocalDate.now()
-            val startDateTime = LocalDateTime.of(today, viewModel.startTime.value)
             val endDateTime = LocalDateTime.of(today, viewModel.endTime.value)
+            // Start's time-of-day being numerically after end's (e.g. start=23:41,
+            // end=00:11) means the activity started the previous day, not today.
+            val startDate = if (viewModel.startTime.value.isAfter(viewModel.endTime.value)) today.minusDays(1) else today
+            val startDateTime = LocalDateTime.of(startDate, viewModel.startTime.value)
             val recordDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
             val record = WellnessRecord(
