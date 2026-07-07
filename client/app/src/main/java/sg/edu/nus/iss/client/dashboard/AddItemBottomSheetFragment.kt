@@ -466,7 +466,7 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
 
     private fun setupExerciseForm() {
         addSectionDescription(
-            "Exercise will be saved into exercise_logs. Distance and calories burned are optional."
+            "Select exercise start and end date/time. The app will calculate duration automatically."
         )
 
         val exerciseTypeInput = addSpinner(
@@ -474,11 +474,30 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             items = listOf(EXERCISE_TYPE_PROMPT) + EXERCISE_TYPES.toList()
         )
 
-        val durationInput = addInput(
-            label = "Duration (minutes)",
-            hint = "e.g. 30",
-            inputType = InputType.TYPE_CLASS_NUMBER
+        val startDateInput = addPickerInput(
+            label = "Exercise Start Date",
+            hint = "Select date, e.g. 2026-07-06"
         )
+
+        val startTimeInput = addPickerInput(
+            label = "Exercise Start Time",
+            hint = "Select time, e.g. 18:00"
+        )
+
+        val endDateInput = addPickerInput(
+            label = "Exercise End Date",
+            hint = "Select date, e.g. 2026-07-06"
+        )
+
+        val endTimeInput = addPickerInput(
+            label = "Exercise End Time",
+            hint = "Select time, e.g. 18:30"
+        )
+
+        startDateInput.setOnClickListener { showDatePicker(startDateInput) }
+        startTimeInput.setOnClickListener { showTimePicker(startTimeInput) }
+        endDateInput.setOnClickListener { showDatePicker(endDateInput) }
+        endTimeInput.setOnClickListener { showTimePicker(endTimeInput) }
 
         val distanceInput = addInput(
             label = "Distance (km, optional)",
@@ -496,8 +515,10 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
 
         saveButton.setOnClickListener {
             val exerciseType = exerciseTypeInput.selectedItem?.toString().orEmpty()
-            val durationText = durationInput.text.toString().trim()
-            val duration = durationText.toIntOrNull()
+            val startDateText = startDateInput.text.toString().trim()
+            val startTimeText = startTimeInput.text.toString().trim()
+            val endDateText = endDateInput.text.toString().trim()
+            val endTimeText = endTimeInput.text.toString().trim()
 
             val distanceText = distanceInput.text.toString().trim()
             val caloriesText = caloriesBurnedInput.text.toString().trim()
@@ -515,13 +536,60 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
                 return@setOnClickListener
             }
 
-            if (durationText.isEmpty()) {
-                durationInput.error = "Duration is required"
+            if (startDateText.isEmpty()) {
+                startDateInput.error = "Exercise Start Date is required"
                 return@setOnClickListener
             }
 
-            if (duration == null || duration <= 0) {
-                durationInput.error = "Duration must be greater than 0"
+            if (startTimeText.isEmpty()) {
+                startTimeInput.error = "Exercise Start Time is required"
+                return@setOnClickListener
+            }
+
+            if (endDateText.isEmpty()) {
+                endDateInput.error = "Exercise End Date is required"
+                return@setOnClickListener
+            }
+
+            if (endTimeText.isEmpty()) {
+                endTimeInput.error = "Exercise End Time is required"
+                return@setOnClickListener
+            }
+
+            val exerciseStartDateTime = parseSleepDateTime(startDateText, startTimeText)
+            val exerciseEndDateTime = parseSleepDateTime(endDateText, endTimeText)
+
+            if (exerciseStartDateTime == null) {
+                startDateInput.error = "Select a valid exercise start date and time"
+                return@setOnClickListener
+            }
+
+            if (exerciseEndDateTime == null) {
+                endDateInput.error = "Select a valid exercise end date and time"
+                return@setOnClickListener
+            }
+
+            if (!exerciseEndDateTime.isAfter(exerciseStartDateTime)) {
+                endTimeInput.error = "Exercise end time must be after start time"
+                return@setOnClickListener
+            }
+
+            val now = LocalDateTime.now()
+
+            if (exerciseStartDateTime.isAfter(now)) {
+                startTimeInput.error = "Exercise start time cannot be in the future"
+                return@setOnClickListener
+            }
+
+            if (exerciseEndDateTime.isAfter(now)) {
+                endTimeInput.error = "Exercise end time cannot be in the future"
+                return@setOnClickListener
+            }
+
+            val duration = Duration.between(exerciseStartDateTime, exerciseEndDateTime).toMinutes().toInt()
+
+            if (duration <= 0) {
+                endTimeInput.error = "Exercise duration must be greater than 0 minutes"
                 return@setOnClickListener
             }
 
@@ -537,7 +605,8 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
                 return@setOnClickListener
             }
 
-            val record = baseRecord().copy(
+            val record = WellnessRecord(
+                recordDate = exerciseEndDateTime.format(RECORD_DATE_FORMATTER),
                 exerciseType = exerciseType,
                 exerciseDurationMinutes = duration,
                 exerciseDistanceKm = distance,

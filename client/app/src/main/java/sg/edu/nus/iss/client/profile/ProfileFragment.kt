@@ -2,12 +2,17 @@ package sg.edu.nus.iss.client.profile
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -62,6 +67,8 @@ class ProfileFragment : Fragment() {
         binding.btnBack.setOnClickListener { RouteManager.back(this) }
         binding.btnEdit.setOnClickListener { RouteManager.toEditProfile(this) }
         binding.btnLogout.setOnClickListener { confirmLogout() }
+
+        setupOverflowMenu()
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -124,14 +131,14 @@ class ProfileFragment : Fragment() {
             is LogoutUiState.Success -> {
                 sessionManager.clearSession()
                 Toast.makeText(requireContext(), getString(R.string.logout_success), Toast.LENGTH_SHORT).show()
-                RouteManager.toLogin(this)
+                RouteManager.toLoginFromLogout(this)
                 logoutViewModel.resetState()
             }
 
             is LogoutUiState.Error -> {
                 sessionManager.clearSession()
                 Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
-                RouteManager.toLogin(this)
+                RouteManager.toLoginFromLogout(this)
                 logoutViewModel.resetState()
             }
         }
@@ -144,6 +151,55 @@ class ProfileFragment : Fragment() {
             .setPositiveButton("Logout") { _, _ -> logoutViewModel.logout() }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    private fun setupOverflowMenu() {
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                // Old behavior retained for traceability.
+                // No overflow menu was configured on Profile.
+                menuInflater.inflate(R.menu._profile_menu, menu)
+
+                val biometricItem = menu.findItem(R.id.action_toggle_biometric)
+                val isEnabled = sessionManager.isBiometricEnabled()
+                biometricItem.isChecked = isEnabled
+                biometricItem.title = if (isEnabled) {
+                    getString(R.string.biometric_enabled)
+                } else {
+                    getString(R.string.biometric_disabled)
+                }
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.action_toggle_biometric -> {
+                        val updated = !menuItem.isChecked
+                        menuItem.isChecked = updated
+                        sessionManager.setBiometricEnabled(updated)
+                        menuItem.title = if (updated) {
+                            getString(R.string.biometric_enabled)
+                        } else {
+                            getString(R.string.biometric_disabled)
+                        }
+                        Toast.makeText(
+                            requireContext(),
+                            if (updated) getString(R.string.biometric_enabled) else getString(R.string.biometric_disabled),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        true
+                    }
+
+                    R.id.action_logout -> {
+                        confirmLogout()
+                        true
+                    }
+
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     override fun onDestroyView() {

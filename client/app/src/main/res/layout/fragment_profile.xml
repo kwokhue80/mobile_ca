@@ -22,6 +22,7 @@
             android:paddingTop="48dp"
             android:paddingBottom="4dp">
 
+            <!-- Old: android:tint="#1B4332" -->
             <ImageButton
                 android:id="@+id/btnBack"
                 android:layout_width="40dp"
@@ -30,7 +31,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Back"
                 android:src="@drawable/ic_back_arrow"
-                android:tint="#1B4332" />
+                app:tint="#1B4332" />
 
             <ImageButton
                 android:id="@+id/btnEdit"
@@ -76,12 +77,13 @@
                 android:layout_marginTop="24dp"
                 android:background="@drawable/bg_avatar_circle_dark">
 
+                <!-- Old: android:tint="#2F6B3F" -->
                 <ImageView
                     android:layout_width="52dp"
                     android:layout_height="52dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_user_rounded"
-                    android:tint="#2F6B3F" />
+                    app:tint="#2F6B3F" />
 
             </FrameLayout>
 
