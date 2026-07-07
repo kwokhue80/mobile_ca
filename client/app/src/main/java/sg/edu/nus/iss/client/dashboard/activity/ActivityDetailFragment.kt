@@ -56,22 +56,6 @@ class ActivityDetailFragment : Fragment() {
 
         binding.btnBack.setOnClickListener { RouteManager.back(this) }
 
-        binding.rowStartTime.tvLabel.text = "Start time"
-        binding.rowEndTime.tvLabel.text = "End time"
-        binding.rowDuration.tvLabel.text = "Duration"
-        binding.rowDistance.tvLabel.text = "Distance"
-        binding.rowCalories.tvLabel.text = "Calories"
-
-        binding.rowStartTime.ivIcon.setImageResource(R.drawable.ic_time)
-        binding.rowEndTime.ivIcon.setImageResource(R.drawable.ic_time)
-        binding.rowDuration.ivIcon.setImageResource(R.drawable.ic_time)
-        binding.rowDistance.ivIcon.setImageResource(R.drawable.distance_icon)
-        binding.rowCalories.ivIcon.setImageResource(R.drawable.calories_icon)
-
-        binding.rowDuration.dividerRow.visibility = View.GONE
-        binding.rowDistance.dividerRow.visibility = View.GONE
-        binding.rowCalories.dividerRow.visibility = View.GONE
-
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 dashboardViewModel.activityRecords.collect { records ->
@@ -93,11 +77,21 @@ class ActivityDetailFragment : Fragment() {
         applyAccentTheme(exerciseType)
 
         val endTime = record.timestamp.plusMinutes(record.durationMinutes.toLong())
-        binding.rowStartTime.tvValue.text = ActivityDateFormatter.formatTimeOnly(record.timestamp)
-        binding.rowEndTime.tvValue.text = ActivityDateFormatter.formatTimeOnly(endTime)
-        binding.rowDuration.tvValue.text = "${record.durationMinutes} min"
-        binding.rowDistance.tvValue.text = "%.2f km".format(record.distanceKm)
-        binding.rowCalories.tvValue.text = "${record.calories} Cal"
+        val timeRange = "${ActivityDateFormatter.formatTimeOnly(record.timestamp)} - ${ActivityDateFormatter.formatTimeOnly(endTime)}"
+        binding.tvTimeRange.text = timeRange
+        binding.tvDuration.text = "${record.durationMinutes} min"
+        binding.tvDistance.text = "%.2f".format(record.distanceKm)
+        binding.tvCalories.text = "${record.calories}"
+
+        if (record.distanceKm > 0) {
+            val totalSeconds = record.durationMinutes * 60
+            val secondsPerKm = totalSeconds / record.distanceKm
+            val paceMinutes = (secondsPerKm / 60).toInt()
+            val paceSeconds = (secondsPerKm % 60).toInt()
+            binding.tvPace.text = "%d'%02d".format(paceMinutes, paceSeconds)
+        } else {
+            binding.tvPace.text = "--'--"
+        }
     }
 
     private fun applyAccentTheme(exerciseType: ExerciseType?) {
@@ -108,8 +102,7 @@ class ActivityDetailFragment : Fragment() {
         (binding.iconContainer.background.mutate() as GradientDrawable).setColor(0xFFFFFFFF.toInt())
 
         listOf(
-            binding.rowStartTime.ivIcon, binding.rowEndTime.ivIcon, binding.rowDuration.ivIcon,
-            binding.rowDistance.ivIcon, binding.rowCalories.ivIcon
+            binding.iconDistance, binding.iconPace, binding.iconCalories
         ).forEach { it.setColorFilter(accentColor, PorterDuff.Mode.SRC_IN) }
     }
 

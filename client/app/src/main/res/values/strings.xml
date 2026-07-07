@@ -3,7 +3,12 @@
     <string name="base_url">http://10.0.2.2:8000/</string>
     <string name="credential_emailAddress">Email Address</string>
     <string name="credential_password">Password</string>
+    <string name="credential_confirmPassword">Confirm Password</string>
     <string name="credential_loginButton">Proceed to My Wellness</string>
+    <string name="credential_registerTitle">Create Account</string>
+    <string name="credential_registerPrompt">New here? Create your account</string>
+    <string name="credential_registerButton">Register</string>
+    <string name="credential_backToLogin">Back to Login</string>
     <string name="credential_fingerprintLogin">Use Biometric to Login</string>
     <string name="credential_fingerprintDialer">Fingerprint Dialer</string>
     <string name="credential_valid">Login Successful!!!</string>"
