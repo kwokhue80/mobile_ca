@@ -50,9 +50,15 @@ public class UserController {
 				.sorted(Comparator.comparing(goal -> goal.getId().getGoalType().name()))
 				.map(userGoalService::toResponse)
 				.toList();
-
 		return ResponseEntity.ok(goals);
 	}
+
+    @GetMapping("/goals/raw")
+    public ResponseEntity<List<UserGoalResponse>> getCurrentUserGoalsRaw(
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<UserGoalResponse> goals = userGoalService.getRawByUserId(userPrincipal.getId());
+        return ResponseEntity.ok(goals);
+    }
 
 	@PutMapping("/goals/{goalType}")
 	public ResponseEntity<UserGoalResponse> upsertCurrentUserGoal(

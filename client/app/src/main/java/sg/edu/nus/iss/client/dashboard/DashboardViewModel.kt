@@ -24,9 +24,8 @@ import java.time.format.DateTimeFormatter
 class DashboardViewModel(application: Application) : AndroidViewModel(application) {
 
     private companion object {
-        // Comfortably covers a full year of history; the exercise-logs endpoint has
-        // no server-side cap, so this just bounds how far back we ask for.
-        private const val ACTIVITY_HISTORY_DAYS = 365
+        // Limit to 30 days
+        private const val ACTIVITY_HISTORY_DAYS = 30
     }
 
     private val apiService = RetrofitClient.getApiService(application)

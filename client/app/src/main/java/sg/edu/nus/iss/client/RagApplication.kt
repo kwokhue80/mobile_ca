@@ -7,14 +7,18 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import sg.edu.nus.iss.client.backend.BackendApi
+import sg.edu.nus.iss.client.backend.BackendConfig
 import sg.edu.nus.iss.client.backend.BackendRepository
 import sg.edu.nus.iss.client.chatbot.RagRepository
 import sg.edu.nus.iss.client.chathistory.ChatHistoryRepository
 import sg.edu.nus.iss.client.embedding.OnnxEmbeddingModel
+import sg.edu.nus.iss.client.network.AuthInterceptor
 import sg.edu.nus.iss.client.objectbox.DishRepository
 import sg.edu.nus.iss.client.openrouter.OpenRouterClient
+import sg.edu.nus.iss.client.util.SessionManager
 import java.io.File
 import java.io.FileOutputStream
+import java.util.concurrent.TimeUnit
 
 class RagApplication : Application() {
 
@@ -47,15 +51,29 @@ class RagApplication : Application() {
         // Comment out this line to disable it where necessary
 //        chatHistoryRepository.clearAllMessages()
 
+        val sessionManager = SessionManager(applicationContext)
+        val backendHttpClient = OkHttpClient.Builder()
+            // Adds Authorization header from SessionManager to every backend call,
+            // including chat calls to FastAPI and any future protected endpoints
+            .addInterceptor(AuthInterceptor(sessionManager))
+            // Chat responses can involve tool calls and web search, so give bridge calls
+            // more time before failing over to local fallback.
+            .connectTimeout(20, TimeUnit.SECONDS)
+            .readTimeout(75, TimeUnit.SECONDS)
+            .writeTimeout(75, TimeUnit.SECONDS)
+            .build()
+
         val backendRetrofit = Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:8000/")
-            .client(OkHttpClient())
+            .baseUrl(BackendConfig.BASE_URL)
+            .client(backendHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
         val backendApi = backendRetrofit.create(BackendApi::class.java)
         val backendRepository = BackendRepository(backendApi)
 
+        // RagRepository is the single entry point used by ChatViewModel.
+        // It owns routing logic to backend/MCP vs. local/OpenRouter
         ragRepository = RagRepository(
             embeddingModel,
             dishRepository,

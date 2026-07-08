@@ -1,8 +1,11 @@
 fastapi
+httpx
 langchain-ollama
 pydantic
 python-dotenv
 langchain-openai
 langchain
 langchain-mcp-adapters
+mcp
 ddgs
+uvicorn
