@@ -17,10 +17,6 @@ import sg.edu.nus.features.wellness.dto.BadgeProgressResponse;
 import sg.edu.nus.features.wellness.dto.ExerciseLogResponse;
 import sg.edu.nus.features.wellness.dto.FoodLogResponse;
 import sg.edu.nus.features.wellness.dto.HourlyWellnessResponse;
-import sg.edu.nus.features.wellness.dto.HydrationLogResponse;
-import sg.edu.nus.features.wellness.dto.MoodLogResponse;
-import sg.edu.nus.features.wellness.dto.SleepLogResponse;
-import sg.edu.nus.features.wellness.dto.WeightLogResponse;
 import sg.edu.nus.features.wellness.dto.RecommendationResponse;
 
 import java.math.BigDecimal;
@@ -379,74 +375,6 @@ public class WellnessOrchestratorService {
                 .mealType(log.getMealType() != null ? log.getMealType().toString() : "OTHER")
                 .foodName(log.getFoodName())
                 .caloriesKcal(log.getCaloriesKcal())
-                .loggedAt(log.getLoggedAt())
-                .build())
-            .toList();
-    }
-
-    // The four raw-log feeds below back the metric detail screens' Week/Month
-    // charts (the client aggregates per day itself). Same shape as getFoodLogs/
-    // getExerciseLogs: "last N days up to now", newest first.
-
-    // Sleep sessions; range bounded by endTime since a night's sleep counts
-    // toward the wake-up date.
-    public List<SleepLogResponse> getSleepLogs(UUID userId, int numberOfDays) {
-        LocalDateTime endTime = LocalDateTime.now();
-        LocalDateTime startTime = endTime.minusDays(numberOfDays);
-
-        return sleepRepo.findAllByUserIdAndEndTimeBetweenOrderByEndTimeDesc(
-                userId, startTime, endTime
-        ).stream()
-            .map(log -> SleepLogResponse.builder()
-                .id(log.getId())
-                .startTime(log.getStartTime())
-                .endTime(log.getEndTime())
-                .durationMinutes(log.getDurationMinutes())
-                .sleepQualityScore(log.getSleepQualityScore())
-                .build())
-            .toList();
-    }
-
-    public List<HydrationLogResponse> getHydrationLogs(UUID userId, int numberOfDays) {
-        LocalDateTime endTime = LocalDateTime.now();
-        LocalDateTime startTime = endTime.minusDays(numberOfDays);
-
-        return hydrationRepo.findByUserIdAndLoggedAtBetweenOrderByLoggedAtDesc(
-                userId, startTime, endTime
-        ).stream()
-            .map(log -> HydrationLogResponse.builder()
-                .id(log.getId())
-                .volumeMl(log.getVolumeMl())
-                .loggedAt(log.getLoggedAt())
-                .build())
-            .toList();
-    }
-
-    public List<WeightLogResponse> getWeightLogs(UUID userId, int numberOfDays) {
-        LocalDateTime endTime = LocalDateTime.now();
-        LocalDateTime startTime = endTime.minusDays(numberOfDays);
-
-        return weightRepo.findAllByUserIdAndLoggedAtBetweenOrderByLoggedAtDesc(
-                userId, startTime, endTime
-        ).stream()
-            .map(log -> WeightLogResponse.builder()
-                .id(log.getId())
-                .weightKg(log.getWeightKg())
-                .loggedAt(log.getLoggedAt())
-                .build())
-            .toList();
-    }
-
-    public List<MoodLogResponse> getMoodLogs(UUID userId, int numberOfDays) {
-        LocalDateTime endTime = LocalDateTime.now();
-        LocalDateTime startTime = endTime.minusDays(numberOfDays);
-
-        return moodRepo.findAllByUserIdAndLoggedAtBetweenOrderByLoggedAtDesc(
-                userId, startTime, endTime
-        ).stream()
-            .map(log -> MoodLogResponse.builder()
-                .id(log.getId())
-                .moodRating(log.getMoodRating())
                 .loggedAt(log.getLoggedAt())
                 .build())
             .toList();

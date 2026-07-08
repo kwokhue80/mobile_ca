@@ -88,19 +88,13 @@ interface AuthApiService {
         @Body request: UserGoalUpsertRequest
     ): Response<UserGoalResponse>
 
-    // Raw-log feeds backing the metric detail screens' Week/Month/6-Month charts;
-    // the client aggregates per day itself. Distance/Calories reuse getExerciseLogs.
-    @GET("api/wellness/sleep-logs")
-    suspend fun getSleepLogs(@Query("days") days: Int = 180): Response<List<SleepLogResponse>>
-
-    @GET("api/wellness/hydration-logs")
-    suspend fun getHydrationLogs(@Query("days") days: Int = 180): Response<List<HydrationLogResponse>>
-
-    @GET("api/wellness/weight-logs")
-    suspend fun getWeightLogs(@Query("days") days: Int = 180): Response<List<WeightLogResponse>>
-
-    @GET("api/wellness/mood-logs")
-    suspend fun getMoodLogs(@Query("days") days: Int = 180): Response<List<MoodLogResponse>>
+    // Fetch a date range of daily summaries (used for the Distance/Calories/
+    // Hydration/Sleep/Weight/Mental Health Week/Month/6-Month charts).
+    @GET("api/dashboard/range")
+    suspend fun getDashboardRange(
+        @Query("startDate") startDate: String,  // Format: "yyyy-MM-dd"
+        @Query("endDate") endDate: String       // Format: "yyyy-MM-dd"
+    ): Response<List<DailyWellnessSummary>>
 
     // Precise-to-the-hour breakdown of exercise distance/calories and hydration volume
     // for a single date. Backs the Distance/Calories/Hydration detail screens' Day view.
@@ -195,31 +189,6 @@ data class FoodLogResponse(
     val loggedAt: String   // ISO-8601
 )
 
-data class SleepLogResponse(
-    val id: Long,
-    val startTime: String,           // ISO-8601
-    val endTime: String,             // ISO-8601; a night counts toward this date
-    val durationMinutes: Int,
-    val sleepQualityScore: Int? = null
-)
-
-data class HydrationLogResponse(
-    val id: Long,
-    val volumeMl: Int,
-    val loggedAt: String   // ISO-8601
-)
-
-data class WeightLogResponse(
-    val id: Long,
-    val weightKg: Double,
-    val loggedAt: String   // ISO-8601
-)
-
-data class MoodLogResponse(
-    val id: Long,
-    val moodRating: Int,
-    val loggedAt: String   // ISO-8601
-)
 
 data class HourlyWellnessResponse(
     val hour: Int,

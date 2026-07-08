@@ -12,9 +12,6 @@ public interface MoodLogRepository extends JpaRepository<MoodLog, Long> {
 
 	List<MoodLog> findAllByUserIdOrderByLoggedAtDesc(UUID userId);
 
-	List<MoodLog> findAllByUserIdAndLoggedAtBetweenOrderByLoggedAtDesc(
-			UUID userId, LocalDateTime start, LocalDateTime end);
-
 	void deleteByUserIdAndLoggedAtBetween(UUID userId, LocalDateTime start, LocalDateTime end);
 
 }
