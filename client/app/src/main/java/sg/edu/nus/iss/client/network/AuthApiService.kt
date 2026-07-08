@@ -90,7 +90,7 @@ interface AuthApiService {
 
     // Fetch a date range of daily summaries (used for the Distance/Calories/
     // Hydration/Sleep/Weight/Mental Health Week/Month/6-Month charts).
-    @GET("api/dashboard/range")
+    @GET("api/wellness/range")
     suspend fun getDashboardRange(
         @Query("startDate") startDate: String,  // Format: "yyyy-MM-dd"
         @Query("endDate") endDate: String       // Format: "yyyy-MM-dd"

@@ -30,10 +30,11 @@ class HomeFragment : Fragment() {
     private lateinit var sessionManager: SessionManager
     // Requests runtime notification permission on Android 13+.
     private val requestNotificationPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (!granted && isAdded) {
-                Toast.makeText(requireContext(), "Enable notifications to receive recommendation alerts", Toast.LENGTH_LONG).show()
-            }
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            // granted ->
+            // if (!granted && isAdded) {
+            //    Toast.makeText(requireContext(), "Enable notifications to receive recommendation alerts", Toast.LENGTH_LONG).show()
+            // }
         }
 
     override fun onCreateView(
