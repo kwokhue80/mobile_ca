@@ -25,7 +25,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     private companion object {
         // Limit to 30 days
-        private const val ACTIVITY_HISTORY_DAYS = 30
+        private const val ACTIVITY_HISTORY_DAYS = 180
     }
 
     private val apiService = RetrofitClient.getApiService(application)
