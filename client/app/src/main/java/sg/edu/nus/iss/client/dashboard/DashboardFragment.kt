@@ -22,10 +22,9 @@ class DashboardFragment : Fragment() {
         private const val DOT_SIZE_DP = 10
         private const val DOT_MARGIN_DP = 10
 
-        // Home only teases the most recent activity; the full history (now that
-        // DashboardViewModel.activityRecords covers up to a year, not just 7 days)
-        // lives in the History screen instead.
-        private const val ACTIVITY_TRACKED_LIMIT = 20
+        // Home only teases the most recent activity (3 pages of 4); the full
+        // history lives in the History screen instead.
+        private const val ACTIVITY_TRACKED_LIMIT = 12
     }
 
     private var _binding: FragmentDashboardBinding? = null

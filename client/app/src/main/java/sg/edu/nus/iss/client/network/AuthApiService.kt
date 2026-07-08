@@ -32,9 +32,9 @@ interface AuthApiService {
         @Body wellnessRecord: WellnessRecord
     ): Response<Void>
 
-    // Testing convenience: wipes today's sleep/hydration/weight/mood/exercise records
-    // and the aggregated daily summary for the current user. Goals and profile are
-    // untouched. Called on every login so each test session starts from a clean slate.
+    // Testing convenience: wipes today's logged records and the aggregated daily
+    // summary for the current user. No longer called anywhere in the app (saved data
+    // now persists permanently); kept only in case a manual test needs it.
     @POST("api/wellness/reset-today")
     suspend fun resetToday(): Response<Void>
 

@@ -278,7 +278,8 @@
                 android:layout_marginTop="16dp"
                 android:gravity="center"
                 android:text="Tap a bar to see that day's meals."
-                android:textColor="#7A7A7A"
+                android:textColor="#27837B"
+                android:textStyle="bold"
                 android:textSize="14sp" />
 
         </LinearLayout>
