@@ -7,11 +7,8 @@ import json
 import hashlib
 import time
 import asyncio
-from enum import Enum
 from datetime import datetime, timedelta
-from dataclasses import dataclass, field
 from fastapi import FastAPI, HTTPException, Header
-from pydantic import BaseModel, Field
 from typing import Any, List
 from dotenv import load_dotenv
 from openai import AuthenticationError as OpenAIAuthenticationError
@@ -22,6 +19,34 @@ try:
     from .jwt_context import set_current_token, clear_current_token, get_current_token
 except ImportError:
     from jwt_context import set_current_token, clear_current_token, get_current_token
+try:
+    from .models import (
+        ChatMessage,
+        ChatRequest,
+        ChatResponse,
+        LoggingDraft,
+        LoggingTask,
+        WorkflowAction,
+        WorkflowActionResult,
+        WorkflowActionType,
+        WorkflowState,
+    )
+except ImportError:
+    from models import (
+        ChatMessage,
+        ChatRequest,
+        ChatResponse,
+        LoggingDraft,
+        LoggingTask,
+        WorkflowAction,
+        WorkflowActionResult,
+        WorkflowActionType,
+        WorkflowState,
+    )
+try:
+    from .draft_store import InMemoryDraftStore
+except ImportError:
+    from draft_store import InMemoryDraftStore
 try:
     from .mcp_server_wellness import log_wellness_entry as direct_log_wellness_entry
 except ImportError:
@@ -47,25 +72,22 @@ except ImportError:
 #   AUTHOR(S): Kwok Heng, Amelia, Chai Lee (AI-assisted; Reason: fairly new concepts)
 #   PURPOSE: Configure MCP agent
 #
-#   FULL FLOW + CONSIDERATIONS:
-#   1) /api/chat receives user query, auth token is stored in request context.
-#   2) Deterministic orchestration runs first (no LLM):
-#      - logging state machine (_handle_logging_orchestration)
-#      - read tools (_handle_read_orchestration)
-#      - wellness web-search routing (_handle_wellness_web_search_orchestration)
-#   3) Draft state (DRAFT_STORE) tracks partial logs across turns:
-#      - awaiting_log_offer: asks whether user wants to log
-#      - missing_field: prompts for required values from server-side rules
-#      - awaiting_confirmation: confirms before final write when needed
-#   4) If deterministic handlers do not resolve, fallback to LangChain agent + MCP tools.
-#   5) Post-processing safeguards:
-#      - normalize/format tool outputs for readability
-#      - suppress model echo responses
-#      - replace false refusal text when tool output shows success
-#      - recover recommendations with safe fallback guidance
-#   6) Source-of-truth split:
-#      - mcp_server_wellness.py owns validation/normalization and tool semantics
-#      - this file owns conversation routing, draft lifecycle, and response shaping
+#   SIMPLE ARCHITECTURE GUIDE:
+#   - Deterministic parts = fixed, rule-based behavior for safety and consistency.
+#     Examples: logging state machine, field extraction, required-field prompts.
+#   - Agentic parts = planner behavior that chooses what to do next.
+#     Examples: action prioritization, replanning after observations, confidence routing.
+#
+#   Request flow:
+#   1) /api/chat stores auth token in request context.
+#   2) Deterministic handlers run first for reliable core behavior.
+#   3) Planner tracks observations and may re-order next actions.
+#   4) LLM fallback is used when deterministic handlers do not fully resolve the turn.
+#   5) Output guards prevent echo replies and obvious false refusals.
+#
+#   Responsibility split:
+#   - mcp_server_wellness.py = tool semantics, validation, normalization.
+#   - this file = orchestration, draft lifecycle, user-facing response shaping.
 ## ----------------------------------------------------------------- ##
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -91,84 +113,9 @@ logger = logging.getLogger("mcp_agent_wellness")
 
 app = FastAPI(title="Wellness Chatbot API")
 
-# For logging purpose
-@dataclass
-class LoggingDraft:
-    payload: dict[str, Any] = field(default_factory=dict)
-    missing_field: str | None = None
-    awaiting_log_offer: bool = False
-    awaiting_confirmation: bool = False
-    updated_at_epoch: float = field(default_factory=lambda: time.time())
-
-
-# Context object (Like ResearchState)
-@dataclass
-class WorkflowState:
-    request: "ChatRequest"
-    request_id: str
-    actions: list["WorkflowAction"] = field(default_factory=list)
-    deterministic_responses: list[str] = field(default_factory=list)
-
-
-# Action type: Log to DB, read from DB, search web, or LLM
-class WorkflowActionType(str, Enum):
-    LOGGING = "logging"
-    READ = "read"
-    WEB_SEARCH = "web_search"
-    LLM = "llm"
-
-
-# Workflow action object
-@dataclass(frozen=True)
-class WorkflowAction:
-    action_type: WorkflowActionType
-    terminal_on_handle: bool = False
-    accumulate_response: bool = False
-    target: str | None = None
-    query_override: str | None = None
-    logging_task: "LoggingTask | None" = None
-
-
-# Logs intent detection and messages
-@dataclass(frozen=True)
-class LoggingTask:
-    query: str
-    recent_messages: list["ChatMessage"]
-    relevant_past_messages: list["ChatMessage"]
-    intent_detected: bool
-    active_draft_present: bool
-    meal_mention_detected: bool
-
-
-@dataclass
-class WorkflowActionResult:
-    handled: bool
-    response: str | None = None
-
 
 # Logging draft expire after 20 mins
 LOGGING_DRAFT_TTL_SECONDS = 20 * 60
-
-
-# In-memory draft store.
-class InMemoryDraftStore:
-    def __init__(self) -> None:
-        self._drafts: dict[str, LoggingDraft] = {}
-
-    def get(self, key: str) -> LoggingDraft | None:
-        return self._drafts.get(key)
-
-    def set(self, key: str, draft: LoggingDraft) -> None:
-        self._drafts[key] = draft
-
-    def delete(self, key: str) -> None:
-        self._drafts.pop(key, None)
-
-    def cleanup_expired(self, ttl_seconds: int) -> None:
-        now = time.time()
-        expired_keys = [k for k, v in self._drafts.items() if now - v.updated_at_epoch > ttl_seconds]
-        for key in expired_keys:
-            self.delete(key)
 
 
 DRAFT_STORE = InMemoryDraftStore()
@@ -239,22 +186,6 @@ Important behavior rules:
 - Backdated logging is supported when record_date is provided in valid format.
 - Never invent unsupported limitations (for example, "can only log within 24 hours") if the tool can handle the request.
 """
-
-# Represents message exchanged in the conversation
-class ChatMessage(BaseModel):
-    text: str
-    isUser: bool
-
-# Represents the request payload sent from application
-class ChatRequest(BaseModel):
-    query: str
-    recentMessages: List[ChatMessage] = Field(default_factory=list)
-    relevantPastMessages: List[ChatMessage] = Field(default_factory=list)
-
-# Represents the final answer sent back to application
-class ChatResponse(BaseModel):
-    answer: str
-
 
 # Extract tool calls from the result
 def _extract_tool_calls(result: dict) -> list[str]:
@@ -364,10 +295,21 @@ def _extract_final_answer(result: dict, called_tools: list[str], request_id: str
     messages = result.get("messages", [])
 
     for msg in reversed(messages):
+        role = None
         if isinstance(msg, dict):
+            role = msg.get("role")
             text = _content_to_text(msg.get("content"))
         else:
+            role = getattr(msg, "role", None)
             text = _content_to_text(getattr(msg, "content", None))
+
+        # Never surface orchestration/system/tool messages to end users.
+        if role in {"system", "tool", "function", "user"}:
+            continue
+
+        if _looks_like_internal_orchestration_text(text):
+            logger.warning("[%s] Suppressed internal orchestration text from final answer", request_id)
+            continue
 
         if text:
             return text
@@ -721,6 +663,253 @@ def _planned_web_search_query(request: ChatRequest) -> str | None:
     return request.query.strip() or None
 
 
+# Agentic planner scoring: lower number means higher priority
+def _workflow_action_priority(request: ChatRequest, action: WorkflowAction) -> int:
+    if action.action_type == WorkflowActionType.LOGGING:
+        return 0
+    if action.action_type == WorkflowActionType.READ:
+        return 1 if _detect_read_tool_name(request.query) else 3
+    if action.action_type == WorkflowActionType.WEB_SEARCH:
+        return 2 if _planned_web_search_query(request) else 4
+    return 99
+
+
+
+# Agentic planner: sort candidate actions, but always keep LLM as last resort.
+def _plan_workflow_actions(request: ChatRequest, actions: list[WorkflowAction]) -> list[WorkflowAction]:
+    prioritized = sorted(actions, key=lambda action: _workflow_action_priority(request, action))
+    llm_actions = [action for action in prioritized if action.action_type == WorkflowActionType.LLM]
+    non_llm_actions = [action for action in prioritized if action.action_type != WorkflowActionType.LLM]
+    return [*non_llm_actions, *llm_actions]
+
+
+# Short goal summary used to guide fallback LLM behavior.
+def _summarize_agent_goal(request: ChatRequest) -> str:
+    query = request.query.strip()
+    if not query:
+        return "Handle the user's current request."
+
+    goal_parts = [f'User asked: "{query}"']
+    if request.recentMessages:
+        goal_parts.append(f"Recent context turns: {len(request.recentMessages)}")
+    if request.relevantPastMessages:
+        goal_parts.append(f"Relevant prior context turns: {len(request.relevantPastMessages)}")
+    return " | ".join(goal_parts)
+
+
+# Observations are planner memory for the current turn only
+def _record_observation(state: WorkflowState, label: str, response: str | None) -> None:
+    if not response:
+        return
+
+    cleaned = response.strip()
+    if not cleaned:
+        return
+
+    state.observations.append(f"{label}: {cleaned}")
+
+
+# Heuristic confidence for planner decisions (tool retry vs clarification)
+def _estimate_observation_confidence(action_type: WorkflowActionType, response: str | None) -> float:
+    if not response:
+        return 0.0
+
+    lowered = response.lower().strip()
+    if not lowered:
+        return 0.0
+
+    low_markers = [
+        "couldn't",
+        "please try again",
+        "could you share",
+        "please share",
+        "would you like",
+        "no reliable",
+    ]
+    if any(marker in lowered for marker in low_markers):
+        return 0.35
+
+    if action_type == WorkflowActionType.LOGGING and "success" in lowered:
+        return 0.95
+
+    if action_type in {WorkflowActionType.READ, WorkflowActionType.WEB_SEARCH}:
+        positive_markers = ["i fetched", "i ran a quick web search", "i found", "daily summary", "activity history"]
+        if any(marker in lowered for marker in positive_markers):
+            return 0.85
+        return 0.7
+
+    return 0.75
+
+
+# System context for the LLM fallback. Includes planner state and observations
+def _build_agentic_context_message(state: WorkflowState) -> dict[str, str]:
+    planned_actions = ", ".join(action.action_type.value for action in state.actions) or "none"
+    observations = "\n".join(f"- {item}" for item in state.observations[-6:]) or "- none yet"
+    deterministic = "\n".join(f"- {item}" for item in state.deterministic_responses[-6:]) or "- none yet"
+
+    return {
+        "role": "system",
+        "content": (
+            "You are the orchestration layer for a wellness assistant. "
+            "Use the user's goal, prior observations, and deterministic tool results to decide the most useful next response. "
+            "If the observations already resolve the request, answer directly. "
+            "If they reveal missing information, ask one concise follow-up question. "
+            "Do not repeat raw tool output unless it materially helps the user.\n\n"
+            f"Goal summary: {state.goal_summary or _summarize_agent_goal(state.request)}\n"
+            f"Planner clarification preference: {'ask one concise clarifying question first' if state.prefer_clarification else 'answer directly when evidence is sufficient'}\n"
+            f"Latest observation confidence: {state.last_observation_confidence:.2f}\n"
+            f"Planned actions: {planned_actions}\n"
+            f"Observed results:\n{observations}\n"
+            f"Deterministic response candidates:\n{deterministic}"
+        ),
+    }
+
+
+# Low-quality answer detector for one-step LLM self-correction.
+def _looks_like_incomplete_agent_answer(answer: str) -> bool:
+    lowered = answer.lower().strip()
+    if not lowered:
+        return True
+
+    return any(
+        phrase in lowered
+        for phrase in [
+            "i couldn't determine",
+            "i couldn't find a clear answer",
+            "please try again",
+            "could you share",
+            "would you like me to log",
+            "i can help if you want",
+        ]
+    )
+
+
+def _looks_like_internal_orchestration_text(text: str) -> bool:
+    lowered = text.lower().strip()
+    if not lowered:
+        return False
+
+    markers = [
+        "re-plan once using the available observations",
+        "if a different tool would help, call it",
+        "answer directly or ask one concise follow-up question",
+        "you are the orchestration layer for a wellness assistant",
+        "deterministic response candidates",
+        "planner clarification preference",
+    ]
+    return any(marker in lowered for marker in markers)
+
+
+# Agentic replan-once path for incomplete LLM answers.
+async def _replan_llm_once(state: WorkflowState, agent, conversation_messages: list[dict[str, str]], initial_answer: str) -> str | None:
+    if state.plan_revision_count >= 1:
+        return None
+    if not _looks_like_incomplete_agent_answer(initial_answer):
+        return None
+
+    state.plan_revision_count += 1
+    replanning_messages = [
+        _build_agentic_context_message(state),
+        *conversation_messages,
+        {
+            "role": "assistant",
+            "content": initial_answer,
+        },
+        {
+            "role": "system",
+            "content": (
+                "The previous answer was incomplete. Re-plan once using the available observations. "
+                "If a different tool would help, call it. Otherwise answer directly or ask one concise follow-up question."
+            ),
+        },
+    ]
+
+    result = await agent.ainvoke({"messages": replanning_messages})
+    called_tools = _extract_tool_calls(result)
+    logger.info("[%s] MCP tools called during replan: %s", state.request_id, called_tools)
+    replanned_answer = _extract_final_answer(result, called_tools, state.request_id)
+
+    if _looks_like_echo_response(replanned_answer, state.request.query):
+        return None
+
+    if _looks_like_internal_orchestration_text(replanned_answer):
+        logger.warning("[%s] Replan produced internal orchestration text; ignoring replanned answer", state.request_id)
+        return None
+
+    return _repair_false_refusal(replanned_answer, called_tools, result, state.request_id)
+
+
+# Chooses whether to add web search, prefer clarification, or keep current plan.
+def _replan_remaining_workflow_actions(
+    state: WorkflowState,
+    remaining_actions: list[WorkflowAction],
+    last_action: WorkflowAction,
+    last_result: WorkflowActionResult,
+) -> list[WorkflowAction]:
+    if not last_result.handled:
+        return remaining_actions
+
+    queue_before = [action.action_type.value for action in remaining_actions]
+    updated_actions = list(remaining_actions)
+    confidence = _estimate_observation_confidence(last_action.action_type, last_result.response)
+    state.last_observation_confidence = confidence
+    state.prefer_clarification = False
+    decision_notes: list[str] = []
+
+    if confidence < 0.45:
+        if last_action.action_type == WorkflowActionType.READ and _should_plan_web_search(state.request.query):
+            if not any(action.action_type == WorkflowActionType.WEB_SEARCH for action in updated_actions):
+                web_search_query = _planned_web_search_query(state.request)
+                if web_search_query:
+                    updated_actions.insert(
+                        0,
+                        WorkflowAction(
+                            WorkflowActionType.WEB_SEARCH,
+                            accumulate_response=True,
+                            query_override=web_search_query,
+                        ),
+                    )
+                    decision_notes.append("added_web_search_after_low_confidence_read")
+        else:
+            state.prefer_clarification = True
+            decision_notes.append("prefer_clarification_after_low_confidence")
+
+    if last_action.action_type in {WorkflowActionType.READ, WorkflowActionType.WEB_SEARCH}:
+        if last_result.response and _looks_like_incomplete_agent_answer(last_result.response):
+            if not any(action.action_type == WorkflowActionType.LLM for action in updated_actions):
+                updated_actions.append(WorkflowAction(WorkflowActionType.LLM, terminal_on_handle=True))
+                decision_notes.append("added_llm_after_incomplete_response")
+
+    planned_actions = _plan_workflow_actions(state.request, updated_actions)
+    logger.info(
+        "[%s] Planner confidence=%.2f lastAction=%s preferClarification=%s queueBefore=%s queueAfter=%s decisions=%s",
+        state.request_id,
+        confidence,
+        last_action.action_type.value,
+        state.prefer_clarification,
+        queue_before,
+        [action.action_type.value for action in planned_actions],
+        decision_notes or ["no_changes"],
+    )
+    return planned_actions
+
+
+def _create_llm_model() -> ChatOpenAI:
+    api_key = _get_openrouter_api_key()
+    if not api_key:
+        raise HTTPException(
+            status_code=500,
+            detail="OPENROUTER_API_KEY is missing in server/mcp_server/.env",
+        )
+
+    return ChatOpenAI(
+        model="google/gemini-2.5-flash-lite",
+        temperature=0,
+        base_url="https://openrouter.ai/api/v1",
+        api_key=api_key,
+    )
+
+
 # Builds an ordered list of workflow actions for the current request
 def _build_workflow_actions(request: ChatRequest) -> list[WorkflowAction]:
     actions: list[WorkflowAction] = []
@@ -756,7 +945,7 @@ def _build_workflow_actions(request: ChatRequest) -> list[WorkflowAction]:
         )
 
     actions.append(WorkflowAction(WorkflowActionType.LLM, terminal_on_handle=True))
-    return actions
+    return _plan_workflow_actions(request, actions)
 
 
 # Converts stored chat context into the message list for LLM
@@ -789,19 +978,7 @@ def _build_conversation_messages(request: ChatRequest) -> list[dict[str, str]]:
 
 # Creates the LangChain agent instance used for tool-calling fallback
 def _create_llm_agent(tools: list[Any]):
-    api_key = _get_openrouter_api_key()
-    if not api_key:
-        raise HTTPException(
-            status_code=500,
-            detail="OPENROUTER_API_KEY is missing in server/mcp_server/.env",
-        )
-
-    llm = ChatOpenAI(
-        model="google/gemini-2.5-flash-lite",
-        temperature=0,
-        base_url="https://openrouter.ai/api/v1",
-        api_key=api_key,
-    )
+    llm = _create_llm_model()
     return create_agent(llm, tools=tools, system_prompt=SYSTEM_PROMPT)
 
 
@@ -875,7 +1052,7 @@ async def _run_llm_stage(state: WorkflowState) -> str:
     logger.info("[%s] MCP tools available: %s", state.request_id, tool_names)
 
     agent = _create_llm_agent(tools)
-    conversation_messages = _build_conversation_messages(state.request)
+    conversation_messages = [_build_agentic_context_message(state), *_build_conversation_messages(state.request)]
 
     logger.info(
         "[%s] Processing chat query. history=%s relevant=%s",
@@ -900,12 +1077,16 @@ async def _run_llm_stage(state: WorkflowState) -> str:
         logger.warning("[%s] Detected echo response; attempting deterministic fallback", state.request_id)
         return await _repair_echo_response(state.request.query, state.request_id)
 
+    replanned_answer = await _replan_llm_once(state, agent, conversation_messages, final_answer)
+    if replanned_answer:
+        final_answer = replanned_answer
+
     final_answer = _repair_false_refusal(final_answer, called_tools, result, state.request_id)
     logger.info("[%s] Final answer length=%s preview=%s", state.request_id, len(final_answer), final_answer[:180])
     return final_answer
 
 
-# Executes the planned logging action using the structured logging task when present
+# Deterministic executor: logging state machine.
 async def _execute_logging_action(state: WorkflowState, action: WorkflowAction) -> WorkflowActionResult:
     request = state.request
     if action.logging_task is not None:
@@ -921,7 +1102,7 @@ async def _execute_logging_action(state: WorkflowState, action: WorkflowAction) 
     return WorkflowActionResult(False)
 
 
-# Executes the planned read action using either a named read tool or request inference
+# Deterministic executor: read tool routing.
 async def _execute_read_action(state: WorkflowState, action: WorkflowAction) -> WorkflowActionResult:
     if action.target:
         handled, response = await _execute_named_read_tool(action.target, state.request_id)
@@ -932,7 +1113,7 @@ async def _execute_read_action(state: WorkflowState, action: WorkflowAction) -> 
     return WorkflowActionResult(False)
 
 
-# Executes the planned wellness web-search action
+# Deterministic executor: wellness web-search routing.
 async def _execute_web_search_action(state: WorkflowState, action: WorkflowAction) -> WorkflowActionResult:
     request = state.request
     if action.query_override:
@@ -947,7 +1128,7 @@ async def _execute_web_search_action(state: WorkflowState, action: WorkflowActio
     return WorkflowActionResult(False)
 
 
-# Executes the terminal LLM action or returns accumulated responses
+# Terminal executor: return deterministic result or run LLM fallback.
 async def _execute_llm_action(state: WorkflowState, action: WorkflowAction) -> WorkflowActionResult:
     _ = action
     if state.deterministic_responses:
@@ -955,7 +1136,7 @@ async def _execute_llm_action(state: WorkflowState, action: WorkflowAction) -> W
     return WorkflowActionResult(True, await _run_llm_stage(state))
 
 
-# Dispatches a workflow action to its dedicated executor
+# Dispatcher that maps action type to executor.
 async def _execute_action(state: WorkflowState, action: WorkflowAction) -> WorkflowActionResult:
     if action.action_type == WorkflowActionType.LOGGING:
         return await _execute_logging_action(state, action)
@@ -968,19 +1149,39 @@ async def _execute_action(state: WorkflowState, action: WorkflowAction) -> Workf
     return WorkflowActionResult(False)
 
 
-# Runs the planned workflow actions in order until request is terminated
+# Main hybrid loop:
+# - deterministic handlers do core work
+# - planner can update remaining queue based on observations
+# - LLM is the last step when needed
 async def _execute_workflow(state: WorkflowState) -> str:
-    for action in state.actions:
+    remaining_actions = list(state.actions)
+    logger.info("[%s] Initial planner queue=%s", state.request_id, [action.action_type.value for action in remaining_actions])
+
+    while remaining_actions:
+        action = remaining_actions.pop(0)
+        logger.info(
+            "[%s] Executing action=%s queueRemaining=%s",
+            state.request_id,
+            action.action_type.value,
+            [item.action_type.value for item in remaining_actions],
+        )
         result = await _execute_action(state, action)
         if not result.handled:
+            logger.info("[%s] Action=%s was not handled; continuing", state.request_id, action.action_type.value)
             continue
 
         if action.accumulate_response and result.response:
             state.deterministic_responses.append(result.response)
+            _record_observation(state, action.action_type.value, result.response)
+            remaining_actions = _replan_remaining_workflow_actions(state, remaining_actions, action, result)
             continue
 
         if action.terminal_on_handle:
+            _record_observation(state, action.action_type.value, result.response)
+            logger.info("[%s] Terminal action=%s completed workflow", state.request_id, action.action_type.value)
             return result.response or "I couldn't complete that step. Please try again."
+
+        remaining_actions = _replan_remaining_workflow_actions(state, remaining_actions, action, result)
 
     if state.deterministic_responses:
         return "\n\n".join(state.deterministic_responses)
@@ -1791,7 +1992,8 @@ def _resolve_logging_follow_up(
 
     return _validate_or_missing(merged)
 
-# Stores user draft state -> multi-state handling -> Confirmation of log
+# Deterministic logging state machine (core safety path).
+# This is intentionally rule-based to avoid unstable write behavior.
 async def _handle_logging_orchestration(request: ChatRequest, request_id: str) -> tuple[bool, str | None]:
     """Deterministic state machine for all wellness logging turns.
     Returns (handled, response)."""
@@ -2219,6 +2421,7 @@ async def ask_agent(request: ChatRequest, request_id: str) -> str:
         request_id=request_id,
         actions=_build_workflow_actions(request),
     )
+    state.goal_summary = _summarize_agent_goal(request)
     logger.info("[%s] Planned workflow actions: %s", request_id, [action.action_type.value for action in state.actions])
     return await _execute_workflow(state)
 
