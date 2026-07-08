@@ -11,8 +11,8 @@
         android:id="@+id/tvRegisterTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
-        android:text="@string/credential_registerTitle"
+        android:layout_marginTop="120dp"
+        android:text="Create Account"
         android:textColor="@color/white"
         android:textSize="28sp"
         android:textStyle="bold"
@@ -24,7 +24,8 @@
         android:id="@+id/etRegisterEmailAddress"
         android:layout_width="320dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="90dp"
+        android:layout_marginBottom="4dp"
         android:minHeight="48dp"
         android:autofillHints=""
         android:backgroundTint="@color/pale_blue"
@@ -36,7 +37,8 @@
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvRegisterTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/tvRegisterTitle"
+        app:layout_constraintVertical_chainStyle="packed"/>
 
     <EditText
         android:id="@+id/etRegisterPassword"
@@ -54,7 +56,9 @@
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etRegisterEmailAddress" />
+        app:layout_constraintTop_toBottomOf="@+id/etRegisterEmailAddress"
+        app:layout_constraintBottom_toTopOf="@id/etRegisterConfirmPassword"
+        app:layout_constraintVertical_chainStyle="packed"/>
 
     <EditText
         android:id="@+id/etRegisterConfirmPassword"
@@ -72,7 +76,8 @@
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etRegisterPassword" />
+        app:layout_constraintTop_toBottomOf="@+id/etRegisterPassword"
+        app:layout_constraintBottom_toTopOf="@id/btnRegister"/>
 
     <Button
         android:id="@+id/btnRegister"
@@ -86,7 +91,8 @@
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etRegisterConfirmPassword" />
+        app:layout_constraintTop_toBottomOf="@+id/etRegisterConfirmPassword"
+        app:layout_constraintBottom_toTopOf="@id/btnBackToLogin"/>
 
     <Button
         android:id="@+id/btnBackToLogin"
