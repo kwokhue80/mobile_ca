@@ -19,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import sg.edu.nus.security.UserPrincipal;
 import sg.edu.nus.features.wellness.dto.WellnessRecordPayload;
+import sg.edu.nus.features.user.account.User;
+import sg.edu.nus.features.user.account.UserService;
 import sg.edu.nus.features.wellness.dto.BadgeProgressResponse;
 import sg.edu.nus.features.wellness.dto.ExerciseLogResponse;
 import sg.edu.nus.features.wellness.dto.FoodLogResponse;
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class WellnessController {
 
     private final WellnessOrchestratorService orchestratorService;
+    private final UserService userService;
 
     @PostMapping("/records")
     public ResponseEntity<Void> saveRecord(
@@ -114,6 +117,18 @@ public class WellnessController {
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         RecommendationResponse recommendation = orchestratorService.getLatestRecommendation(userPrincipal.getId());
         return ResponseEntity.ok(recommendation);
+    }
+
+    // The Chart/Graph View (Date Range Summaries)
+    @GetMapping("/range")
+    public ResponseEntity<List<DailyWellnessSummary>> getDashboardRange(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        log.info("Fetching dashboard range for user: {} from date: {} to date: {}", principal.getUsername(), startDate, endDate);
+        User user = userService.getByEmail(principal.getUsername());
+        List<DailyWellnessSummary> response = orchestratorService.getSummaryRange(user, startDate, endDate);
+        return ResponseEntity.ok(response);
     }
 
 }

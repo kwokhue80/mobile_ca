@@ -636,4 +636,11 @@ public class WellnessOrchestratorService {
             return new NeedScore(name, ratio, message);
         }
     }
+
+     // Fetch Date Range (Just the Summaries for charts/graphs)
+    public List<DailyWellnessSummary> getSummaryRange(User user, LocalDate startDate, LocalDate endDate) {
+        return summaryRepo.findByUserIdAndSummaryDateBetweenOrderBySummaryDateAsc(
+            user.getId(), startDate, endDate
+        );
+    }
 }
