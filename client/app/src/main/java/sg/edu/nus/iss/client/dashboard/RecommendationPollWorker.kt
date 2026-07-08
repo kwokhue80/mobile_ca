@@ -24,13 +24,17 @@ class RecommendationPollWorker(
 
     companion object {
         const val WORK_NAME = "recommendation-poll-worker"
+        const val INIT_WORK_NAME = "recommendation-initial-worker"
         const val CHANNEL_ID = "wellness_recommendations"
+        const val KEY_FORCE_NOTIFY_ON_FIRST_FETCH = "force_notify_on_first_fetch"
     }
 
     override suspend fun doWork(): Result {
         // Use app-context dependencies because worker may run when UI is not active.
         val sessionManager = SessionManager(applicationContext)
         val authApiService = RetrofitClient.getApiService(applicationContext)
+        val forceNotifyOnFirstFetch = inputData.getBoolean(KEY_FORCE_NOTIFY_ON_FIRST_FETCH, false)
+        val hadExistingSignature = !sessionManager.getRecommendationSignature().isNullOrBlank()
 
         // Retry only when network/API call itself fails.
         val response = runCatching { authApiService.getLatestRecommendation() }.getOrNull()
@@ -48,7 +52,12 @@ class RecommendationPollWorker(
             generatedAt = payload.generatedAt
         )
 
-        if (isNewRecommendation) {
+        val shouldNotifyInitial = forceNotifyOnFirstFetch && !hadExistingSignature
+
+        if (isNewRecommendation || shouldNotifyInitial) {
+            if (shouldNotifyInitial && !isNewRecommendation) {
+                sessionManager.incrementUnreadRecommendationCount()
+            }
             showSystemNotification(
                 recommendation = payload.recommendation,
                 unreadCount = sessionManager.getUnreadRecommendationCount()

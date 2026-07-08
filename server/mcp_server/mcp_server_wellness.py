@@ -12,30 +12,34 @@ from ddgs import DDGS
 
 ## ----------------------------------------------------------------- ##
 #   AUTHOR(S): Kwok Heng, Amelia, Chai Lee
-#   PURPOSE: Configure MCP server to be linked up with agent
+#   PURPOSE: Configure MCP server used by the wellness agent
 #
-#   FULL FLOW + CONSIDERATIONS:
-#   1) Exposes MCP tools over stdio transport (consumed by mcp_agent_wellness.py).
-#   2) Acts as server-side source of truth for validation and normalization:
-#      - required fields via get_missing_required_fields(...)
-#      - enum normalization for meal/exercise categories
-#      - range checks before backend writes
-#   3) Read tools call Spring Boot through spring_boot_client.py:
+#   SIMPLE ROLE OF THIS FILE:
+#   - Exposes wellness MCP tools over stdio for the agent.
+#   - Owns tool rules and data semantics (server-side source of truth).
+#
+#   What this file handles:
+#   1) Validation + normalization before writes:
+#      - required fields (get_missing_required_fields)
+#      - enum normalization for meal/exercise types
+#      - range checks for numeric values
+#   2) Read tools via Spring Boot:
 #      - get_daily_summary
 #      - get_activity_history
 #      - get_latest_recommendation
-#   4) Recommendation flow:
-#      - prefer current-day summary + user goals
-#      - if no goals, use profile-guided wellness/nutrition web search
-#      - if upstream failures occur, return safe general recommendation text
-#   5) Logging flow (log_wellness_entry):
-#      - validate payload fields and constraints
-#      - build unified record payload
-#      - persist through authenticated Spring endpoint
-#      - return compact status/categories/submittedFields result
-#   6) Boundary rule:
-#      - this server owns data/tool semantics
-#      - agent layer owns conversation orchestration and stateful turn handling
+#   3) Recommendation fallback logic:
+#      - use summary + goals first
+#      - if no goals, use profile-based wellness web search
+#      - if upstream calls fail, return safe general guidance
+#   4) Logging tool (log_wellness_entry):
+#      - validate payload
+#      - build one backend record payload
+#      - persist via authenticated Spring endpoint
+#      - return compact logging result
+#
+#   Boundary:
+#   - this file = tool behavior and validation rules
+#   - agent file = conversation flow and turn-by-turn orchestration
 ## ----------------------------------------------------------------- ##
 
 logging.basicConfig(
@@ -276,7 +280,6 @@ def _goal_recommendation_lines(goal: dict[str, Any], summary: dict[str, Any]) ->
 
     if goal_type in {"SLEEP", "SLEEP_MINUTES"}:
         actual_minutes = _summary_number(summary, "sleepMinutes", "sleep_minutes")
-        actual_hours = actual_minutes / 60 if actual_minutes else 0
         if target is None:
             return [f"Sleep: you logged {int(round(actual_minutes))} minutes today."]
         if goal_type == "SLEEP_MINUTES":
@@ -360,15 +363,6 @@ def _build_goal_based_recommendation(goals: list[dict[str, Any]], summary: dict[
         recommendation_lines.append("No recognized goals were found. Keep logging your daily habits for a clearer recommendation next time.")
 
     lines.extend(f"- {line}" if not line.startswith("-") else line for line in recommendation_lines)
-    return "\n".join(lines)
-
-
-def _profile_web_search_intro(profile: dict[str, Any], summary: dict[str, Any]) -> str:
-    lines = _summary_header(summary)
-    lines.append("Recommendations based on your profile:")
-    lines.append("- No active goals are set yet, so I looked up general guidance tailored to your profile.")
-    lines.append("- I searched for wellness recommendations for your profile.")
-    lines.append("- Web search results:")
     return "\n".join(lines)
 
 

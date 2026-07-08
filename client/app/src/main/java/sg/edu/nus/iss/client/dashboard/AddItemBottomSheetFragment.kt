@@ -192,17 +192,17 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             }
 
             if (foodName.isEmpty()) {
-                foodNameInput.error = "Food name is required"
+                showInputError(foodNameInput, "Food name is required")
                 return@setOnClickListener
             }
 
             if (caloriesText.isEmpty()) {
-                caloriesInput.error = "Calories is required"
+                showInputError(caloriesInput, "Calories is required")
                 return@setOnClickListener
             }
 
             if (calories == null || calories <= 0) {
-                caloriesInput.error = "Calories must be greater than 0"
+                showInputError(caloriesInput, "Calories must be greater than 0")
                 return@setOnClickListener
             }
 
@@ -288,22 +288,22 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             val quality = qualityInput.text.toString().trim().toIntOrNull()
 
             if (startDateText.isEmpty()) {
-                startDateInput.error = "Sleep Start Date is required"
+                showInputError(startDateInput, "Sleep Start Date is required")
                 return@setOnClickListener
             }
 
             if (startTimeText.isEmpty()) {
-                startTimeInput.error = "Sleep Start Time is required"
+                showInputError(startTimeInput, "Sleep Start Time is required")
                 return@setOnClickListener
             }
 
             if (wakeUpDateText.isEmpty()) {
-                wakeUpDateInput.error = "Wake Up Date is required"
+                showInputError(wakeUpDateInput, "Wake Up Date is required")
                 return@setOnClickListener
             }
 
             if (wakeUpTimeText.isEmpty()) {
-                wakeUpTimeInput.error = "Wake Up Time is required"
+                showInputError(wakeUpTimeInput, "Wake Up Time is required")
                 return@setOnClickListener
             }
 
@@ -311,41 +311,41 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             val wakeUpDateTime = parseSleepDateTime(wakeUpDateText, wakeUpTimeText)
 
             if (sleepStartDateTime == null) {
-                startDateInput.error = "Select a valid sleep start date and time"
+                showInputError(startDateInput, "Select a valid sleep start date and time")
                 return@setOnClickListener
             }
 
             if (wakeUpDateTime == null) {
-                wakeUpDateInput.error = "Select a valid wake up date and time"
+                showInputError(wakeUpDateInput, "Select a valid wake up date and time")
                 return@setOnClickListener
             }
 
             if (!wakeUpDateTime.isAfter(sleepStartDateTime)) {
-                wakeUpTimeInput.error = "Wake up time must be after sleep start time"
+                showInputError(wakeUpTimeInput, "Wake up time must be after sleep start time")
                 return@setOnClickListener
             }
 
             val now = LocalDateTime.now()
 
             if (sleepStartDateTime.isAfter(now)) {
-                startTimeInput.error = "Sleep start time cannot be in the future"
+                showInputError(startTimeInput, "Sleep start time cannot be in the future")
                 return@setOnClickListener
             }
 
             if (wakeUpDateTime.isAfter(now)) {
-                wakeUpTimeInput.error = "Wake up time cannot be in the future"
+                showInputError(wakeUpTimeInput, "Wake up time cannot be in the future")
                 return@setOnClickListener
             }
 
             val sleepMinutes = Duration.between(sleepStartDateTime, wakeUpDateTime).toMinutes().toInt()
 
             if (sleepMinutes <= 0) {
-                wakeUpTimeInput.error = "Sleep duration must be greater than 0 minutes"
+                showInputError(wakeUpTimeInput, "Sleep duration must be greater than 0 minutes")
                 return@setOnClickListener
             }
 
             if (quality == null || quality !in 1..5) {
-                qualityInput.error = "Sleep quality rating must be between 1 and 5"
+                showInputError(qualityInput, "Sleep quality rating must be between 1 and 5")
                 return@setOnClickListener
             }
 
@@ -388,12 +388,12 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             val waterMl = waterText.toIntOrNull()
 
             if (waterText.isEmpty()) {
-                waterInput.error = "Water amount is required"
+                showInputError(waterInput, "Water amount is required")
                 return@setOnClickListener
             }
 
             if (waterMl == null || waterMl <= 0) {
-                waterInput.error = "Water amount must be greater than 0"
+                showInputError(waterInput, "Water amount must be greater than 0")
                 return@setOnClickListener
             }
 
@@ -427,12 +427,12 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             val weightKg = weightText.toDoubleOrNull()
 
             if (weightText.isEmpty()) {
-                weightInput.error = "Weight is required"
+                showInputError(weightInput, "Weight is required")
                 return@setOnClickListener
             }
 
             if (weightKg == null || weightKg <= 0.0) {
-                weightInput.error = "Weight must be greater than 0"
+                showInputError(weightInput, "Weight must be greater than 0")
                 return@setOnClickListener
             }
 
@@ -521,22 +521,22 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             }
 
             if (startDateText.isEmpty()) {
-                startDateInput.error = "Exercise Start Date is required"
+                showInputError(startDateInput, "Exercise Start Date is required")
                 return@setOnClickListener
             }
 
             if (startTimeText.isEmpty()) {
-                startTimeInput.error = "Exercise Start Time is required"
+                showInputError(startTimeInput, "Exercise Start Time is required")
                 return@setOnClickListener
             }
 
             if (endDateText.isEmpty()) {
-                endDateInput.error = "Exercise End Date is required"
+                showInputError(endDateInput, "Exercise End Date is required")
                 return@setOnClickListener
             }
 
             if (endTimeText.isEmpty()) {
-                endTimeInput.error = "Exercise End Time is required"
+                showInputError(endTimeInput, "Exercise End Time is required")
                 return@setOnClickListener
             }
 
@@ -544,48 +544,52 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             val exerciseEndDateTime = parseSleepDateTime(endDateText, endTimeText)
 
             if (exerciseStartDateTime == null) {
-                startDateInput.error = "Select a valid exercise start date and time"
+                showInputError(startDateInput, "Select a valid exercise start date and time")
                 return@setOnClickListener
             }
 
             if (exerciseEndDateTime == null) {
-                endDateInput.error = "Select a valid exercise end date and time"
+                showInputError(endDateInput, "Select a valid exercise end date and time")
                 return@setOnClickListener
             }
 
             if (!exerciseEndDateTime.isAfter(exerciseStartDateTime)) {
-                endTimeInput.error = "Exercise end time must be after start time"
+                showInputError(endTimeInput, "Exercise end time must be after start time")
                 return@setOnClickListener
             }
 
             val now = LocalDateTime.now()
 
             if (exerciseStartDateTime.isAfter(now)) {
-                startTimeInput.error = "Exercise start time cannot be in the future"
+                showInputError(startTimeInput, "Exercise start time cannot be in the future")
                 return@setOnClickListener
             }
 
             if (exerciseEndDateTime.isAfter(now)) {
-                endTimeInput.error = "Exercise end time cannot be in the future"
+                showInputError(endTimeInput, "Exercise end time cannot be in the future")
                 return@setOnClickListener
             }
 
             val duration = Duration.between(exerciseStartDateTime, exerciseEndDateTime).toMinutes().toInt()
 
             if (duration <= 0) {
-                endTimeInput.error = "Exercise duration must be greater than 0 minutes"
+                showInputError(endTimeInput, "Exercise duration must be greater than 0 minutes")
                 return@setOnClickListener
             }
 
             if (distanceText.isNotEmpty() && (distance == null || distance < 0.0)) {
-                distanceInput.error =
+                showInputError(
+                    distanceInput,
                     if (distance == null) "Distance must be a valid number" else "Distance cannot be negative"
+                )
                 return@setOnClickListener
             }
 
             if (caloriesText.isNotEmpty() && (caloriesBurned == null || caloriesBurned < 0)) {
-                caloriesBurnedInput.error =
+                showInputError(
+                    caloriesBurnedInput,
                     if (caloriesBurned == null) "Calories burned must be a valid number" else "Calories burned cannot be negative"
+                )
                 return@setOnClickListener
             }
 
@@ -623,12 +627,12 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             val moodRating = moodText.toIntOrNull()
 
             if (moodText.isEmpty()) {
-                moodInput.error = "Mood rating is required"
+                showInputError(moodInput, "Mood rating is required")
                 return@setOnClickListener
             }
 
             if (moodRating == null || moodRating !in 1..10) {
-                moodInput.error = "Please enter a rating from 1 to 10"
+                showInputError(moodInput, "Please enter a rating from 1 to 10")
                 return@setOnClickListener
             }
 
@@ -790,10 +794,18 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
             hint = hint,
             inputType = InputType.TYPE_NULL
         ).apply {
-            isFocusable = false
+            // Keep focusable so setError(message) can display readable error text.
+            isFocusable = true
+            isFocusableInTouchMode = true
             isCursorVisible = false
+            showSoftInputOnFocus = false
             keyListener = null
         }
+    }
+
+    private fun showInputError(input: EditText, message: String) {
+        input.error = message
+        input.requestFocus()
     }
 
     private fun validateRecordDateNotFuture(recordDate: String): Boolean {
@@ -802,11 +814,7 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
         }.getOrNull()
 
         if (parsedRecordDate != null && parsedRecordDate.isAfter(LocalDateTime.now())) {
-            Toast.makeText(
-                requireContext(),
-                "Record date cannot be in the future",
-                Toast.LENGTH_SHORT
-            ).show()
+            Log.w(TAG, "Blocked save because recordDate is in the future: $recordDate")
             return false
         }
 
