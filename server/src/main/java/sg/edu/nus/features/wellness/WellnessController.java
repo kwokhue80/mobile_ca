@@ -21,6 +21,7 @@ import sg.edu.nus.security.UserPrincipal;
 import sg.edu.nus.features.wellness.dto.WellnessRecordPayload;
 import sg.edu.nus.features.wellness.dto.BadgeProgressResponse;
 import sg.edu.nus.features.wellness.dto.ExerciseLogResponse;
+import sg.edu.nus.features.wellness.dto.FoodLogResponse;
 import sg.edu.nus.features.wellness.dto.HourlyWellnessResponse;
 import sg.edu.nus.features.wellness.model.DailyWellnessSummary;
 import sg.edu.nus.features.wellness.dto.RecommendationResponse;
@@ -58,6 +59,16 @@ public class WellnessController {
             @RequestParam(defaultValue = "180") int days,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         List<ExerciseLogResponse> logs = orchestratorService.getExerciseLogs(userPrincipal.getId(), days);
+        return ResponseEntity.ok(logs);
+    }
+
+    // Structured meal entries (meal type, food name, calories) for the Food Summary
+    // detail screen's Day meal list and Week/Month per-day breakdowns.
+    @GetMapping("/food-logs")
+    public ResponseEntity<List<FoodLogResponse>> getFoodLogs(
+            @RequestParam(defaultValue = "180") int days,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<FoodLogResponse> logs = orchestratorService.getFoodLogs(userPrincipal.getId(), days);
         return ResponseEntity.ok(logs);
     }
 

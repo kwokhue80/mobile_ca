@@ -12,14 +12,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import sg.edu.nus.iss.client.dashboard.detail.model.MetricType
 import sg.edu.nus.iss.client.dashboard.detail.ExerciseDaysViewModel
 import sg.edu.nus.iss.client.dashboard.detail.MentalHealthDetailViewModel
 import sg.edu.nus.iss.client.dashboard.goals.UserGoalsViewModel
 import sg.edu.nus.iss.client.dashboard.goals.model.ActivityGoalType
 import sg.edu.nus.iss.client.databinding.PageDashboard2Binding
 import sg.edu.nus.iss.client.navigation.RouteManager
-import kotlin.math.roundToInt
 
 class DashboardPage2Fragment : Fragment() {
 
@@ -45,7 +43,7 @@ class DashboardPage2Fragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.cardExerciseDays.setOnClickListener { RouteManager.toExerciseDaysDetail(this) }
         binding.cardMentalHealth.setOnClickListener { RouteManager.toMentalHealthDetail(this) }
-        binding.cardFoodIntake.setOnClickListener { RouteManager.toMetricDetail(this, MetricType.FOOD_INTAKE) }
+        binding.cardFoodSummary.setOnClickListener { RouteManager.toFoodSummary(this) }
 
         val userGoalsViewModel = ViewModelProvider(requireActivity())[UserGoalsViewModel::class.java]
         val dashboardViewModel = ViewModelProvider(requireActivity())[DashboardViewModel::class.java]
@@ -73,31 +71,17 @@ class DashboardPage2Fragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                combine(dashboardViewModel.todaySummary, userGoalsViewModel.goals) { summary, goals ->
-                    summary to goals
-                }.collect { (summary, goals) ->
+                dashboardViewModel.todaySummary.collect { summary ->
                     binding.tvMentalHealth.text = summary?.moodScore?.let {
                         MentalHealthDetailViewModel.moodCategory(it.toDouble())
                     } ?: "--"
 
                     val calories = summary?.totalCaloriesIntake ?: 0
-                    val goal = (goals[ActivityGoalType.FOOD_INTAKE]
-                        ?: ActivityGoalType.FOOD_INTAKE.defaultValue)
-                        .takeIf { it > 0.0 }
-                        ?: ActivityGoalType.FOOD_INTAKE.defaultValue
-                    val goalInt = goal.roundToInt().coerceAtLeast(1)
-                    val percentage = ((calories / goal) * 100).roundToInt().coerceAtLeast(0)
-
-                    binding.tvFoodIntake.text = "${formatWhole(calories)} / ${formatWhole(goalInt)} kcal"
-                    binding.tvFoodIntakeStatus.text = "$percentage% of daily target"
-                    binding.progressFoodIntake.max = goalInt
-                    binding.progressFoodIntake.progress = calories.coerceIn(0, goalInt)
+                    binding.tvFoodSummary.text = "${"%,d".format(calories)} kcal"
                 }
             }
         }
     }
-
-    private fun formatWhole(value: Int): String = "%,d".format(value)
 
     override fun onResume() {
         super.onResume()
