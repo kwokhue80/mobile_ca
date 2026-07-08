@@ -1,6 +1,11 @@
 package sg.edu.nus.iss.client.auth
 
+import android.graphics.Color
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.TextPaint
+import android.text.style.ClickableSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +17,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.R
 import sg.edu.nus.iss.client.dashboard.DashboardViewModel
@@ -39,7 +45,6 @@ class LoginFragment : Fragment() {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -61,11 +66,32 @@ class LoginFragment : Fragment() {
                 viewModel.login(email, password)
             }
         }
+        // Signup new account
+        val fullText = "Don't have an account? Sign up"
+        val spannableString = SpannableString(fullText)
 
-        // Move new users to registration so they can create an account.
-        binding.btnGoToRegister.setOnClickListener {
-            RouteManager.toRegister(this)
+        val startIndex = fullText.indexOf("Sign up")
+        val endIndex = startIndex + "Sign up".length
+
+        val clickableSpan = object : ClickableSpan() {
+            override fun onClick(widget: View) {
+                           findNavController().navigate(R.id.action_loginFragment_to_registerFragment)
+                           }
+            override fun updateDrawState(ds: TextPaint) {
+                super.updateDrawState(ds)
+                ds.color = Color.parseColor("#00E5FF") // Keeps your custom cyan color
+                ds.isFakeBoldText = true              // Keeps it bold
+                ds.isUnderlineText = false            // Set to true if you want a classic underline link look!
+            }
         }
+        spannableString.setSpan(
+            clickableSpan,
+            startIndex,
+            endIndex,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        binding.textViewSignUp.text = spannableString
+        binding.textViewSignUp.movementMethod = android.text.method.LinkMovementMethod.getInstance()
 
         binding.btnFingerprint.setOnClickListener {
             checkBiometricSupportAndAuthenticate()
