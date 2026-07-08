@@ -36,6 +36,9 @@
     <string name="biometric_login_failed">Please Login with Password First</string>
     <string name="add_item_title_preview">Add Item</string>
     <string name="close">Close</string>
+    <string name="send_message">Send Message</string>
+    <string name="ask_your_wellness_assistant">Ask your wellness assistant...</string>
+    <string name="clear">Clear</string>
     <string-array name="gender_options">
         <item>Male</item>
         <item>Female</item>
