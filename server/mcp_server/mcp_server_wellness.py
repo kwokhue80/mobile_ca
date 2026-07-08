@@ -25,7 +25,7 @@ from ddgs import DDGS
 #      - range checks for numeric values
 #   2) Read tools via Spring Boot:
 #      - get_daily_summary
-#      - get_activity_history
+#      - get_exercise_history
 #      - get_latest_recommendation
 #   3) Recommendation fallback logic:
 #      - use summary + goals first
@@ -401,10 +401,10 @@ def _normalized_enum(value: str) -> str:
 
 
 @mcp.tool()
-async def get_activity_history(days: int = 7):
+async def get_exercise_history(days: int = 7):
     """Fetches the current user's exercise history from the backend.
     The backend endpoint returns exercise logs and supports a `days` window."""
-    logger.info("Tool called: get_activity_history days=%s", days)
+    logger.info("Tool called: get_exercise_history days=%s", days)
     return await call_spring_boot(f"/api/wellness/exercise-logs?days={days}")
 
 
@@ -482,7 +482,7 @@ async def log_wellness_entry(
     """Logs one combined wellness entry in a single backend call.
     Any subset of hydration, weight, mood, sleep, food, and exercise can be provided.
     record_date format: YYYY-MM-DD HH:MM:SS (optional; defaults to now)."""
-    # Schema/range checks before any DB write.
+    # Schema/range checks before any DB write
     logger.info(
         "Tool called: log_wellness_entry water=%s weight=%s mood=%s sleep=%s meal=%s exercise=%s",
         water_intake_ml is not None,

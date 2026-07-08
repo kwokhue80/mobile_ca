@@ -102,6 +102,25 @@ The chatbot is not a direct Android-to-LLM integration. It is a layered system d
 
 ### High-Level Chat Flow
 
+```
+Request
+   │
+   ▼
+Is out of scope? ──Yes──► Return canned out-of-scope response (no LLM)
+   │ No
+   ▼
+Logging intent? ──Yes──► Try deterministic logging (terminal)
+   │ No / not fully handled
+   ▼
+Read tool match? ──Yes──► Try deterministic read
+   │ No / not fully handled
+   ▼
+Web search planned? ──Yes──► Try deterministic web search
+   │ No / not fully handled
+   ▼
+LLM fallback
+```
+
 1. The user sends a message from the Android chat screen.
 2. The client gathers:
 	 recent messages, relevant past messages, and optional local dish-vector context.
