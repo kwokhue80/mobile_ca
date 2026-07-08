@@ -226,18 +226,15 @@ class LoginFragment : Fragment() {
         // startActivity(intent)
         // requireActivity().finish()
 
-        // Testing convenience (requested explicitly): wipe today's wellness records on every
-        // login so each test session starts clean, then force a fresh fetch. This is a
-        // single-Activity app - DashboardViewModel/UserGoalsViewModel are scoped to
-        // requireActivity(), so without this they'd persist stale data across a logout/login
-        // cycle instead of being recreated. (ProfileViewModel doesn't need this: it's
+        // Saved records persist across logins permanently; the "today" cards reset on
+        // their own at day rollover because /api/wellness/daily-summary always returns
+        // the server's current day (a fresh, empty summary once the date changes).
+        // Force a fresh fetch here because this is a single-Activity app -
+        // DashboardViewModel/UserGoalsViewModel are scoped to requireActivity(), so
+        // without this they'd persist stale data across a logout/login cycle instead
+        // of being recreated. (ProfileViewModel doesn't need this: it's
         // fragment-scoped and already re-fetches every time the Profile screen is opened.)
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                RetrofitClient.getApiService(requireContext()).resetToday()
-            } catch (e: Exception) {
-                // Best-effort - still proceed to Home even if this fails (e.g. offline).
-            }
             ViewModelProvider(requireActivity())[DashboardViewModel::class.java].refreshToday()
             ViewModelProvider(requireActivity())[UserGoalsViewModel::class.java].loadGoals()
             RouteManager.toHome(this@LoginFragment)

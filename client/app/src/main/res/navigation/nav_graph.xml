@@ -63,6 +63,9 @@
             android:id="@+id/action_homeFragment_to_mentalHealthDetailFragment"
             app:destination="@id/mentalHealthDetailFragment" />
         <action
+            android:id="@+id/action_homeFragment_to_foodSummaryFragment"
+            app:destination="@id/foodSummaryFragment" />
+        <action
             android:id="@+id/action_homeFragment_to_badgesFragment"
             app:destination="@id/badgesFragment" />
         <action
@@ -152,6 +155,11 @@
         android:id="@+id/mentalHealthDetailFragment"
         android:name="sg.edu.nus.iss.client.dashboard.detail.MentalHealthDetailFragment"
         android:label="Mental Health" />
+
+    <fragment
+        android:id="@+id/foodSummaryFragment"
+        android:name="sg.edu.nus.iss.client.dashboard.detail.FoodSummaryFragment"
+        android:label="Food Summary" />
 
     <fragment
         android:id="@+id/badgesFragment"

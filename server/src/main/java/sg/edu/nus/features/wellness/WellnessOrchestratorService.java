@@ -15,6 +15,7 @@ import java.util.UUID;
 import sg.edu.nus.features.wellness.dto.ActivityRecordDto;
 import sg.edu.nus.features.wellness.dto.BadgeProgressResponse;
 import sg.edu.nus.features.wellness.dto.ExerciseLogResponse;
+import sg.edu.nus.features.wellness.dto.FoodLogResponse;
 import sg.edu.nus.features.wellness.dto.HourlyWellnessResponse;
 import sg.edu.nus.features.wellness.dto.RecommendationResponse;
 
@@ -359,6 +360,26 @@ public class WellnessOrchestratorService {
             .toList();
     }
 
+    // Returns structured meal entries (meal type, food name, calories) over a given
+    // number of past days. Backs the Food Summary detail screen's Day meal list and
+    // the per-day breakdown shown under its Week/Month charts.
+    public List<FoodLogResponse> getFoodLogs(UUID userId, int numberOfDays) {
+        LocalDateTime endTime = LocalDateTime.now();
+        LocalDateTime startTime = endTime.minusDays(numberOfDays);
+
+        return foodRepo.findAllByUserIdAndLoggedAtBetweenOrderByLoggedAtDesc(
+                userId, startTime, endTime
+        ).stream()
+            .map(log -> FoodLogResponse.builder()
+                .id(log.getId())
+                .mealType(log.getMealType() != null ? log.getMealType().toString() : "OTHER")
+                .foodName(log.getFoodName())
+                .caloriesKcal(log.getCaloriesKcal())
+                .loggedAt(log.getLoggedAt())
+                .build())
+            .toList();
+    }
+
     // Deletes a single exercise session (Home "Activity Tracked" list's delete button)
     // and reverses its contribution to that day's aggregated summary (distance,
     // calories burned, exercise minutes), plus the matching activity-feed entry.
@@ -504,6 +525,10 @@ public class WellnessOrchestratorService {
         weightRepo.deleteByUserIdAndLoggedAtBetween(userId, startOfDay, endOfDay);
         moodRepo.deleteByUserIdAndLoggedAtBetween(userId, startOfDay, endOfDay);
         exerciseRepo.deleteByUserIdAndLoggedAtBetween(userId, startOfDay, endOfDay);
+        // Food logs must reset alongside the summary, or the Food Summary card
+        // (summary.totalCaloriesIntake, wiped below) reads 0 while the detail
+        // screen (raw food_logs) still lists today's meals.
+        foodRepo.deleteByUserIdAndLoggedAtBetween(userId, startOfDay, endOfDay);
         activityRepo.deleteByUserIdAndRecordedAtBetween(userId, startOfDay, endOfDay);
         summaryRepo.deleteByUserIdAndSummaryDate(userId, today);
     }

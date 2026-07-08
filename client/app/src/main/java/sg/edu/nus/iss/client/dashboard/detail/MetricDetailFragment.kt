@@ -25,7 +25,9 @@ import kotlin.math.roundToInt
 private fun MetricType.toActivityGoalTypeOrNull(): ActivityGoalType? = when (this) {
     MetricType.DISTANCE -> ActivityGoalType.DISTANCE
     MetricType.CALORIES -> ActivityGoalType.CALORIES
-    MetricType.FOOD_INTAKE -> ActivityGoalType.FOOD_INTAKE
+    // Food intake has no user-set goal (removed from Set Goals); its detail
+    // screen falls back to MetricType.FOOD_INTAKE.defaultGoal.
+    MetricType.FOOD_INTAKE -> null
     MetricType.SLEEP -> ActivityGoalType.SLEEP
     MetricType.HYDRATION -> ActivityGoalType.HYDRATION
     MetricType.WEIGHT -> ActivityGoalType.WEIGHT
@@ -119,17 +121,18 @@ class MetricDetailFragment : Fragment() {
     // date range is currently being viewed.
     private fun renderSleepQuality(quality: Double?) {
         binding.tvSleepQuality.text = if (quality != null) {
-            "${sleepQualityEmoji(quality)} Sleep quality: ${"%.1f".format(quality)}/5 (1=poor, 5=excellent)"
+            "${sleepQualityEmoji(quality)} Sleep quality: ${"%.1f".format(quality)}/10 (1=poor, 10=excellent)"
         } else {
             "Sleep quality: no data yet"
         }
     }
 
-    private fun sleepQualityEmoji(quality: Double): String = when (quality.roundToInt().coerceIn(1, 5)) {
-        1 -> "😞"
-        2 -> "😕"
-        3 -> "😐"
-        4 -> "🙂"
+    // Quality is rated 1 (poor) .. 10 (excellent); two rating points per emoji bucket.
+    private fun sleepQualityEmoji(quality: Double): String = when (quality.roundToInt().coerceIn(1, 10)) {
+        1, 2 -> "😞"
+        3, 4 -> "😕"
+        5, 6 -> "😐"
+        7, 8 -> "🙂"
         else -> "😄"
     }
 

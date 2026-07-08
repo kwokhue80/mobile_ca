@@ -32,9 +32,9 @@ interface AuthApiService {
         @Body wellnessRecord: WellnessRecord
     ): Response<Void>
 
-    // Testing convenience: wipes today's sleep/hydration/weight/mood/exercise records
-    // and the aggregated daily summary for the current user. Goals and profile are
-    // untouched. Called on every login so each test session starts from a clean slate.
+    // Testing convenience: wipes today's logged records and the aggregated daily
+    // summary for the current user. No longer called anywhere in the app (saved data
+    // now persists permanently); kept only in case a manual test needs it.
     @POST("api/wellness/reset-today")
     suspend fun resetToday(): Response<Void>
 
@@ -53,6 +53,12 @@ interface AuthApiService {
     // that day's distance/calories/exercise-minutes totals.
     @DELETE("api/wellness/exercise-logs/{id}")
     suspend fun deleteExerciseLog(@Path("id") id: Long): Response<Void>
+
+    // Fetch up to `days` days of logged meals (meal type, food name, calories).
+    // Backs the Food Summary detail screen's Day meal list and the per-day
+    // breakdown shown when tapping a Week/Month chart bar.
+    @GET("api/wellness/food-logs")
+    suspend fun getFoodLogs(@Query("days") days: Int = 180): Response<List<FoodLogResponse>>
 
     @GET("api/wellness/recommendations")
     suspend fun getLatestRecommendation(): Response<RecommendationResponse>
@@ -82,8 +88,8 @@ interface AuthApiService {
         @Body request: UserGoalUpsertRequest
     ): Response<UserGoalResponse>
 
-    // Fetch a date range of daily summaries (used for sleep/mood history and the
-    // Distance/Calories/Hydration/Sleep/Weight Week/Month/6-Month charts)
+    // Fetch a date range of daily summaries (used for the Distance/Calories/
+    // Hydration/Sleep/Weight/Mental Health Week/Month/6-Month charts).
     @GET("api/dashboard/range")
     suspend fun getDashboardRange(
         @Query("startDate") startDate: String,  // Format: "yyyy-MM-dd"
@@ -174,6 +180,15 @@ data class ExerciseLogResponse(
     val endTime: String? = null,     // ISO-8601
     val loggedAt: String              // ISO-8601
 )
+
+data class FoodLogResponse(
+    val id: Long,
+    val mealType: String,
+    val foodName: String,
+    val caloriesKcal: Int,
+    val loggedAt: String   // ISO-8601
+)
+
 
 data class HourlyWellnessResponse(
     val hour: Int,
