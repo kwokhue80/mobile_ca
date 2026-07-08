@@ -13,8 +13,7 @@ import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.dashboard.badges.model.BadgeType
 import sg.edu.nus.iss.client.dashboard.goals.model.ActivityGoalType
 import sg.edu.nus.iss.client.network.RetrofitClient
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import java.time.LocalDateTime
 
 data class BadgeUiItem(
     val type: BadgeType,
@@ -40,9 +39,9 @@ class BadgesViewModel(application: Application) : AndroidViewModel(application) 
         const val POSITIVE_MIND_SCORE = 7.0
         const val CONSISTENCY_KING_DAYS = 100
 
-        // Wide enough to cover this app's entire history for the All-Rounder check
-        // (any single day that hit every daily goal at once).
-        val ALL_ROUNDER_RANGE_START: LocalDate = LocalDate.of(2020, 1, 1)
+        // How far back the All-Rounder check scans (any single day that hit every
+        // daily goal at once); comfortably covers the app's seeded history.
+        const val ALL_ROUNDER_LOOKBACK_DAYS = 400
     }
 
     private val apiService = RetrofitClient.getApiService(application)
@@ -102,28 +101,31 @@ class BadgesViewModel(application: Application) : AndroidViewModel(application) 
 
     // A day counts if it independently hit every one of the same 4 daily goals the
     // dashboard cards themselves check (Distance/Calories/Hydration/Sleep) - matches
-    // DashboardPage1Fragment's goal-reached comparisons exactly.
+    // DashboardPage1Fragment's goal-reached comparisons exactly. Aggregated per day
+    // from the raw-log endpoints, same as the metric detail charts.
     private suspend fun checkAllRounder(goals: Map<ActivityGoalType, Double>): Boolean {
         val distanceGoal = goals[ActivityGoalType.DISTANCE] ?: ActivityGoalType.DISTANCE.defaultValue
         val caloriesGoal = goals[ActivityGoalType.CALORIES] ?: ActivityGoalType.CALORIES.defaultValue
         val sleepGoal = goals[ActivityGoalType.SLEEP] ?: ActivityGoalType.SLEEP.defaultValue
         val hydrationGoal = goals[ActivityGoalType.HYDRATION] ?: ActivityGoalType.HYDRATION.defaultValue
 
-        val summaries = try {
-            val response = apiService.getDashboardRange(
-                ALL_ROUNDER_RANGE_START.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
-            )
-            response.body().orEmpty()
-        } catch (e: Exception) {
-            emptyList()
-        }
+        return try {
+            val exerciseByDay = apiService.getExerciseLogs(ALL_ROUNDER_LOOKBACK_DAYS).body().orEmpty()
+                .groupBy { LocalDateTime.parse(it.loggedAt).toLocalDate() }
+            val hydrationByDay = apiService.getHydrationLogs(ALL_ROUNDER_LOOKBACK_DAYS).body().orEmpty()
+                .groupBy { LocalDateTime.parse(it.loggedAt).toLocalDate() }
+            val sleepByDay = apiService.getSleepLogs(ALL_ROUNDER_LOOKBACK_DAYS).body().orEmpty()
+                .groupBy { LocalDateTime.parse(it.endTime).toLocalDate() }
 
-        return summaries.any { day ->
-            day.totalDistanceKm >= distanceGoal &&
-                day.totalCaloriesBurned >= caloriesGoal &&
-                day.totalWaterMl >= hydrationGoal &&
-                (day.sleepMinutes ?: 0) / 60.0 >= sleepGoal
+            // Only days with exercise can qualify, so iterate those.
+            exerciseByDay.any { (date, dayLogs) ->
+                dayLogs.sumOf { it.distanceKm ?: 0.0 } >= distanceGoal &&
+                    dayLogs.sumOf { it.caloriesBurnedKcal } >= caloriesGoal &&
+                    hydrationByDay[date].orEmpty().sumOf { it.volumeMl } >= hydrationGoal &&
+                    sleepByDay[date].orEmpty().sumOf { it.durationMinutes } / 60.0 >= sleepGoal
+            }
+        } catch (e: Exception) {
+            false
         }
     }
 }

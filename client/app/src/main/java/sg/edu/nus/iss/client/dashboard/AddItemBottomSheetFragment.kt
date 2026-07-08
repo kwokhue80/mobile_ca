@@ -274,7 +274,7 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
 
         val qualityInput = addInput(
             label = "Sleep Quality Rating",
-            hint = "1 = poor, 5 = excellent",
+            hint = "1 = poor, 10 = excellent",
             inputType = InputType.TYPE_CLASS_NUMBER
         )
 
@@ -344,8 +344,8 @@ class AddItemBottomSheetFragment : BottomSheetDialogFragment() {
                 return@setOnClickListener
             }
 
-            if (quality == null || quality !in 1..5) {
-                showInputError(qualityInput, "Sleep quality rating must be between 1 and 5")
+            if (quality == null || quality !in 1..10) {
+                showInputError(qualityInput, "Sleep quality rating must be between 1 and 10")
                 return@setOnClickListener
             }
 

@@ -60,7 +60,7 @@
             android:autoSizeStepGranularity="1sp"
             app:backgroundTint="#C7D0CF"
             app:cornerRadius="24dp"
-            app:icon="@drawable/calories_icon"
+            app:icon="@drawable/food_summary_icon"
             app:iconGravity="textStart"
             app:iconPadding="6dp"
             app:iconTint="#1F1F1F" />

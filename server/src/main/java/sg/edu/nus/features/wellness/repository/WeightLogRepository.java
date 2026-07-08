@@ -12,6 +12,9 @@ public interface WeightLogRepository extends JpaRepository<WeightLog, Long> {
 
 	List<WeightLog> findAllByUserIdOrderByLoggedAtDesc(UUID userId);
 
+	List<WeightLog> findAllByUserIdAndLoggedAtBetweenOrderByLoggedAtDesc(
+			UUID userId, LocalDateTime start, LocalDateTime end);
+
 	void deleteByUserIdAndLoggedAtBetween(UUID userId, LocalDateTime start, LocalDateTime end);
 
 }

@@ -13,11 +13,11 @@ import sg.edu.nus.iss.client.dashboard.detail.model.MetricDetailUiState
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricSummaryRow
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricType
 import sg.edu.nus.iss.client.dashboard.detail.model.TimeRange
-import sg.edu.nus.iss.client.network.DailyWellnessSummary
 import sg.edu.nus.iss.client.network.HourlyWellnessResponse
 import sg.edu.nus.iss.client.network.RetrofitClient
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.time.YearMonth
@@ -34,6 +34,10 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
         private const val SIX_MONTH_COUNT = 6L
         private const val WEEKLY_ROWS_COUNT = 5
         private const val MONTHLY_ROWS_COUNT = 7
+
+        // How far back the raw-log fetch reaches. Covers the deepest view (6-Month)
+        // plus back-navigation headroom; days outside this window chart as 0.
+        private const val HISTORY_DAYS = 400
     }
 
     private val apiService = RetrofitClient.getApiService(application)
@@ -113,6 +117,7 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
     private fun refresh() {
         refreshJob?.cancel()
         refreshJob = viewModelScope.launch {
+            ensureDailyValuesLoaded()
             val newState = when (timeRange) {
                 TimeRange.DAY -> buildDayState()
                 TimeRange.WEEK -> buildWeekState()
@@ -123,8 +128,8 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
         }
     }
 
-    // Distance/Calories/Hydration select from the hourly buckets. Sleep/Weight/Food
-    // Intake use the daily summary because the backend has no hourly food buckets.
+    // Distance/Calories/Hydration select from the hourly buckets for the Day view;
+    // the other metrics' Day view is a single daily value from dailyValues.
     private fun selectHourlyValue(entry: HourlyWellnessResponse?): Double = when (metricType) {
         MetricType.DISTANCE -> entry?.distanceKm ?: 0.0
         MetricType.CALORIES -> entry?.caloriesBurnedKcal?.toDouble() ?: 0.0
@@ -132,26 +137,57 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
         MetricType.SLEEP, MetricType.WEIGHT, MetricType.FOOD_INTAKE -> 0.0
     }
 
-    private fun selectDailyValue(summary: DailyWellnessSummary?): Double = when (metricType) {
-        MetricType.DISTANCE -> summary?.totalDistanceKm ?: 0.0
-        MetricType.CALORIES -> summary?.totalCaloriesBurned?.toDouble() ?: 0.0
-        MetricType.HYDRATION -> summary?.totalWaterMl?.toDouble() ?: 0.0
-        MetricType.SLEEP -> (summary?.sleepMinutes ?: 0) / 60.0
-        MetricType.WEIGHT -> summary?.weightKg ?: 0.0
-        MetricType.FOOD_INTAKE -> summary?.totalCaloriesIntake?.toDouble() ?: 0.0
-    }
+    // One value per day for this metric, aggregated client-side from the metric's own
+    // raw-log endpoint (loaded once per screen): sums for distance/calories/hydration/
+    // food, hours for sleep (attributed to the wake-up date), day-average for weight.
+    private var dailyValues: Map<LocalDate, Double> = emptyMap()
 
-    private suspend fun fetchRange(start: LocalDate, end: LocalDate): Map<LocalDate, DailyWellnessSummary> {
-        return try {
-            val response = apiService.getDashboardRange(
-                start.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                end.format(DateTimeFormatter.ISO_LOCAL_DATE)
-            )
-            response.body().orEmpty().associateBy { LocalDate.parse(it.summaryDate) }
+    // Day-averaged sleep quality (1-5), only populated for the Sleep metric.
+    private var dailySleepQuality: Map<LocalDate, Double> = emptyMap()
+
+    private var dailyValuesLoaded = false
+
+    private suspend fun ensureDailyValuesLoaded() {
+        if (dailyValuesLoaded) return
+        try {
+            dailyValues = when (metricType) {
+                MetricType.DISTANCE -> apiService.getExerciseLogs(HISTORY_DAYS).body().orEmpty()
+                    .groupBy { LocalDateTime.parse(it.loggedAt).toLocalDate() }
+                    .mapValues { (_, logs) -> logs.sumOf { it.distanceKm ?: 0.0 } }
+
+                MetricType.CALORIES -> apiService.getExerciseLogs(HISTORY_DAYS).body().orEmpty()
+                    .groupBy { LocalDateTime.parse(it.loggedAt).toLocalDate() }
+                    .mapValues { (_, logs) -> logs.sumOf { it.caloriesBurnedKcal.toDouble() } }
+
+                MetricType.HYDRATION -> apiService.getHydrationLogs(HISTORY_DAYS).body().orEmpty()
+                    .groupBy { LocalDateTime.parse(it.loggedAt).toLocalDate() }
+                    .mapValues { (_, logs) -> logs.sumOf { it.volumeMl.toDouble() } }
+
+                MetricType.SLEEP -> {
+                    val logs = apiService.getSleepLogs(HISTORY_DAYS).body().orEmpty()
+                    val byWakeDate = logs.groupBy { LocalDateTime.parse(it.endTime).toLocalDate() }
+                    dailySleepQuality = byWakeDate.mapNotNull { (date, dayLogs) ->
+                        val scores = dayLogs.mapNotNull { it.sleepQualityScore }
+                        if (scores.isEmpty()) null else date to scores.average()
+                    }.toMap()
+                    byWakeDate.mapValues { (_, dayLogs) -> dayLogs.sumOf { it.durationMinutes } / 60.0 }
+                }
+
+                MetricType.WEIGHT -> apiService.getWeightLogs(HISTORY_DAYS).body().orEmpty()
+                    .groupBy { LocalDateTime.parse(it.loggedAt).toLocalDate() }
+                    .mapValues { (_, logs) -> logs.map { it.weightKg }.average() }
+
+                MetricType.FOOD_INTAKE -> apiService.getFoodLogs(HISTORY_DAYS).body().orEmpty()
+                    .groupBy { LocalDateTime.parse(it.loggedAt).toLocalDate() }
+                    .mapValues { (_, logs) -> logs.sumOf { it.caloriesKcal.toDouble() } }
+            }
+            dailyValuesLoaded = true
         } catch (e: Exception) {
-            emptyMap()
+            // Keep empty maps (e.g. offline); charts render as no-data instead of crashing.
         }
     }
+
+    private fun valueOn(date: LocalDate): Double = dailyValues[date] ?: 0.0
 
     private suspend fun fetchHourlySummary(date: LocalDate): List<HourlyWellnessResponse> {
         return try {
@@ -162,9 +198,9 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
         }
     }
 
-    private fun averageSleepQuality(summaries: Collection<DailyWellnessSummary>): Double? {
+    private fun averageSleepQuality(start: LocalDate, end: LocalDate): Double? {
         if (metricType != MetricType.SLEEP) return null
-        val scores = summaries.mapNotNull { it.sleepQualityScore }
+        val scores = dailySleepQuality.filterKeys { !it.isBefore(start) && !it.isAfter(end) }.values
         return if (scores.isEmpty()) null else scores.average()
     }
 
@@ -174,8 +210,7 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
         val canNext = referenceDate.isBefore(today)
 
         if (metricType == MetricType.SLEEP || metricType == MetricType.WEIGHT) {
-            val summary = fetchRange(referenceDate, referenceDate)[referenceDate]
-            val total = selectDailyValue(summary)
+            val total = valueOn(referenceDate)
             return MetricDetailUiState(
                 timeRange = TimeRange.DAY,
                 periodLabel = periodLabel,
@@ -186,13 +221,12 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
                 selectedBarIndex = null,
                 summaryRows = emptyList(),
                 canGoNext = canNext,
-                sleepQualityScore = summary?.sleepQualityScore?.toDouble()
+                sleepQualityScore = dailySleepQuality[referenceDate]
             )
         }
 
         if (metricType == MetricType.FOOD_INTAKE) {
-            val summary = fetchRange(referenceDate, referenceDate)[referenceDate]
-            val total = selectDailyValue(summary)
+            val total = valueOn(referenceDate)
             val bars = listOf(
                 MetricBar(
                     axisLabel = "Today",
@@ -239,14 +273,13 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
         )
     }
 
-    private suspend fun buildWeekState(): MetricDetailUiState {
+    private fun buildWeekState(): MetricDetailUiState {
         val weekStart = referenceDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         val weekEnd = weekStart.plusDays(6)
-        val summaries = fetchRange(weekStart, weekEnd)
         val dailyGoal = currentGoal
         val bars = (0 until 7).map { i ->
             val date = weekStart.plusDays(i.toLong())
-            val value = if (date.isAfter(today)) 0.0 else selectDailyValue(summaries[date])
+            val value = if (date.isAfter(today)) 0.0 else valueOn(date)
             MetricBar(
                 axisLabel = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(2),
                 value = value,
@@ -275,11 +308,11 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
             selectedBarIndex = null,
             summaryRows = summaryRows,
             canGoNext = weekEnd.isBefore(today),
-            sleepQualityScore = averageSleepQuality(summaries.values)
+            sleepQualityScore = averageSleepQuality(weekStart, weekEnd)
         )
     }
 
-    private suspend fun buildMonthState(): MetricDetailUiState {
+    private fun buildMonthState(): MetricDetailUiState {
         val monthStart: LocalDate
         val monthEnd: LocalDate
         val periodLabel: String
@@ -299,11 +332,10 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
         }
 
         val dailyGoal = currentGoal
-        val summaries = fetchRange(monthStart, monthEnd)
         val totalDaysInWindow = ChronoUnit.DAYS.between(monthStart, monthEnd).toInt() + 1
         val bars = (0 until totalDaysInWindow).map { i ->
             val date = monthStart.plusDays(i.toLong())
-            val value = if (date.isAfter(today)) 0.0 else selectDailyValue(summaries[date])
+            val value = if (date.isAfter(today)) 0.0 else valueOn(date)
             MetricBar(
                 axisLabel = date.dayOfMonth.toString(),
                 value = value,
@@ -328,15 +360,14 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
             summaryRows = buildWeeklyAverageRows(monthEnd),
             canGoNext = canNext,
             canGoPrevious = true,
-            sleepQualityScore = averageSleepQuality(summaries.values)
+            sleepQualityScore = averageSleepQuality(monthStart, monthEnd)
         )
     }
 
-    private suspend fun buildSixMonthState(): MetricDetailUiState {
+    private fun buildSixMonthState(): MetricDetailUiState {
         val periodEnd = referenceDate
         val periodStart = periodEnd.minusMonths(SIX_MONTH_COUNT - 1).withDayOfMonth(1)
         val dailyGoal = currentGoal
-        val summaries = fetchRange(periodStart, today)
 
         var totalAllDays = 0.0
         var totalDaysCounted = 0
@@ -350,7 +381,7 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
             for (dayOffset in 0 until daysInMonth) {
                 val date = cursor.plusDays(dayOffset.toLong())
                 if (date.isAfter(today)) continue
-                val value = selectDailyValue(summaries[date])
+                val value = valueOn(date)
                 // Days with no logged data (value 0) are excluded from the average.
                 if (value <= 0.0) continue
                 monthTotal += value
@@ -383,21 +414,19 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
             selectedBarIndex = null,
             summaryRows = buildMonthlyAverageRows(periodEnd),
             canGoNext = periodEnd.isBefore(today),
-            sleepQualityScore = averageSleepQuality(summaries.values)
+            sleepQualityScore = averageSleepQuality(periodStart, today)
         )
     }
 
-    private suspend fun buildWeeklyAverageRows(anchorDate: LocalDate): List<MetricSummaryRow> {
+    private fun buildWeeklyAverageRows(anchorDate: LocalDate): List<MetricSummaryRow> {
         val currentWeekStart = anchorDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-        val earliestWeekStart = currentWeekStart.minusWeeks((WEEKLY_ROWS_COUNT - 1).toLong())
-        val summaries = fetchRange(earliestWeekStart, currentWeekStart.plusDays(6))
         return (0 until WEEKLY_ROWS_COUNT).map { weeksAgo ->
             val weekStart = currentWeekStart.minusWeeks(weeksAgo.toLong())
             val weekEnd = weekStart.plusDays(6)
             // Days with no logged data (value 0) are excluded from the average.
             val nonZeroValues = (0 until 7).mapNotNull { dayOffset ->
                 val date = weekStart.plusDays(dayOffset.toLong())
-                if (date.isAfter(today)) null else selectDailyValue(summaries[date]).takeIf { it > 0.0 }
+                if (date.isAfter(today)) null else valueOn(date).takeIf { it > 0.0 }
             }
             val label = if (weeksAgo == 0) "This week" else "${formatShortDate(weekStart)} – ${formatShortDate(weekEnd)}"
             val average = if (nonZeroValues.isNotEmpty()) nonZeroValues.average() else 0.0
@@ -405,16 +434,14 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
         }
     }
 
-    private suspend fun buildMonthlyAverageRows(anchorDate: LocalDate): List<MetricSummaryRow> {
-        val earliestMonth = anchorDate.minusMonths((MONTHLY_ROWS_COUNT - 1).toLong()).withDayOfMonth(1)
-        val summaries = fetchRange(earliestMonth, today)
+    private fun buildMonthlyAverageRows(anchorDate: LocalDate): List<MetricSummaryRow> {
         return (0 until MONTHLY_ROWS_COUNT).map { monthsAgo ->
             val monthDate = anchorDate.minusMonths(monthsAgo.toLong())
             val daysInMonth = monthDate.lengthOfMonth()
             // Days with no logged data (value 0) are excluded from the average.
             val nonZeroValues = (0 until daysInMonth).mapNotNull { dayOffset ->
                 val date = monthDate.withDayOfMonth(1).plusDays(dayOffset.toLong())
-                if (date.isAfter(today)) null else selectDailyValue(summaries[date]).takeIf { it > 0.0 }
+                if (date.isAfter(today)) null else valueOn(date).takeIf { it > 0.0 }
             }
             val label = if (monthsAgo == 0) {
                 "This month"

@@ -21,7 +21,12 @@ import sg.edu.nus.security.UserPrincipal;
 import sg.edu.nus.features.wellness.dto.WellnessRecordPayload;
 import sg.edu.nus.features.wellness.dto.BadgeProgressResponse;
 import sg.edu.nus.features.wellness.dto.ExerciseLogResponse;
+import sg.edu.nus.features.wellness.dto.FoodLogResponse;
 import sg.edu.nus.features.wellness.dto.HourlyWellnessResponse;
+import sg.edu.nus.features.wellness.dto.HydrationLogResponse;
+import sg.edu.nus.features.wellness.dto.MoodLogResponse;
+import sg.edu.nus.features.wellness.dto.SleepLogResponse;
+import sg.edu.nus.features.wellness.dto.WeightLogResponse;
 import sg.edu.nus.features.wellness.model.DailyWellnessSummary;
 import sg.edu.nus.features.wellness.dto.RecommendationResponse;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -59,6 +64,46 @@ public class WellnessController {
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         List<ExerciseLogResponse> logs = orchestratorService.getExerciseLogs(userPrincipal.getId(), days);
         return ResponseEntity.ok(logs);
+    }
+
+    // Structured meal entries (meal type, food name, calories) for the Food Summary
+    // detail screen's Day meal list and Week/Month per-day breakdowns.
+    @GetMapping("/food-logs")
+    public ResponseEntity<List<FoodLogResponse>> getFoodLogs(
+            @RequestParam(defaultValue = "180") int days,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<FoodLogResponse> logs = orchestratorService.getFoodLogs(userPrincipal.getId(), days);
+        return ResponseEntity.ok(logs);
+    }
+
+    // Raw-log feeds backing the metric detail screens' charts: the client sums or
+    // averages these per day itself. Distance/Calories reuse /exercise-logs above.
+    @GetMapping("/sleep-logs")
+    public ResponseEntity<List<SleepLogResponse>> getSleepLogs(
+            @RequestParam(defaultValue = "180") int days,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return ResponseEntity.ok(orchestratorService.getSleepLogs(userPrincipal.getId(), days));
+    }
+
+    @GetMapping("/hydration-logs")
+    public ResponseEntity<List<HydrationLogResponse>> getHydrationLogs(
+            @RequestParam(defaultValue = "180") int days,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return ResponseEntity.ok(orchestratorService.getHydrationLogs(userPrincipal.getId(), days));
+    }
+
+    @GetMapping("/weight-logs")
+    public ResponseEntity<List<WeightLogResponse>> getWeightLogs(
+            @RequestParam(defaultValue = "180") int days,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return ResponseEntity.ok(orchestratorService.getWeightLogs(userPrincipal.getId(), days));
+    }
+
+    @GetMapping("/mood-logs")
+    public ResponseEntity<List<MoodLogResponse>> getMoodLogs(
+            @RequestParam(defaultValue = "180") int days,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return ResponseEntity.ok(orchestratorService.getMoodLogs(userPrincipal.getId(), days));
     }
 
     // Deletes a single exercise session (Home "Activity Tracked" list's delete button)

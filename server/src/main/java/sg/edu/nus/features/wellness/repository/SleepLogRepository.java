@@ -12,6 +12,10 @@ public interface SleepLogRepository extends JpaRepository<SleepLog, Long> {
 
 	List<SleepLog> findAllByUserIdOrderByStartTimeDesc(UUID userId);
 
+	// Sleep is attributed to the wake-up date, so range queries go by endTime.
+	List<SleepLog> findAllByUserIdAndEndTimeBetweenOrderByEndTimeDesc(
+			UUID userId, LocalDateTime start, LocalDateTime end);
+
 	void deleteByUserIdAndStartTimeBetween(UUID userId, LocalDateTime start, LocalDateTime end);
 
 }

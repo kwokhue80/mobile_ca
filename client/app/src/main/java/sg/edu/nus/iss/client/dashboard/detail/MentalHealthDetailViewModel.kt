@@ -10,10 +10,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.dashboard.detail.model.MetricBar
 import sg.edu.nus.iss.client.dashboard.detail.model.TimeRange
-import sg.edu.nus.iss.client.network.DailyWellnessSummary
 import sg.edu.nus.iss.client.network.RetrofitClient
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
@@ -38,7 +38,7 @@ data class MentalHealthUiState(
  *  user-configurable goal for it, unlike the other metrics. Day view shows a single
  *  mood icon/word (no chart); Week/Month show a trend chart plus 3 mood-icon
  *  checkpoints (early/mid/late) summarizing the trend at a glance. All real backend
- *  data, sourced from GET /api/dashboard/range's per-day moodScore. */
+ *  data: raw mood entries from GET /api/wellness/mood-logs, day-averaged here. */
 class MentalHealthDetailViewModel(application: Application) : AndroidViewModel(application) {
 
     private val apiService = RetrofitClient.getApiService(application)
@@ -97,6 +97,7 @@ class MentalHealthDetailViewModel(application: Application) : AndroidViewModel(a
     private fun refresh() {
         refreshJob?.cancel()
         refreshJob = viewModelScope.launch {
+            ensureMoodLoaded()
             val newState = when (timeRange) {
                 TimeRange.DAY -> buildDayState()
                 TimeRange.WEEK -> buildWeekState()
@@ -106,20 +107,27 @@ class MentalHealthDetailViewModel(application: Application) : AndroidViewModel(a
         }
     }
 
-    private suspend fun fetchRange(start: LocalDate, end: LocalDate): Map<LocalDate, DailyWellnessSummary> {
-        return try {
-            val response = apiService.getDashboardRange(
-                start.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                end.format(DateTimeFormatter.ISO_LOCAL_DATE)
-            )
-            response.body().orEmpty().associateBy { LocalDate.parse(it.summaryDate) }
+    // Average mood (1-10) per day, computed once per screen from the raw mood-logs
+    // feed; multiple entries on the same day are averaged.
+    private var dailyMood: Map<LocalDate, Double> = emptyMap()
+    private var moodLoaded = false
+
+    private suspend fun ensureMoodLoaded() {
+        if (moodLoaded) return
+        try {
+            dailyMood = apiService.getMoodLogs(HISTORY_DAYS).body().orEmpty()
+                .groupBy { LocalDateTime.parse(it.loggedAt).toLocalDate() }
+                .mapValues { (_, logs) -> logs.map { it.moodRating.toDouble() }.average() }
+            moodLoaded = true
         } catch (e: Exception) {
-            emptyMap()
+            // Keep whatever was last loaded (e.g. offline); the charts render as no-data.
         }
     }
 
-    private suspend fun buildDayState(): MentalHealthUiState {
-        val value = fetchRange(referenceDate, referenceDate)[referenceDate]?.moodScore?.toDouble()
+    private fun moodOn(date: LocalDate): Double? = dailyMood[date]
+
+    private fun buildDayState(): MentalHealthUiState {
+        val value = moodOn(referenceDate)
         val periodLabel = if (referenceDate == today) "Today" else formatDayLabel(referenceDate)
         val summaryText = if (value != null) {
             "Today's mood has been ${moodCategory(value)}, averaging ${formatMood(value)}/10."
@@ -135,17 +143,16 @@ class MentalHealthDetailViewModel(application: Application) : AndroidViewModel(a
         )
     }
 
-    private suspend fun buildWeekState(): MentalHealthUiState {
+    private fun buildWeekState(): MentalHealthUiState {
         val weekStart = referenceDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         val weekEnd = weekStart.plusDays(6)
-        val summaries = fetchRange(weekStart, weekEnd)
         // Always emit all 7 days (Mon-Sun) so the chart's x-axis spans the full week;
         // days with no logged mood get a 0.0 filler, which MetricLineChartConfigurator
         // skips when drawing the line, and which buildMoodNodes/buildWeekSummary below
         // exclude from their averages.
         val points = (0 until 7).map { i ->
             val date = weekStart.plusDays(i.toLong())
-            val mood = if (date.isAfter(today)) 0.0 else summaries[date]?.moodScore?.toDouble() ?: 0.0
+            val mood = if (date.isAfter(today)) 0.0 else moodOn(date) ?: 0.0
             MetricBar(
                 axisLabel = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(2),
                 value = mood,
@@ -163,16 +170,15 @@ class MentalHealthDetailViewModel(application: Application) : AndroidViewModel(a
         )
     }
 
-    private suspend fun buildMonthState(): MentalHealthUiState {
+    private fun buildMonthState(): MentalHealthUiState {
         val monthEnd = referenceDate
         val monthStart = monthEnd.minusMonths(1)
-        val summaries = fetchRange(monthStart, monthEnd)
         val totalDays = ChronoUnit.DAYS.between(monthStart, monthEnd).toInt() + 1
         // Same "always emit every day" approach as buildWeekState, so the chart's
         // x-axis spans the full month regardless of gaps in logged data.
         val points = (0 until totalDays).map { i ->
             val date = monthStart.plusDays(i.toLong())
-            val mood = if (date.isAfter(today)) 0.0 else summaries[date]?.moodScore?.toDouble() ?: 0.0
+            val mood = if (date.isAfter(today)) 0.0 else moodOn(date) ?: 0.0
             MetricBar(
                 axisLabel = date.dayOfMonth.toString(),
                 value = mood,
@@ -247,6 +253,9 @@ class MentalHealthDetailViewModel(application: Application) : AndroidViewModel(a
         date.format(DateTimeFormatter.ofPattern("d MMM", Locale.getDefault()))
 
     companion object {
+        // How far back the raw mood-log fetch reaches; month back-navigation headroom.
+        private const val HISTORY_DAYS = 400
+
         /** 1 = Very Bad, 10 = Excellent; the buckets in between are ours to define. */
         fun moodCategory(value: Double): String = when {
             value < 2.0 -> "Very Bad"

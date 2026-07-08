@@ -54,6 +54,12 @@ interface AuthApiService {
     @DELETE("api/wellness/exercise-logs/{id}")
     suspend fun deleteExerciseLog(@Path("id") id: Long): Response<Void>
 
+    // Fetch up to `days` days of logged meals (meal type, food name, calories).
+    // Backs the Food Summary detail screen's Day meal list and the per-day
+    // breakdown shown when tapping a Week/Month chart bar.
+    @GET("api/wellness/food-logs")
+    suspend fun getFoodLogs(@Query("days") days: Int = 180): Response<List<FoodLogResponse>>
+
     @GET("api/wellness/recommendations")
     suspend fun getLatestRecommendation(): Response<RecommendationResponse>
 
@@ -82,13 +88,19 @@ interface AuthApiService {
         @Body request: UserGoalUpsertRequest
     ): Response<UserGoalResponse>
 
-    // Fetch a date range of daily summaries (used for sleep/mood history and the
-    // Distance/Calories/Hydration/Sleep/Weight Week/Month/6-Month charts)
-    @GET("api/dashboard/range")
-    suspend fun getDashboardRange(
-        @Query("startDate") startDate: String,  // Format: "yyyy-MM-dd"
-        @Query("endDate") endDate: String       // Format: "yyyy-MM-dd"
-    ): Response<List<DailyWellnessSummary>>
+    // Raw-log feeds backing the metric detail screens' Week/Month/6-Month charts;
+    // the client aggregates per day itself. Distance/Calories reuse getExerciseLogs.
+    @GET("api/wellness/sleep-logs")
+    suspend fun getSleepLogs(@Query("days") days: Int = 180): Response<List<SleepLogResponse>>
+
+    @GET("api/wellness/hydration-logs")
+    suspend fun getHydrationLogs(@Query("days") days: Int = 180): Response<List<HydrationLogResponse>>
+
+    @GET("api/wellness/weight-logs")
+    suspend fun getWeightLogs(@Query("days") days: Int = 180): Response<List<WeightLogResponse>>
+
+    @GET("api/wellness/mood-logs")
+    suspend fun getMoodLogs(@Query("days") days: Int = 180): Response<List<MoodLogResponse>>
 
     // Precise-to-the-hour breakdown of exercise distance/calories and hydration volume
     // for a single date. Backs the Distance/Calories/Hydration detail screens' Day view.
@@ -173,6 +185,40 @@ data class ExerciseLogResponse(
     val startTime: String? = null,   // ISO-8601, e.g. "2026-07-07T14:30:00" (no @JsonFormat on the backend field)
     val endTime: String? = null,     // ISO-8601
     val loggedAt: String              // ISO-8601
+)
+
+data class FoodLogResponse(
+    val id: Long,
+    val mealType: String,
+    val foodName: String,
+    val caloriesKcal: Int,
+    val loggedAt: String   // ISO-8601
+)
+
+data class SleepLogResponse(
+    val id: Long,
+    val startTime: String,           // ISO-8601
+    val endTime: String,             // ISO-8601; a night counts toward this date
+    val durationMinutes: Int,
+    val sleepQualityScore: Int? = null
+)
+
+data class HydrationLogResponse(
+    val id: Long,
+    val volumeMl: Int,
+    val loggedAt: String   // ISO-8601
+)
+
+data class WeightLogResponse(
+    val id: Long,
+    val weightKg: Double,
+    val loggedAt: String   // ISO-8601
+)
+
+data class MoodLogResponse(
+    val id: Long,
+    val moodRating: Int,
+    val loggedAt: String   // ISO-8601
 )
 
 data class HourlyWellnessResponse(
