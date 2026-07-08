@@ -60,7 +60,7 @@ public class WellnessController {
 
     @GetMapping("/exercise-logs")
     public ResponseEntity<List<ExerciseLogResponse>> getExerciseLogs(
-            @RequestParam(defaultValue = "30") int days,
+            @RequestParam(defaultValue = "180") int days,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         List<ExerciseLogResponse> logs = orchestratorService.getExerciseLogs(userPrincipal.getId(), days);
         return ResponseEntity.ok(logs);

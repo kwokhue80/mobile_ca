@@ -54,7 +54,7 @@ except ImportError:
 try:
     from .mcp_server_wellness import (
         get_daily_summary as direct_get_daily_summary,
-        get_activity_history as direct_get_activity_history,
+        get_exercise_history as direct_get_exercise_history,
         get_latest_recommendation as direct_get_latest_recommendation,
         web_search as direct_web_search,
         get_missing_required_fields,
@@ -62,7 +62,7 @@ try:
 except ImportError:
     from mcp_server_wellness import (
         get_daily_summary as direct_get_daily_summary,
-        get_activity_history as direct_get_activity_history,
+        get_exercise_history as direct_get_exercise_history,
         get_latest_recommendation as direct_get_latest_recommendation,
         web_search as direct_web_search,
         get_missing_required_fields,
@@ -176,6 +176,12 @@ Supported categories and expected fields:
 Enum normalization rules before tool call:
 - Convert meal_type and exercise_type to uppercase with underscores.
 - Accept natural variants like "strength training" -> "STRENGTH_TRAINING".
+
+Critical rules for using tools:
+- If the user asks about their wellness data (daily summary, activity history, weight progress, exercise history, recommendations, etc.), you MUST try to call the appropriate tool first.
+- Never say "I don't have access", "I'm unable to access", or "authorization issue" unless a tool actually returned an error.
+- If a tool exists for the user's request, call it instead of guessing or refusing.
+- Only say you cannot retrieve data if the tool call fails or returns an error.
 
 Important behavior rules:
 - If the user intent is logging but required fields are missing, ask concise follow-up questions to collect missing fields.
@@ -522,7 +528,7 @@ def _format_read_tool_fallback(tool_name: str, tool_result: Any) -> str:
     formatted = _format_tool_result_text(tool_result)
     if tool_name == "get_daily_summary":
         return f"I fetched your daily summary data:\n{formatted}"
-    if tool_name == "get_activity_history":
+    if tool_name == "get_exercise_history":
         return f"I fetched your recent activity history:\n{formatted}"
     if tool_name == "get_latest_recommendation":
         return f"I fetched your latest recommendation:\n{formatted}"
@@ -551,7 +557,7 @@ def _tool_result_looks_like_error(tool_result: Any) -> bool:
 
 # Fallback chain: custom tools -> web search -> logging
 def _format_tool_fallback(tool_name: str, tool_result: Any) -> str:
-    if tool_name in {"get_daily_summary", "get_activity_history", "get_latest_recommendation"}:
+    if tool_name in {"get_daily_summary", "get_exercise_history", "get_latest_recommendation"}:
         return _format_read_tool_fallback(tool_name, tool_result)
     if tool_name == "web_search":
         return f"I found this information from web search:\n{_format_tool_result_text(tool_result)}"
@@ -564,32 +570,26 @@ def _format_tool_fallback(tool_name: str, tool_result: Any) -> str:
 def _detect_read_tool_name(query: str) -> str | None:
     lowered = query.lower()
 
+    # Daily summary
     if any(phrase in lowered for phrase in [
-        "daily summary",
-        "today summary",
-        "today's summary",
-        "how am i doing today",
-        "summary today",
+        "daily summary", "today summary", "today's summary",
+        "how am i doing today", "summary today", "my summary"
     ]):
         return "get_daily_summary"
 
+    # Exercise / Activity history + progress
     if any(phrase in lowered for phrase in [
-        "activity history",
-        "exercise history",
-        "recent activity",
-        "my workouts",
+        "activity history", "exercise history", "workout history",
+        "my workouts", "recent activity", "exercise progress",
+        "workout progress", "my exercise", "exercise log",
+        "how has my progress been", "progress.*exercis", "exercis.*progress"
     ]):
-        return "get_activity_history"
+        return "get_exercise_history"
 
+    # Latest recommendation
     if any(phrase in lowered for phrase in [
-        "latest recommendation",
-        "my recommendation",
-        "my latest recommendation",
-        "latest advice",
-        "any recommendation",
-        "any recommendations",
-        "recommendations",
-        "recommendation for me",
+        "latest recommendation", "my recommendation", "latest advice",
+        "any recommendation", "recommendations", "recommendation for me"
     ]):
         return "get_latest_recommendation"
 
@@ -620,6 +620,13 @@ def _general_recommendation_fallback_text() -> str:
         "include one protein-rich meal, and aim for a consistent sleep time tonight."
     )
 
+
+def _out_of_scope_response() -> str:
+    return (
+        "I can only help with wellness, nutrition, hydration, sleep, mood, weight, exercise, "
+        "and related food logging or health questions. Please ask a wellness-related question."
+    )
+
 # Check whether current user already has a logging draft
 def _has_active_logging_draft() -> bool:
     draft_key = _draft_key_from_current_token()
@@ -628,11 +635,37 @@ def _has_active_logging_draft() -> bool:
     return DRAFT_STORE.get(draft_key) is not None
 
 
+def _is_out_of_scope_query(request: ChatRequest) -> bool:
+    query = request.query.strip()
+    if not query:
+        return False
+
+    if _detect_read_tool_name(query):
+        return False
+    if _looks_like_logging_intent(query):
+        return False
+    if _looks_like_meal_mention(query):
+        return False
+    if _should_plan_web_search(query):
+        return False
+    if _has_active_logging_draft():
+        return False
+    if _is_wellness_nutrition_topic(query):
+        return False
+
+    return True
+
+
 # Packages the current request into a structured logging task
 def _plan_logging_task(request: ChatRequest) -> LoggingTask | None:
     intent_detected = _looks_like_logging_intent(request.query)
     active_draft_present = _has_active_logging_draft()
     meal_mention_detected = _looks_like_meal_mention(request.query)
+
+    # Do not let an unfinished logging draft steal deterministic read queries
+    # such as daily summary or recommendations.
+    if not intent_detected and _detect_read_tool_name(request.query):
+        return None
 
     if not (intent_detected or active_draft_present or meal_mention_detected):
         return None
@@ -903,7 +936,7 @@ def _create_llm_model() -> ChatOpenAI:
         )
 
     return ChatOpenAI(
-        model="google/gemini-2.5-flash-lite",
+        model="openai/gpt-4.1-mini",
         temperature=0,
         base_url="https://openrouter.ai/api/v1",
         api_key=api_key,
@@ -913,6 +946,9 @@ def _create_llm_model() -> ChatOpenAI:
 # Builds an ordered list of workflow actions for the current request
 def _build_workflow_actions(request: ChatRequest) -> list[WorkflowAction]:
     actions: list[WorkflowAction] = []
+
+    if _is_out_of_scope_query(request):
+        return actions
 
     logging_task = _plan_logging_task(request)
     if logging_task is not None:
@@ -991,10 +1027,10 @@ async def _repair_echo_response(query: str, request_id: str) -> str:
             return _format_read_tool_fallback("get_daily_summary", tool_result)
         except Exception:
             logger.exception("[%s] Echo fallback daily summary failed", request_id)
-    elif read_tool_name == "get_activity_history":
+    elif read_tool_name == "get_exercise_history":
         try:
-            tool_result = await direct_get_activity_history()
-            return _format_read_tool_fallback("get_activity_history", tool_result)
+            tool_result = await direct_get_exercise_history()
+            return _format_read_tool_fallback("get_exercise_history", tool_result)
         except Exception:
             logger.exception("[%s] Echo fallback activity history failed", request_id)
     elif read_tool_name == "get_latest_recommendation":
@@ -1009,40 +1045,55 @@ async def _repair_echo_response(query: str, request_id: str) -> str:
 
 # Replaces false refusal text when a successful tool result exists underneath it
 def _repair_false_refusal(final_answer: str, called_tools: list[str], result: dict, request_id: str) -> str:
-    repaired_answer = final_answer
+    repaired = final_answer
+    lowered = final_answer.lower()
 
-    if "log_wellness_entry" in called_tools:
-        tool_result = _extract_log_wellness_tool_result(result)
-        if tool_result and _looks_like_false_logging_refusal(repaired_answer):
-            logger.warning(
-                "[%s] Replacing hallucinated logging refusal after successful tool result. original=%s",
-                request_id,
-                repaired_answer[:240],
-            )
-            repaired_answer = _format_logging_response(tool_result)
-        elif not tool_result and _looks_like_false_logging_refusal(repaired_answer):
-            logger.warning(
-                "[%s] Logging refusal detected but no successful tool payload found; keeping model text.",
-                request_id,
-            )
+    # Phrases that indicate false refusal / hallucinated access issues
+    false_refusal_markers = [
+        "unable to access", "don't have access", "do not have access",
+        "no access to your", "cannot access", "can't access",
+        "i am currently unable", "i currently don't have access",
+        "i don't have access"
+    ]
 
-    if _looks_like_false_logging_refusal(repaired_answer):
+    is_false_refusal = any(marker in lowered for marker in false_refusal_markers)
+
+    if is_false_refusal:
+        # Repair read tools
+        read_tools = {
+            "get_daily_summary",
+            "get_exercise_history",
+            "get_latest_recommendation"
+        }
+
+        for tool_name in called_tools:
+            if tool_name in read_tools:
+                tool_result = _extract_named_tool_result(result, tool_name)
+                if tool_result and not _tool_result_looks_like_error(tool_result):
+                    logger.warning(
+                        "[%s] Replacing false refusal after successful read tool call: %s",
+                        request_id, tool_name
+                    )
+                    return _format_read_tool_fallback(tool_name, tool_result)
+
+        # Fallback: Try repairing with any other successful tool
         for tool_name in called_tools:
             tool_result = _extract_named_tool_result(result, tool_name)
-            if tool_result is None:
-                continue
-            if _tool_result_looks_like_error(tool_result):
-                continue
+            if tool_result and not _tool_result_looks_like_error(tool_result):
+                logger.warning(
+                    "[%s] Replacing false refusal after successful tool call: %s",
+                    request_id, tool_name
+                )
+                return _format_tool_fallback(tool_name, tool_result)
 
-            logger.warning(
-                "[%s] Replacing false refusal after successful %s tool output.",
-                request_id,
-                tool_name,
-            )
-            repaired_answer = _format_tool_fallback(tool_name, tool_result)
-            break
+    # logging refusal repair
+    if "log_wellness_entry" in called_tools:
+        tool_result = _extract_log_wellness_tool_result(result)
+        if tool_result and _looks_like_false_logging_refusal(repaired):
+            logger.warning("[%s] Replacing hallucinated logging refusal", request_id)
+            repaired = _format_logging_response(tool_result)
 
-    return repaired_answer
+    return repaired
 
 
 # Runs the LLM fallback stage after deterministic workflow actions are exhausted
@@ -1154,6 +1205,10 @@ async def _execute_action(state: WorkflowState, action: WorkflowAction) -> Workf
 # - planner can update remaining queue based on observations
 # - LLM is the last step when needed
 async def _execute_workflow(state: WorkflowState) -> str:
+    if _is_out_of_scope_query(state.request):
+        logger.info("[%s] Rejected out-of-scope query", state.request_id)
+        return _out_of_scope_response()
+
     remaining_actions = list(state.actions)
     logger.info("[%s] Initial planner queue=%s", state.request_id, [action.action_type.value for action in remaining_actions])
 
@@ -1205,8 +1260,8 @@ async def _execute_named_read_tool(tool_name: str, request_id: str) -> tuple[boo
     try:
         if tool_name == "get_daily_summary":
             tool_result = await direct_get_daily_summary()
-        elif tool_name == "get_activity_history":
-            tool_result = await direct_get_activity_history()
+        elif tool_name == "get_exercise_history":
+            tool_result = await direct_get_exercise_history()
         else:
             tool_result = await direct_get_latest_recommendation()
 
@@ -1685,6 +1740,35 @@ def _format_web_search_orchestration_response(query: str, search_result: str, es
     )
 
 
+def _normalize_wellness_search_query(query: str) -> str:
+    normalized = query.strip()
+    has_calorie_intent = bool(re.search(r"\bcalories?\b|\bkcal\b|\bcalorie\b", normalized, re.IGNORECASE))
+
+    if _is_explicit_search_request(normalized):
+        normalized = re.sub(
+            r"^(?:please\s+)?(?:search|look\s+up|lookup|find|google)\s+",
+            "",
+            normalized,
+            flags=re.IGNORECASE,
+        )
+        normalized = re.sub(r"\b(?:online|on the web|on web|for me)\b", "", normalized, flags=re.IGNORECASE)
+        normalized = re.sub(r"\s+", " ", normalized).strip(" .,!?:;\"'")
+
+    normalized = re.sub(
+        r"^(?:the\s+)?calorie\s+amount\s+for\s+",
+        "",
+        normalized,
+        flags=re.IGNORECASE,
+    )
+
+    if has_calorie_intent and not _looks_like_exercise_calorie_query(query):
+        meal_description = _extract_meal_description_from_calorie_query(normalized)
+        if meal_description:
+            return f"calories in {meal_description}"
+
+    return normalized or query.strip()
+
+
 # Web search for other wellness/nutrition topics
 async def _handle_wellness_web_search_orchestration(request: ChatRequest, request_id: str) -> tuple[bool, str | None]:
     """Deterministic web-search path for wellness/nutrition lookup queries."""
@@ -1741,8 +1825,10 @@ async def _handle_wellness_web_search_orchestration(request: ChatRequest, reques
         logger.info("[%s] Prepared exercise draft for backend calorie estimation (no web search)", request_id)
         return True, _exercise_calorie_backend_estimate_prompt(draft.payload)
 
+    search_query = _normalize_wellness_search_query(query)
+
     try:
-        search_result = str(await asyncio.to_thread(direct_web_search, query) or "").strip()
+        search_result = str(await asyncio.to_thread(direct_web_search, search_query) or "").strip()
         if not search_result:
             logger.warning("[%s] Deterministic wellness web search returned empty result", request_id)
             return True, "I couldn't find reliable web results right now. Please try rephrasing your question."
@@ -1797,6 +1883,9 @@ def _estimate_calories_from_search_text(search_text: str) -> int | None:
     kcal_matches = re.findall(r"(\d{2,4})\s*(?:kcal|calories?|cals?)\b", search_text, re.IGNORECASE)
     if kcal_matches:
         values = [int(v) for v in kcal_matches]
+        reasonable_values = [value for value in values if 5 <= value <= 2500]
+        if reasonable_values:
+            values = reasonable_values
         # Use the middle value to reduce outlier impact from snippets.
         values.sort()
         if len(values) % 2 == 0:
@@ -1982,13 +2071,13 @@ def _resolve_logging_follow_up(
 
     follow_up_value = _parse_field_value_from_follow_up(missing_field, query)
     if not follow_up_value:
+        merged = _find_recent_partial_payload(conversation_history, query)
+        if merged:
+            return _validate_or_missing(merged)
         return parsed_current
 
     merged = _find_recent_partial_payload(conversation_history, query)
     merged.update(follow_up_value)
-
-    if "meal_type" in merged and "meal_description" not in merged:
-        merged["meal_description"] = _extract_meal_description(query)
 
     return _validate_or_missing(merged)
 
@@ -2018,6 +2107,10 @@ async def _handle_logging_orchestration(request: ChatRequest, request_id: str) -
         DRAFT_STORE.set(draft_key, draft)
 
     _touch_draft(draft)
+
+    if not has_logging_intent and _detect_read_tool_name(request.query):
+        logger.info("[%s] Leaving active logging draft untouched for read-tool query", request_id)
+        return False, None
 
     # Allow wellness/nutrition lookup to run independently without destroying
     # the active logging draft; user can resume logging after the lookup.
@@ -2278,6 +2371,20 @@ def _extract_meal_description(query: str) -> str | None:
 
     # Calorie-only replies are numeric metadata, not food names
     if re.match(r"^\d+(?:\.\d+)?\s*(?:kcal|calories?|cals?)$", text, re.IGNORECASE):
+        return None
+
+    # Confirmation or assistant-directed follow-ups are not food names.
+    if re.match(r"^(?:yes|yeah|yep|ok|okay|sure|confirm|proceed|go ahead|please do)(?:\b.*)?$", text, re.IGNORECASE):
+        return None
+
+    generic_follow_up_patterns = [
+        r"^(?:please\s+)?(?:log|record|save|track|add|update)\b.*$",
+        r"^(?:can|could|would|will)\s+you\b.*$",
+        r"^help\s+me\b.*$",
+        r"^i\s+want\s+to\b.*$",
+        r"^(?:this|that|it)(?:\s+(?:meal|food|entry))?$",
+    ]
+    if any(re.match(pattern, text, re.IGNORECASE) for pattern in generic_follow_up_patterns):
         return None
 
     # Avoid saving a plain meal type as the meal description
