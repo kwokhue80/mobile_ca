@@ -52,6 +52,7 @@ class ChatHistoryRepository(store: BoxStore) {
 
     // Removes every stored chat message from the database, without
     // affecting any other data such as the dish records
+    // -- used to clear messages during testing
     fun clearAllMessages() {
         box.removeAll()
     }

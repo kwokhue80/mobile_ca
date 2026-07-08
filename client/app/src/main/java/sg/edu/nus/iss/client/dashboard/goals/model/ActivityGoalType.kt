@@ -33,6 +33,16 @@ enum class ActivityGoalType(
         maxValue = 5000.0,
         decimalPlaces = 0
     ),
+    FOOD_INTAKE(
+        displayName = "Food Intake",
+        unitLabel = "kcal per day",
+        iconRes = R.drawable.calories_icon,
+        defaultValue = 2000.0,
+        step = 100.0,
+        minValue = 500.0,
+        maxValue = 6000.0,
+        decimalPlaces = 0
+    ),
     SLEEP(
         displayName = "Sleep",
         unitLabel = "hours per day",

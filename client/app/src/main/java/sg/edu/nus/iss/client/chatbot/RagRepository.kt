@@ -188,8 +188,8 @@ class RagRepository(
 
     companion object {
         // Cosine distance ranges from 0 (identical) to 2 (completely different).
-        // A real match tends to score well under this cutoff, while
-        // unrelated dishes tend to score much higher.
+        // A real match will score well under this cutoff, while
+        // unrelated dishes will score much higher.
         private const val DISTANCE_THRESHOLD = 0.35
     }
 }
