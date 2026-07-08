@@ -57,6 +57,23 @@ class HomeFragment : Fragment() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             binding.appBarLayout.setPadding(0, systemBars.top, 0, 0)
             binding.bottomNavigation.setPadding(0, 0, 0, systemBars.bottom)
+
+            // The bottom nav belongs to the screen edge, not the keyboard: on devices
+            // where the window resizes for the IME (adjustResize pre-edge-to-edge) it
+            // would otherwise float directly above the keyboard while typing in Chat,
+            // so hide it whenever the IME is up.
+            val imeVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
+            binding.bottomNavigation.visibility = if (imeVisible) View.GONE else View.VISIBLE
+
+            // On edge-to-edge devices (API 30+) the window does NOT resize for the IME,
+            // which would leave the Chat input hidden behind the keyboard - pad the
+            // content by the keyboard's overlap instead. On devices where the window
+            // already resized, the reported IME inset is 0, so this pads nothing and
+            // there's no double shift.
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            binding.homeContentContainer.setPadding(
+                0, 0, 0, (ime.bottom - systemBars.bottom).coerceAtLeast(0)
+            )
             insets
         }
 
