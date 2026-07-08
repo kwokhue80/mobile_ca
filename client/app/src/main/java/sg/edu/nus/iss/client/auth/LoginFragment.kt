@@ -45,7 +45,6 @@ class LoginFragment : Fragment() {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -67,7 +66,7 @@ class LoginFragment : Fragment() {
                 viewModel.login(email, password)
             }
         }
-        // Define your full string sequence
+        // Signup new account
         val fullText = "Don't have an account? Sign up"
         val spannableString = SpannableString(fullText)
 
