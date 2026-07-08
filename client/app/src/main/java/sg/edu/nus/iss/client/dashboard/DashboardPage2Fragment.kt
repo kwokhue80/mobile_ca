@@ -19,6 +19,7 @@ import sg.edu.nus.iss.client.dashboard.goals.UserGoalsViewModel
 import sg.edu.nus.iss.client.dashboard.goals.model.ActivityGoalType
 import sg.edu.nus.iss.client.databinding.PageDashboard2Binding
 import sg.edu.nus.iss.client.navigation.RouteManager
+import kotlin.math.roundToInt
 
 class DashboardPage2Fragment : Fragment() {
 
@@ -72,19 +73,31 @@ class DashboardPage2Fragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                dashboardViewModel.todaySummary.collect { summary ->
+                combine(dashboardViewModel.todaySummary, userGoalsViewModel.goals) { summary, goals ->
+                    summary to goals
+                }.collect { (summary, goals) ->
                     binding.tvMentalHealth.text = summary?.moodScore?.let {
                         MentalHealthDetailViewModel.moodCategory(it.toDouble())
                     } ?: "--"
 
                     val calories = summary?.totalCaloriesIntake ?: 0
-                    binding.tvFoodIntake.text = "$calories kcal"
-                    binding.progressFoodIntake.progress =
-                        calories.coerceIn(0, binding.progressFoodIntake.max)
+                    val goal = (goals[ActivityGoalType.FOOD_INTAKE]
+                        ?: ActivityGoalType.FOOD_INTAKE.defaultValue)
+                        .takeIf { it > 0.0 }
+                        ?: ActivityGoalType.FOOD_INTAKE.defaultValue
+                    val goalInt = goal.roundToInt().coerceAtLeast(1)
+                    val percentage = ((calories / goal) * 100).roundToInt().coerceAtLeast(0)
+
+                    binding.tvFoodIntake.text = "${formatWhole(calories)} / ${formatWhole(goalInt)} kcal"
+                    binding.tvFoodIntakeStatus.text = "$percentage% of daily target"
+                    binding.progressFoodIntake.max = goalInt
+                    binding.progressFoodIntake.progress = calories.coerceIn(0, goalInt)
                 }
             }
         }
     }
+
+    private fun formatWhole(value: Int): String = "%,d".format(value)
 
     override fun onResume() {
         super.onResume()
