@@ -1,16 +1,4 @@
-from datetime import datetime
-import os
-import logging
-from typing import Any
-
-from mcp.server.fastmcp import FastMCP
-try:
-    from .spring_boot_client import call_spring_boot, post_spring_boot
-except ImportError:
-    from spring_boot_client import call_spring_boot, post_spring_boot
-from ddgs import DDGS
-
-## ----------------------------------------------------------------- ##
+# ================================================================= #
 #   AUTHOR(S): Kwok Heng, Amelia, Chai Lee
 #   PURPOSE: Configure MCP server used by the wellness agent
 #
@@ -26,11 +14,13 @@ from ddgs import DDGS
 #   2) Read tools via Spring Boot:
 #      - get_daily_summary
 #      - get_exercise_history
-#      - get_latest_recommendation
+#      - get_latest_recommendation (detailed, human-readable)
+#      - get_personalized_recommendation (short, single-line notification payload)
 #   3) Recommendation fallback logic:
 #      - use summary + goals first
 #      - if no goals, use profile-based wellness web search
 #      - if upstream calls fail, return safe general guidance
+#      - shared helper flow for goals/profile search inputs to avoid duplicate logic
 #   4) Logging tool (log_wellness_entry):
 #      - validate payload
 #      - build one backend record payload
@@ -40,7 +30,18 @@ from ddgs import DDGS
 #   Boundary:
 #   - this file = tool behavior and validation rules
 #   - agent file = conversation flow and turn-by-turn orchestration
-## ----------------------------------------------------------------- ##
+# ================================================================= #
+from datetime import datetime
+import os
+import logging
+from typing import Any
+
+from mcp.server.fastmcp import FastMCP
+try:
+    from .spring_boot_client import call_spring_boot, post_spring_boot
+except ImportError:
+    from spring_boot_client import call_spring_boot, post_spring_boot
+from ddgs import DDGS
 
 logging.basicConfig(
     level=getattr(logging, os.getenv("LOG_LEVEL", "INFO").upper(), logging.INFO),
@@ -400,6 +401,124 @@ def _normalized_enum(value: str) -> str:
     return value.strip().upper().replace("-", "_").replace(" ", "_")
 
 
+# Helper: get primary category for personalised recommendation
+def _extract_primary_category(goals: list[dict[str, Any]]) -> str:
+    if not goals:
+        return "general_wellness"
+
+    goal_types = [
+        _normalize_goal_type(str(g.get("goalType") or g.get("goal_type") or ""))
+        for g in goals
+    ]
+
+    priority_order = ["HYDRATION", "EXERCISE", "SLEEP", "WEIGHT", "CALORIES", "FOOD_INTAKE"]
+
+    for priority in priority_order:
+        if priority in goal_types:
+            return priority.lower()
+
+    return goal_types[0].lower() if goal_types else "general_wellness"
+
+
+def _build_short_notification_message(goals: list[dict[str, Any]], summary: dict[str, Any]) -> str:
+    """Generate a short, single-line message suitable for mobile notifications."""
+    if not goals:
+        return "Keep up with your wellness habits today."
+
+    goal = goals[0]  # Focus on the first/primary goal for notifications
+    goal_type = _normalize_goal_type(str(goal.get("goalType") or goal.get("goal_type") or ""))
+
+    if goal_type in {"HYDRATION", "WATER_ML"}:
+        actual = _summary_number(summary, "totalWaterMl", "total_water_ml")
+        target = goal.get("targetValue") or goal.get("target_value")
+        if target:
+            return f"You're at {int(actual)}ml water today. Aim for {int(target)}ml."
+        return f"Stay hydrated — you've logged {int(actual)}ml today."
+
+    if goal_type in {"EXERCISE", "EXERCISE_DAYS"}:
+        minutes = _summary_number(summary, "totalExerciseMinutes", "total_exercise_minutes")
+        return f"Great job moving {int(minutes)} minutes today. Keep the streak going!"
+
+    if goal_type in {"SLEEP", "SLEEP_MINUTES"}:
+        return "Prioritize good sleep tonight for better recovery."
+
+    return "Keep logging your habits for better insights."
+
+
+def _build_profile_notification_message(
+    profile: dict[str, Any],
+    summary: dict[str, Any],
+    snippets: list[str],
+) -> str:
+    """Generate a short, single-line profile fallback message for notifications."""
+    _ = profile
+
+    # Prefer practical snippet text when available.
+    if snippets:
+        first = snippets[0].strip()
+        if first.startswith("- "):
+            first = first[2:].strip()
+        if ":" in first:
+            _, body = first.split(":", 1)
+            body = body.strip()
+            if body:
+                return " ".join(body.split())
+        if first:
+            return " ".join(first.split())
+
+    water_ml = int(round(_summary_number(summary, "totalWaterMl", "total_water_ml")))
+    exercise_minutes = int(round(_summary_number(summary, "totalExerciseMinutes", "total_exercise_minutes")))
+    if water_ml > 0 or exercise_minutes > 0:
+        return f"Today: {water_ml}ml water and {exercise_minutes} minutes of exercise logged."
+
+    return "Drink water, move a bit, and get some rest today."
+
+
+def _normalized_summary(summary: Any) -> dict[str, Any]:
+    if isinstance(summary, dict):
+        return summary
+    return {}
+
+
+async def _fetch_raw_goals_for_recommendation(log_context: str) -> list[dict[str, Any]]:
+    try:
+        goals = await call_spring_boot("/api/user/goals/raw")
+        if isinstance(goals, list):
+            return goals
+    except Exception:
+        logger.exception("%s", log_context)
+    return []
+
+
+def _wellness_broad_search_query() -> str:
+    return "wellness nutrition recommendations daily hydration sleep exercise balanced diet"
+
+
+async def _fetch_profile_search_inputs(
+    log_context: str,
+) -> tuple[dict[str, Any], str, list[str]] | None:
+    try:
+        profile = await call_spring_boot("/api/user/profile")
+        if not isinstance(profile, dict):
+            profile = {}
+
+        search_query = _profile_search_query(profile)
+        with DDGS() as search_engine:
+            results = search_engine.text(search_query, max_results=3)
+
+        snippets = _to_web_snippets(results)
+        if not snippets:
+            with DDGS() as search_engine:
+                broad_results = search_engine.text(_wellness_broad_search_query(), max_results=3)
+            snippets = _to_web_snippets(broad_results)
+
+        return profile, search_query, snippets
+    except Exception:
+        logger.exception("%s", log_context)
+        return None
+
+
+# for getting exercise history (just this log for now)
 @mcp.tool()
 async def get_exercise_history(days: int = 7):
     """Fetches the current user's exercise history from the backend.
@@ -408,6 +527,7 @@ async def get_exercise_history(days: int = 7):
     return await call_spring_boot(f"/api/wellness/exercise-logs?days={days}")
 
 
+# For getting daily summary
 @mcp.tool()
 async def get_daily_summary():
     """Fetches today's wellness summary for the current user."""
@@ -415,6 +535,7 @@ async def get_daily_summary():
     return await call_spring_boot("/api/wellness/daily-summary")
 
 
+# For latest recommendations in human readable text
 @mcp.tool()
 async def get_latest_recommendation():
     """Fetches the latest wellness recommendation for the current user."""
@@ -463,6 +584,60 @@ async def get_latest_recommendation():
     return _general_recommendation_text()
 
 
+# For ONE recommendatio, in JSON format to pass to frontend via poller
+@mcp.tool()
+async def get_personalized_recommendation() -> dict:
+    logger.info("Tool called: get_personalized_recommendation")
+
+    summary = {}
+    try:
+        raw_summary = await call_spring_boot("/api/wellness/daily-summary")
+        summary = _normalized_summary(raw_summary)
+    except Exception:
+        logger.exception("Failed to fetch daily summary")
+
+    goals = await _fetch_raw_goals_for_recommendation("Failed to fetch goals")
+
+    if goals:
+        # Generate a short, single-line message for notifications
+        short_message = _build_short_notification_message(goals, summary)
+        return {
+            "type": "goal_based",
+            "title": "Wellness Update",
+            "message": short_message,                    # Already short & single-line
+            "category": _extract_primary_category(goals),
+            "priority": "medium",
+            "actionable": True,
+            "generated_at": datetime.now().isoformat()
+        }
+
+    # Profile-based fallback (also make it short)
+    profile_inputs = await _fetch_profile_search_inputs("Profile fallback failed")
+    if profile_inputs:
+        profile, _search_query, snippets = profile_inputs
+        short_message = _build_profile_notification_message(profile, summary, snippets)
+        return {
+            "type": "profile_based",
+            "title": "Daily Tip",
+            "message": short_message,
+            "category": "general_wellness",
+            "priority": "low",
+            "actionable": True,
+            "generated_at": datetime.now().isoformat()
+        }
+
+    return {
+        "type": "general",
+        "title": "Wellness Reminder",
+        "message": "Drink water, move a bit, and get some rest today.",
+        "category": "general_wellness",
+        "priority": "low",
+        "actionable": False,
+        "generated_at": datetime.now().isoformat()
+    }
+
+
+# For logging wellness entry
 @mcp.tool()
 async def log_wellness_entry(
     record_date: str | None = None,
@@ -590,10 +765,12 @@ async def log_wellness_entry(
     }
 
 
+# Web search
 @mcp.tool()
 def web_search(query: str):
-    """Searches the web for information not available in the local
-    database, such as nutrition facts for dishes."""
+    """Searches the web for wellness, nutrition, or health-related information 
+    when the local database does not have the answer (e.g. calories in food, 
+    benefits of certain exercises, general wellness advice)."""
     logger.info("Tool called: web_search query=%s", query)
     with DDGS() as search_engine:
         results = search_engine.text(query, max_results=3)

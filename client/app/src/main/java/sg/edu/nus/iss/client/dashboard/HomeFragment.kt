@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -62,9 +63,11 @@ class HomeFragment : Fragment() {
             // The bottom nav belongs to the screen edge, not the keyboard: on devices
             // where the window resizes for the IME (adjustResize pre-edge-to-edge) it
             // would otherwise float directly above the keyboard while typing in Chat,
-            // so hide it whenever the IME is up.
+            // so hide it whenever the IME is up for non-chat tabs.
             val imeVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
-            binding.bottomNavigation.visibility = if (imeVisible) View.GONE else View.VISIBLE
+            val isChatTab = binding.bottomNavigation.selectedItemId == R.id.nav_chat
+            val shouldHideBottomNav = imeVisible && !isChatTab
+            binding.bottomNavigation.visibility = if (shouldHideBottomNav) View.GONE else View.VISIBLE
 
             // On edge-to-edge devices (API 30+) the window does NOT resize for the IME,
             // which would leave the Chat input hidden behind the keyboard - pad the
@@ -82,6 +85,7 @@ class HomeFragment : Fragment() {
         if (savedInstanceState == null) {
             RouteManager.switchHomeTab(this, RouteManager.HomeTab.MAIN)
         }
+        applySoftInputModeForSelectedTab()
 
         renderNotificationBadge(sessionManager.getUnreadRecommendationCount())
 
@@ -97,10 +101,12 @@ class HomeFragment : Fragment() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_main -> {
+                    applySoftInputModeForSelectedTab(R.id.nav_main)
                     RouteManager.switchHomeTab(this, RouteManager.HomeTab.MAIN)
                     true
                 }
                 R.id.nav_chat -> {
+                    applySoftInputModeForSelectedTab(R.id.nav_chat)
                     RouteManager.switchHomeTab(this, RouteManager.HomeTab.CHAT)
                     true
                 }
@@ -117,8 +123,19 @@ class HomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        applySoftInputModeForSelectedTab()
         // Refresh badge when returning from background or after notification tap.
         renderNotificationBadge(sessionManager.getUnreadRecommendationCount())
+    }
+
+    private fun applySoftInputModeForSelectedTab(selectedItemId: Int = binding.bottomNavigation.selectedItemId) {
+        // Keep bottom nav pinned on Chat; preserve resize behavior elsewhere.
+        val mode = if (selectedItemId == R.id.nav_chat) {
+            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
+        } else {
+            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+        }
+        requireActivity().window.setSoftInputMode(mode)
     }
 
     private fun scheduleBackgroundRecommendationPolling() {
@@ -169,6 +186,7 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         _binding = null
     }
 }
