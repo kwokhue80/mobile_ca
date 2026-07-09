@@ -1,0 +1,15 @@
+// About the JSON files in app/data folder
+
+Author: Soo Kwok Heng
+
+The JSON data in the files for Singaporean, Thai and Vietnamese food were
+generated through AWS PartyRock. According to the generated data,
+Singaporean food nutritional data were culled from the HPB food database and
+cross-referenced with USDA FoodData Central.
+
+There is no source information for Thai and Vietnamese food nutritional
+data other than that it was cross-referenced with USDA FoodData Central.
+
+Health Promotion Board does have a Food Insights Database, but it does not allow for
+mass extraction of Singaporean food nutritional data, so I used AWS PartyRock to get
+the data outputted to JSON format for easy ingestion into the ObjectBox vector db.
