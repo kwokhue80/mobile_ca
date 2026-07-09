@@ -125,6 +125,11 @@ object RouteManager {
     }
 
     // To food summary detail
+    /**
+    * Author(s): Yang Mao Wei
+    * Contribution:
+    * - Added navigation route from dashboard Food Summary card to Food Summary detail screen.
+    */
     fun toFoodSummary(host: Fragment) {
         host.findNavController().navigate(R.id.action_homeFragment_to_foodSummaryFragment)
     }

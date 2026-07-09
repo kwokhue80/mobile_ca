@@ -63,7 +63,11 @@ public class WellnessController {
         List<ExerciseLogResponse> logs = orchestratorService.getExerciseLogs(userPrincipal.getId(), days);
         return ResponseEntity.ok(logs);
     }
-
+    /**
+     * Author(s): Yang Mao Wei
+     * Contribution:
+     * - Added backend endpoint for Food Summary food logs.
+     */
     // Structured meal entries (meal type, food name, calories) for the Food Summary
     // detail screen's Day meal list and Week/Month per-day breakdowns.
     @GetMapping("/food-logs")
