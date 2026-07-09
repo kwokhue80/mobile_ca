@@ -1,5 +1,6 @@
 -- =====================================================
 -- Test Seed Data For MobileCA Server
+-- Authors: AI-generated data
 -- Purpose: provide realistic records for auth, chat, logs, activity, and dashboard flows.
 -- =====================================================
 

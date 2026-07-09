@@ -1,3 +1,4 @@
+// Author: Amelia Wong
 package sg.edu.nus.iss.client.dashboard
 
 import android.app.NotificationChannel
@@ -38,7 +39,7 @@ class RecommendationPollWorker(
 
     override suspend fun doWork(): Result {
         // Use app-context dependencies because worker may run when UI is not active.
-        val sessionManager = SessionManager(applicationContext)
+        val sessionManager = SessionManager.getInstance(applicationContext)
         val backendRepository = buildBackendRepository(sessionManager)
         val forceNotifyOnFirstFetch = inputData.getBoolean(KEY_FORCE_NOTIFY_ON_FIRST_FETCH, false)
         val hadExistingSignature = !sessionManager.getRecommendationSignature().isNullOrBlank()

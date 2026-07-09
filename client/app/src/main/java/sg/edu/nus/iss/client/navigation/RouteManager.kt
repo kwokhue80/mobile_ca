@@ -1,3 +1,4 @@
+// Author: Amelia Wong
 package sg.edu.nus.iss.client.navigation
 
 import android.os.Bundle
@@ -125,6 +126,11 @@ object RouteManager {
     }
 
     // To food summary detail
+    /**
+    * Author(s): Yang Mao Wei
+    * Contribution:
+    * - Added navigation route from dashboard Food Summary card to Food Summary detail screen.
+    */
     fun toFoodSummary(host: Fragment) {
         host.findNavController().navigate(R.id.action_homeFragment_to_foodSummaryFragment)
     }
@@ -141,7 +147,7 @@ object RouteManager {
 
     // To recommendation history
     fun toRecommendationHistory(host: Fragment) {
-        host.findNavController().navigate(R.id.action_homeFragment_to_recommendationHistoryFragment)
+        host.findNavController().navigate(R.id.action_global_recommendationHistoryFragment)
     }
 
     // To edit profile

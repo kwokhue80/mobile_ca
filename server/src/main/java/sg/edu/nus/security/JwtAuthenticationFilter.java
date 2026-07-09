@@ -18,7 +18,7 @@ import sg.edu.nus.features.user.account.User;
 import sg.edu.nus.features.user.account.UserService;
 
 /*
-*   AUTHOR: Amelia
+*   AUTHOR: Amelia, Khairulanwar
 *   PURPOSE: JWT filters
 */
 @Component

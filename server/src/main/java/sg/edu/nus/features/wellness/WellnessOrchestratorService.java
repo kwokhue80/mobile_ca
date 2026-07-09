@@ -47,6 +47,11 @@ import sg.edu.nus.features.wellness.repository.MoodLogRepository;
 import sg.edu.nus.features.wellness.repository.SleepLogRepository;
 import sg.edu.nus.features.wellness.repository.WeightLogRepository;
 
+/*
+*   AUTHOR: Maowei Yang / Khairulanwar / Amelia Wong / Huayuan Xie
+*   PURPOSE: Service layer for orchestrating wellness-related operations, handling the business logic for processing various wellness records and updating the corresponding summaries.
+*/
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -349,7 +354,12 @@ public class WellnessOrchestratorService {
                 .build())
             .toList();
     }
-
+    /**
+     * Author(s): Yang Mao Wei
+     * Contribution:
+     * - Added service logic for returning structured food logs.
+     * - Mapped FoodLog entity into FoodLogResponse for frontend display.
+     */
     // Returns structured meal entries (meal type, food name, calories) over a given
     // number of past days. Backs the Food Summary detail screen's Day meal list and
     // the per-day breakdown shown under its Week/Month charts.

@@ -1,6 +1,7 @@
 package sg.edu.nus.iss.client
 
 // Author: Soo Kwok Heng with significant guidance from Claude
+// Author: Amelia for incorporating local vs backend chatbot routing
 import android.app.Application
 import android.util.Log
 import io.objectbox.BoxStore
@@ -31,6 +32,8 @@ class RagApplication : Application() {
         private set
     lateinit var chatHistoryRepository: ChatHistoryRepository
         private set
+    lateinit var sessionManager: SessionManager
+        private set
 
     override fun onCreate() {
         super.onCreate()
@@ -47,15 +50,15 @@ class RagApplication : Application() {
 
         val dishRepository = DishRepository(boxStore)
         chatHistoryRepository = ChatHistoryRepository(boxStore)
+        sessionManager = SessionManager.getInstance(applicationContext)
 
         // Temporary line for clearing stored chat history during testing.
         // Comment out this line to disable it where necessary
 //        chatHistoryRepository.clearAllMessages()
 
-        val sessionManager = SessionManager(applicationContext)
         val backendHttpClient = OkHttpClient.Builder()
             // Adds Authorization header from SessionManager to every backend call,
-            .addInterceptor(AuthInterceptor(sessionManager))
+            .addInterceptor(AuthInterceptor(this.sessionManager))
             // Chat responses can involve tool calls and web search, so give bridge calls
             // more time before failing over to local fallback
             .connectTimeout(20, TimeUnit.SECONDS)

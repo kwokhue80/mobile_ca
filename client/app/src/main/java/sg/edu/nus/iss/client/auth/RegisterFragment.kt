@@ -1,3 +1,6 @@
+// ======================================================================== //
+//  AUTHORS: Amelia
+// ======================================================================== //
 package sg.edu.nus.iss.client.auth
 
 import android.os.Bundle
@@ -12,6 +15,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
+import sg.edu.nus.iss.client.dashboard.DashboardViewModel
+import sg.edu.nus.iss.client.dashboard.goals.UserGoalsViewModel
 import sg.edu.nus.iss.client.databinding.FragmentRegisterBinding
 import sg.edu.nus.iss.client.navigation.RouteManager
 import sg.edu.nus.iss.client.network.AuthApiService
@@ -38,7 +43,7 @@ class RegisterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        sessionManager = SessionManager(requireContext())
+        sessionManager = SessionManager.getInstance(requireContext())
         authApiService = RetrofitClient.getApiService(requireContext())
 
         val factory = RegisterViewModelFactory(authApiService)
@@ -84,7 +89,7 @@ class RegisterFragment : Fragment() {
                             sessionManager.saveEncryptedAuthToken(state.token, null)
                             Toast.makeText(requireContext(), "Registration successful", Toast.LENGTH_SHORT).show()
                             viewModel.resetState()
-                            RouteManager.toHomeFromRegister(this@RegisterFragment)
+                            navigateToHome()
                         }
                         is RegisterUiState.Error -> {
                             applyInlineErrors(state.fieldErrors)
@@ -111,6 +116,16 @@ class RegisterFragment : Fragment() {
         fieldErrors["emailAddress"]?.let { binding.etRegisterEmailAddress.error = it }
         fieldErrors["password"]?.let { binding.etRegisterPassword.error = it }
         fieldErrors["confirmPassword"]?.let { binding.etRegisterConfirmPassword.error = it }
+    }
+
+    private fun navigateToHome() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            // Force a fresh fetch of Activity-scoped ViewModels to ensure a new user
+            // starts with a clean slate instead of seeing the previous user's cached data.
+            ViewModelProvider(requireActivity())[DashboardViewModel::class.java].refreshToday()
+            ViewModelProvider(requireActivity())[UserGoalsViewModel::class.java].loadGoals()
+            RouteManager.toHomeFromRegister(this@RegisterFragment)
+        }
     }
 
     override fun onDestroyView() {

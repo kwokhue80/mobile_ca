@@ -1,3 +1,5 @@
+-- Authors: Amelia Wong, Khairulanwar, Huayuan Xie
+
 -- 1. Drop Tables In Reverse Order of Dependencies
 DROP TABLE IF EXISTS daily_wellness_summary;
 DROP TABLE IF EXISTS activity_records;

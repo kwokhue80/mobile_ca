@@ -1,3 +1,6 @@
+// ======================================================================== //
+//  AUTHORS: Khai, Amelia
+// ======================================================================== //
 package sg.edu.nus.iss.client.auth
 
 import android.graphics.Color
@@ -48,9 +51,24 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        sessionManager = SessionManager(requireContext())
+        sessionManager = SessionManager.getInstance(requireContext())
         biometricHelper = BiometricHelper(this)
         authApiService = RetrofitClient.getApiService(requireContext())
+
+        // Check for persistent session on startup
+        if (sessionManager.isSessionValid()) {
+            if (sessionManager.isBiometricEnabled()) {
+                // If biometrics enabled, try that immediately
+                checkBiometricSupportAndAuthenticate()
+            } else {
+                // Standard session: attempt to recover token from disk
+                val token = runCatching { sessionManager.getDecryptedTokenFromMemory() }.getOrNull()
+                if (token != null) {
+                    navigateToMainActivity()
+                    return
+                }
+            }
+        }
 
         val factory = LoginViewModelFactory(authApiService)
         viewModel = ViewModelProvider(this, factory)[LoginViewModel::class.java]
@@ -79,9 +97,9 @@ class LoginFragment : Fragment() {
                            }
             override fun updateDrawState(ds: TextPaint) {
                 super.updateDrawState(ds)
-                ds.color = Color.parseColor("#00E5FF") // Keeps your custom cyan color
+                ds.color = Color.parseColor("#00E5FF") // Keeps custom cyan color
                 ds.isFakeBoldText = true              // Keeps it bold
-                ds.isUnderlineText = false            // Set to true if you want a classic underline link look!
+                ds.isUnderlineText = false            
             }
         }
         spannableString.setSpan(
@@ -137,9 +155,6 @@ class LoginFragment : Fragment() {
                     }
                 }
             }
-        }
-        if (sessionManager.isBiometricEnabled()) {
-            checkBiometricSupportAndAuthenticate()
         }
     }
 

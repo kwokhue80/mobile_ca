@@ -1,3 +1,4 @@
+// Author: Khairulanwar
 package sg.edu.nus.iss.client.network
 
 import android.content.Context
@@ -15,7 +16,7 @@ object RetrofitClient {
 
     fun getApiService(context: Context): AuthApiService {
         return apiService ?: synchronized(this) {
-            val sessionManager = SessionManager(context.applicationContext)
+            val sessionManager = SessionManager.getInstance(context.applicationContext)
             val authInterceptor = AuthInterceptor(sessionManager)
 
             val client = OkHttpClient.Builder()

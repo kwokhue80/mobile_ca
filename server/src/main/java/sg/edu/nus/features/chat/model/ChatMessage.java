@@ -1,3 +1,4 @@
+// Author: Amelia
 package sg.edu.nus.features.chat.model;
 
 import java.util.ArrayList;

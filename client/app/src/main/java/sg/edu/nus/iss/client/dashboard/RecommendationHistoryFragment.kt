@@ -1,3 +1,4 @@
+// Author: Amelia Wong
 package sg.edu.nus.iss.client.dashboard
 
 import android.view.LayoutInflater
@@ -36,7 +37,7 @@ class RecommendationHistoryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Initialize session-backed recommendation cache access
-        sessionManager = SessionManager(requireContext())
+        sessionManager = SessionManager.getInstance(requireContext())
 
         // Opening history marks recommendation notifications as viewed
         sessionManager.clearUnreadRecommendationCount()

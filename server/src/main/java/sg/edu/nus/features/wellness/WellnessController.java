@@ -28,6 +28,11 @@ import sg.edu.nus.features.wellness.dto.HourlyWellnessResponse;
 import sg.edu.nus.features.wellness.model.DailyWellnessSummary;
 import org.springframework.web.bind.annotation.RequestParam;
 
+/*
+*   AUTHOR: Maowei Yang / Khairulanwar / Amelia Wong / Huayuan Xie
+*   PURPOSE: Controller for the Wellness feature, providing endpoints to save wellness records and fetch daily wellness summaries.
+*/
+
 @Slf4j
 @RestController
 @RequestMapping("/api/wellness")
@@ -63,7 +68,11 @@ public class WellnessController {
         List<ExerciseLogResponse> logs = orchestratorService.getExerciseLogs(userPrincipal.getId(), days);
         return ResponseEntity.ok(logs);
     }
-
+    /**
+     * Author(s): Yang Mao Wei
+     * Contribution:
+     * - Added backend endpoint for Food Summary food logs.
+     */
     // Structured meal entries (meal type, food name, calories) for the Food Summary
     // detail screen's Day meal list and Week/Month per-day breakdowns.
     @GetMapping("/food-logs")

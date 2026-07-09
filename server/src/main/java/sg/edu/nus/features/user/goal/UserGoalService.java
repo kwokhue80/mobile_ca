@@ -1,3 +1,4 @@
+// AUTHOR: Amelia
 package sg.edu.nus.features.user.goal;
 
 import java.math.BigDecimal;
@@ -114,6 +115,12 @@ public class UserGoalService {
             case "WATER_ML", "HYDRATION" -> "ml per day";
             case "SLEEP_MINUTES" -> "minutes per day";
             case "SLEEP" -> "hours per day";
+            /**
+             * Author(s): Mao Wei
+             * Contribution:
+             * - Added Food Intake unit mapping for raw goal responses.
+             * - Returned kcal per day for Food Intake goal type.
+             */
             case "CALORIES_BURNED", "CALORIES", "FOOD_INTAKE" -> "kcal per day";
             case "EXERCISE_DAYS" -> "days per week";
             case "WEIGHT" -> "kg";

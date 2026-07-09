@@ -1,3 +1,4 @@
+// AUTHOR: Amelia Wong
 package sg.edu.nus.features.wellness.model.enums;
 
 public enum ActivityType {

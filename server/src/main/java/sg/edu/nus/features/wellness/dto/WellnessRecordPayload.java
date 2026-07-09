@@ -4,6 +4,11 @@ import java.time.LocalDateTime;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+/*
+*   AUTHOR: Maowei Yang / Khairulanwar
+*   PURPOSE: DTO for the wellness record payload, containing the data for a single wellness record.
+*/
+
 @Data
 public class WellnessRecordPayload {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")

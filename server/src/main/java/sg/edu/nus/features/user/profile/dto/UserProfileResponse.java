@@ -1,4 +1,4 @@
-// Author: HuaYuan Xie
+// Author: HuaYuan Xie, Amelia
 package sg.edu.nus.features.user.profile.dto;
 
 import java.math.BigDecimal;
@@ -11,10 +11,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/*
-*   PURPOSE: Response DTO for GET /api/user-profile. Profile fields are null
-*   when the user has not completed their profile yet (no UserProfile row).
-*/
 @Getter
 @Setter
 @Builder
