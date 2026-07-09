@@ -1,3 +1,4 @@
+// Author: HuaYuan Xie
 package sg.edu.nus.iss.client.dashboard.goals
 
 import android.app.Application
