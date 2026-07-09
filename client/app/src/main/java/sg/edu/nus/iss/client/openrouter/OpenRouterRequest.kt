@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client.openrouter
 
+// Author: Soo Kwok Heng
 data class OpenRouterMessage(
     val role: String,
     val content: String

@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.rag
 
+// Author: Soo Kwok Heng
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.Serializable
 

@@ -1,5 +1,5 @@
 package sg.edu.nus.iss.client.chatbot
-//
+// Author: Yeo Chai Lee
 //import android.os.Bundle
 //import androidx.activity.viewModels
 //import androidx.appcompat.app.AppCompatActivity

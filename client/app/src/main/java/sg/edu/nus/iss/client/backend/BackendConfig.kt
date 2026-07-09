@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client.backend
 
+// Authors: Amelia Wong, Soo Kwok Heng
 import sg.edu.nus.iss.client.BuildConfig
 
 object BackendConfig {
