@@ -1,12 +1,11 @@
+# ================================================================= #
+#   AUTHOR(S): Kwok Heng
+#   PURPOSE: Configure JWT token
+# ================================================================= #
 """Request-local JWT token context for FastAPI -> MCP tool calls."""
 
 from contextvars import ContextVar
 from typing import Optional
-
-## ----------------------------------------------------------------- ##
-#   AUTHOR(S): Kwok Heng
-#   PURPOSE: Configure JWT token
-## ----------------------------------------------------------------- ##
 
 _current_jwt_token: ContextVar[Optional[str]] = ContextVar("current_jwt_token", default=None)
 

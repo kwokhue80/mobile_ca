@@ -1,3 +1,7 @@
+# ================================================================= #
+#   AUTHOR(S): Amelia
+#   PURPOSE: In memory tracking of chat
+# ================================================================= #
 import time
 from collections import OrderedDict
 from typing import Optional

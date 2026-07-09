@@ -1,15 +1,15 @@
+# ================================================================= #
+#   AUTHOR(S): Kwok Heng, Chai Lee
+#   PURPOSE: Set up client to connect to spring boot backend
+# ================================================================= #
+import os
 import httpx
 try:
     from .jwt_context import get_current_token
 except ImportError:
     from jwt_context import get_current_token
-    
-## ----------------------------------------------------------------- ##
-#   AUTHOR(S): Kwok Heng, Chai Lee
-#   PURPOSE: Set up client to connect to spring boot backend
-## ----------------------------------------------------------------- ##
 
-SPRING_BOOT_BASE_URL = "http://localhost:8000"
+SPRING_BOOT_BASE_URL = os.getenv("SPRING_BOOT_BASE_URL", "http://localhost:8000").rstrip("/")
 
 def _build_headers():
     token = get_current_token()
