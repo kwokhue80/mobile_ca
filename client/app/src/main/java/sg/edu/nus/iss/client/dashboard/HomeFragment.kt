@@ -164,13 +164,18 @@ class HomeFragment : Fragment() {
 
         val workManager = WorkManager.getInstance(requireContext().applicationContext)
 
-        // Force an immediate fetch on startup/tab visit if not already enqueued.
-        // We use KEEP to avoid spamming multiple identical workers.
-        workManager.enqueueUniqueWork(
-            RecommendationPollWorker.INIT_WORK_NAME,
-            ExistingWorkPolicy.KEEP,
-            initialRequest
-        )
+        // Force an immediate fetch on startup if not checked recently.
+        // This prevents spamming the user when they navigate in/out of the notification inbox.
+        val lastFetch = sessionManager.getLastRecommendationFetchTime()
+        val fifteenMinutesMillis = TimeUnit.MINUTES.toMillis(15)
+        
+        if (System.currentTimeMillis() - lastFetch > fifteenMinutesMillis) {
+            workManager.enqueueUniqueWork(
+                RecommendationPollWorker.INIT_WORK_NAME,
+                ExistingWorkPolicy.KEEP,
+                initialRequest
+            )
+        }
 
         // Keep a single unique periodic worker across app launches.
         workManager
