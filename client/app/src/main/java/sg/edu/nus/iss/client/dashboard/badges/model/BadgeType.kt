@@ -1,3 +1,4 @@
+// Author: HuaYuan Xie
 package sg.edu.nus.iss.client.dashboard.badges.model
 
 import androidx.annotation.DrawableRes
