@@ -1,5 +1,7 @@
 package sg.edu.nus.iss.client.chatbot
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import sg.edu.nus.iss.client.backend.BackendConfig
 import sg.edu.nus.iss.client.backend.BackendRepository
 import sg.edu.nus.iss.client.chathistory.ChatHistoryRepository
@@ -22,15 +24,15 @@ class RagRepository(
         option = RegexOption.IGNORE_CASE
     )
 
-    suspend fun getChatHealthStatus(): Pair<Boolean, String> {
+    suspend fun getChatHealthStatus(): Pair<Boolean, String> = withContext(Dispatchers.IO) {
         if (!BackendConfig.USE_BACKEND) {
-            return true to "Backend mode is off. Chat uses local/OpenRouter flow."
+            return@withContext true to "Backend mode is off. Chat uses local/OpenRouter flow."
         }
 
         // BackendRepository.isHealthy() checks FastAPI /api/tools, which confirms
         // the bridge process is up and can reach MCP tool registrations
         val isHealthy = backendRepository.isHealthy()
-        return if (isHealthy) {
+        if (isHealthy) {
             true to "Chat service is online."
         } else {
             false to "Chat service is unreachable. Start backend + chatbot bridge."
@@ -41,7 +43,7 @@ class RagRepository(
         query: String,
         recentMessages: List<ChatMessage> = emptyList(),
         topK: Int = 3
-    ): String {
+    ): String = withContext(Dispatchers.IO) {
         // The query only needs to be converted into a vector once, since
         // both the dish search and the chat history search rely on it
         val queryVector = embeddingModel.embed(query)
@@ -85,7 +87,7 @@ class RagRepository(
                 android.util.Log.w("RagRepository", "Backend chat failed; falling back to local model", error)
                 if (wantsWellnessLogging) {
                     val reason = error.message?.takeIf { it.isNotBlank() } ?: error.javaClass.simpleName
-                    return "I can't save your wellness log right now. Reason: $reason"
+                    return@withContext "I can't save your wellness log right now. Reason: $reason"
                 }
                 try {
                     val prompt = buildPrompt(query, context, recentMessages, relevantPastMessages)
@@ -117,7 +119,7 @@ class RagRepository(
             }
         }
 
-        return answer
+        return@withContext answer
     }
 
     private fun isWellnessLoggingIntent(query: String): Boolean {

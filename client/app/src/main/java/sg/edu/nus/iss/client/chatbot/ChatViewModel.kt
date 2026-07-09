@@ -64,8 +64,8 @@ class ChatViewModel(
 
     fun clearChatHistory() {
         messages.clear()
-        // if (FeatureFlags.ENABLE_CHAT_HISTORY_PERSISTENCE) {
-        //    chatHistoryRepository.clearAllMessages()
-        // }
+        if (FeatureFlags.ENABLE_CHAT_HISTORY_PERSISTENCE) {
+        chatHistoryRepository.clearAllMessages()
+        }
     }
 }

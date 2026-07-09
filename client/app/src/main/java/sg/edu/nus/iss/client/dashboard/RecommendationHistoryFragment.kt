@@ -116,11 +116,13 @@ class RecommendationHistoryFragment : Fragment() {
                 }.getOrNull() ?: runCatching {
                     java.time.ZonedDateTime.parse(raw).withZoneSameInstant(sgtZone)
                 }.getOrNull() ?: runCatching {
-                    // Try space-separated if T is missing
-                    java.time.LocalDateTime.parse(raw, spaceFormatter).atZone(ZoneId.of("UTC")).withZoneSameInstant(sgtZone)
+                    // If server is SGT, assume the time is already SGT if no offset is present
+                    java.time.LocalDateTime.parse(raw, spaceFormatter).atZone(sgtZone)
                 }.getOrNull() ?: runCatching {
-                    // Fallback for strings missing offset (assuming UTC from server)
-                    java.time.LocalDateTime.parse(raw).atZone(ZoneId.of("UTC")).withZoneSameInstant(sgtZone)
+                    // Fallback for strings missing offset (assuming SGT from server)
+                    java.time.LocalDateTime.parse(raw.replace(" ", "T")).atZone(sgtZone)
+                }.getOrNull() ?: runCatching {
+                    java.time.LocalDateTime.parse(raw).atZone(sgtZone)
                 }.getOrNull()
 
                 return zonedDateTime?.format(outputFormatter)?.let { "$it SGT" } ?: raw
