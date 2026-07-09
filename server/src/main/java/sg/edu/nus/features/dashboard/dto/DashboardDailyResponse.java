@@ -1,4 +1,3 @@
-// Author: HuaYuan Xie
 package sg.edu.nus.features.dashboard.dto;
 
 import java.util.List;
@@ -9,6 +8,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import sg.edu.nus.features.wellness.model.DailyWellnessSummary;
 import sg.edu.nus.features.wellness.model.ActivityRecord;
+
+/*
+*   AUTHOR: HuaYuan Xie / Khairulanwar
+*   PURPOSE: DTO for the daily dashboard response, containing both the wellness summary and the activity records for a specific day.
+*/
 
 @Data
 @Builder

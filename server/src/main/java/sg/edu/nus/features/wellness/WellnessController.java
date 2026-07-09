@@ -28,6 +28,11 @@ import sg.edu.nus.features.wellness.dto.HourlyWellnessResponse;
 import sg.edu.nus.features.wellness.model.DailyWellnessSummary;
 import org.springframework.web.bind.annotation.RequestParam;
 
+/*
+*   AUTHOR: Maowei Yang / Khairulanwar
+*   PURPOSE: Controller for the Wellness feature, providing endpoints to save wellness records and fetch daily wellness summaries.
+*/
+
 @Slf4j
 @RestController
 @RequestMapping("/api/wellness")
