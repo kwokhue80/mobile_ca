@@ -15,8 +15,11 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.work.Constraints
+import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import sg.edu.nus.iss.client.R
@@ -144,13 +147,32 @@ class HomeFragment : Fragment() {
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
+        val initialRequest = OneTimeWorkRequestBuilder<RecommendationPollWorker>()
+            .setConstraints(constraints)
+            .setInputData(
+                Data.Builder()
+                    .putBoolean(RecommendationPollWorker.KEY_FORCE_NOTIFY_ON_FIRST_FETCH, true)
+                    .build()
+            )
+            .build()
+
         // Poll every 3 hours so recommendations are periodic and not tied to each new log entry.
         val periodicRequest = PeriodicWorkRequestBuilder<RecommendationPollWorker>(3, TimeUnit.HOURS)
             .setConstraints(constraints)
             .build()
 
+        val workManager = WorkManager.getInstance(requireContext().applicationContext)
+
+        // Run one fetch immediately so the user does not need to wait for the first periodic window.
+        // Use KEEP policy to prevent redundant fetches every time the HomeFragment is recreated.
+        workManager.enqueueUniqueWork(
+            RecommendationPollWorker.INIT_WORK_NAME,
+            ExistingWorkPolicy.KEEP,
+            initialRequest
+        )
+
         // Keep a single unique periodic worker across app launches.
-        WorkManager.getInstance(requireContext().applicationContext)
+        workManager
             .enqueueUniquePeriodicWork(
                 RecommendationPollWorker.WORK_NAME,
                 ExistingPeriodicWorkPolicy.UPDATE,

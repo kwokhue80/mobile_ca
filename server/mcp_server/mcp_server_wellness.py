@@ -67,6 +67,11 @@ EXERCISE_TYPES = {
 }
 
 
+# ================================================================= #
+#   VALIDATION AND NORMALIZATION HELPERS
+# ================================================================= #
+
+
 def get_missing_required_fields(payload: dict[str, Any]) -> list[str]:
     """Server-side source of truth for required fields by wellness category.
     Agent orchestrators can use this to drive follow-up prompts consistently.
@@ -103,6 +108,11 @@ def _record_date_or_now(record_date: str | None) -> str:
     if record_date:
         return record_date
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+# ================================================================= #
+#   RECOMMENDATION TEXT BUILDERS
+# ================================================================= #
 
 
 def _general_recommendation_text() -> str:
@@ -480,6 +490,11 @@ def _normalized_summary(summary: Any) -> dict[str, Any]:
     return {}
 
 
+# ================================================================= #
+#   RECOMMENDATION DATA FETCH HELPERS
+# ================================================================= #
+
+
 async def _fetch_raw_goals_for_recommendation(log_context: str) -> list[dict[str, Any]]:
     try:
         goals = await call_spring_boot("/api/user/goals/raw")
@@ -518,6 +533,11 @@ async def _fetch_profile_search_inputs(
         return None
 
 
+    # ================================================================= #
+    #   MCP READ TOOLS
+    # ================================================================= #
+
+
 # for getting exercise history (just this log for now)
 @mcp.tool()
 async def get_exercise_history(days: int = 7):
@@ -533,6 +553,11 @@ async def get_daily_summary():
     """Fetches today's wellness summary for the current user."""
     logger.info("Tool called: get_daily_summary")
     return await call_spring_boot("/api/wellness/daily-summary")
+
+
+# ================================================================= #
+#   MCP RECOMMENDATION TOOLS
+# ================================================================= #
 
 
 # For latest recommendations in human readable text
@@ -635,6 +660,11 @@ async def get_personalized_recommendation() -> dict:
         "actionable": False,
         "generated_at": datetime.now().isoformat()
     }
+
+
+# ================================================================= #
+#   MCP LOGGING TOOL
+# ================================================================= #
 
 
 # For logging wellness entry
@@ -763,6 +793,11 @@ async def log_wellness_entry(
         "categoriesLogged": sorted(set(categories_logged)),
         "submittedFields": sorted(k for k in payload.keys() if k != "recordDate"),
     }
+
+
+# ================================================================= #
+#   MCP WEB SEARCH TOOL
+# ================================================================= #
 
 
 # Web search

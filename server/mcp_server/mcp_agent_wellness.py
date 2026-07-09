@@ -84,6 +84,10 @@ except ImportError:
         web_search as direct_web_search,
         get_missing_required_fields,
     )
+try:
+    from .recommendation_service import build_personalized_recommendation_payload
+except ImportError:
+    from recommendation_service import build_personalized_recommendation_payload
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ENV_PATH = os.path.join(BASE_DIR, ".env")
@@ -171,26 +175,32 @@ If tools fail, explain briefly and continue with safe, practical guidance.
   and related food logging or health questions.
 
 **Strict domain rule:**
-- If the user asks about anything outside these topics (such as general knowledge, 
-  technology, politics, entertainment, coding, weather, news, sports results, etc.), 
-  politely respond that you can only assist with wellness and health-related questions.
+- If the user asks about anything outside these topics, politely respond that you can only assist with wellness and health-related questions.
 - Do not attempt to answer off-topic questions, even partially.
 
+**Mobile-friendly response rules:**
+- Keep responses short and easy to read on a phone screen.
+- Most answers should be 1-3 sentences (under 70 words).
+- Use short paragraphs or bullet points when listing items.
+- For web_search results: maximum 3 short sentences (ideally under 15 words each).
+- Be clear, scannable, and encouraging — never overwhelming.
+
 **Tool usage guidelines:**
-- When the user asks about their personal wellness data (summary, history, progress, or recommendations), 
-  first try calling get_latest_recommendation, get_daily_summary, or get_exercise_history.
-- Never say "I don't have access", "I'm unable to retrieve", or "authorization issue" unless a tool actually failed.
-- If get_latest_recommendation fails or returns nothing useful, use the web_search tool.
-- For general wellness or nutrition questions (e.g. calories in food, benefits of exercise, nutrition facts), 
-  prefer using web_search instead of answering from your own knowledge.
-- When using web_search, keep your responses short and concise (maximum 3-5 sentences).
-- For normal responses, be clear and helpful while avoiding unnecessary length.
+- When the user asks about their personal wellness data, first try get_latest_recommendation, get_daily_summary, or get_exercise_history.
+- Never say "I don't have access" unless a tool actually failed.
+- For general wellness or nutrition questions, prefer using web_search.
+- For normal responses, be helpful while avoiding unnecessary length.
 
 **Behavior guidelines:**
 - Stay warm, friendly, and encouraging in all your responses.
-- If the user is trying to log data, do not switch to general coaching — gently direct them to the logging flow.
-- If a value is invalid (e.g. mood rating of 15), kindly explain the valid range and ask for correction.
+- If the user is trying to log data, gently direct them to the logging flow.
+- If a value is invalid, kindly explain the valid range and ask for correction.
 """
+
+
+# ================================================================= #
+#   AGENT RESULT EXTRACTION
+# ================================================================= #
 
 
 # Extract tool calls from the result
@@ -221,6 +231,11 @@ def _extract_tool_calls(result: dict) -> list[str]:
                 tool_calls.append(str(name))
 
     return tool_calls
+
+
+# ================================================================= #
+#   DRAFT STORE HELPERS
+# ================================================================= #
 
 
 # Memory related functions
@@ -254,6 +269,11 @@ def _tool_payload_from_draft_payload(payload: dict[str, Any]) -> dict[str, Any]:
         "exercise_calories_burned_kcal",
     }
     return {k: v for k, v in payload.items() if k in allowed_fields}
+
+
+# ================================================================= #
+#   RESPONSE NORMALIZATION AND TOOL PARSING
+# ================================================================= #
 
 
 # Cleans up raw message from LLM/tools to plain string
@@ -440,6 +460,11 @@ def _extract_named_tool_result(result: dict, tool_name: str) -> Any | None:
     return None
 
 
+# ================================================================= #
+#   RESPONSE FORMATTING AND SAFETY GUARDS
+# ================================================================= #
+
+
 # Formatting result functions
 def _humanize_field_name(name: str) -> str:
     text = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", name)
@@ -541,6 +566,12 @@ def _out_of_scope_response() -> str:
         "I can only help with wellness, nutrition, hydration, sleep, mood, weight, exercise, "
         "and related food logging or health questions. Please ask a wellness-related question."
     )
+
+
+# ================================================================= #
+#   LLM STAGE SETUP AND EXECUTION
+# ================================================================= #
+
 
 # Multi turn functions
 def _has_active_logging_draft() -> bool:
@@ -760,6 +791,11 @@ async def _run_llm_stage(state: WorkflowState) -> str:
     return final_answer
 
 
+# ================================================================= #
+#   LOGGING PARSERS AND FIELD EXTRACTION
+# ================================================================= #
+
+
 # Extract methods for logging
 def _extract_water_ml(text: str) -> int | None:
     ml_match = re.search(r"(\d+(?:\.\d+)?)\s*(?:ml|millilit(?:er|re)s?)\b", text, re.IGNORECASE)
@@ -916,6 +952,11 @@ def _draft_primary_context(draft: LoggingDraft) -> str | None:
     return None
 
 
+# ================================================================= #
+#   LOGGING PROMPTS, CONTEXT, AND VALIDATION
+# ================================================================= #
+
+
 # Set prompts for missing fields BEFORE logging
 def _missing_field_prompt(missing_field: str) -> str:
     prompts = {
@@ -1018,6 +1059,11 @@ def _payload_with_only_context(payload: dict[str, Any], context: str) -> dict[st
             base[key] = payload[key]
 
     return base
+
+
+# ================================================================= #
+#   DETERMINISTIC LOGGING ORCHESTRATION
+# ================================================================= #
 
 
 # Deterministic log handler
@@ -1518,6 +1564,11 @@ async def _handle_logging_orchestration(request: ChatRequest, request_id: str) -
         return "I ran into an issue while saving that entry. Please try again in a moment."
 
 
+    # ================================================================= #
+    #   REQUEST ROUTING AND API ENDPOINTS
+    # ================================================================= #
+
+
 # Execute workflow on ask agent
 async def ask_agent(request: ChatRequest, request_id: str) -> str:
     _cleanup_expired_drafts()
@@ -1564,6 +1615,43 @@ async def list_available_tools():
     except Exception as error:
         logger.exception("/api/tools failed")
         raise HTTPException(status_code=500, detail=str(error))
+
+
+@app.get("/api/recommendations")
+async def personalized_recommendation_endpoint(authorization: str = Header(None)):
+    """Dedicated polling endpoint for agentic recommendation payloads.
+    Kept separate from /api/chat so recommendation logic does not affect chatbot flow.
+    """
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing Authorization header")
+
+    request_id = uuid.uuid4().hex[:8]
+    logger.info("[%s] /api/recommendations request received", request_id)
+
+    try:
+        set_current_token(authorization)
+
+        payload = await build_personalized_recommendation_payload(
+            request_id=request_id,
+            llm=_create_llm_model(),
+            fetch_summary=direct_get_daily_summary,
+            fetch_exercise_history=direct_get_exercise_history,
+            fetch_latest_recommendation=direct_get_latest_recommendation,
+        )
+
+        logger.info("[%s] /api/recommendations/personalized completed successfully", request_id)
+        return payload
+    except OpenAIAuthenticationError:
+        logger.exception("[%s] OpenRouter authentication failed for recommendation endpoint", request_id)
+        raise HTTPException(
+            status_code=502,
+            detail="OpenRouter authentication failed. Check OPENROUTER_API_KEY in server/mcp_server/.env",
+        )
+    except Exception as error:
+        logger.exception("[%s] /api/recommendations/personalized failed", request_id)
+        raise HTTPException(status_code=500, detail=f"[{request_id}] Recommendation generation failed: {str(error)}")
+    finally:
+        clear_current_token()
 
 
 # Main endpoint

@@ -33,6 +33,16 @@ android {
             "OPENROUTER_API_KEY",
             "\"${localProperties.getProperty("OPENROUTER_API_KEY", "")}\""
         )
+        buildConfigField(
+            "String",
+            "SPRING_BASE_URL",
+            "\"${localProperties.getProperty("SPRING_BASE_URL", "http://10.0.2.2:8000/")}\""
+        )
+        buildConfigField(
+            "String",
+            "WELLNESS_AGENT_BASE_URL",
+            "\"${localProperties.getProperty("WELLNESS_AGENT_BASE_URL", "http://10.0.2.2:8001/")}\""
+        )
 
     }
 
