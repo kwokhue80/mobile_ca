@@ -244,30 +244,49 @@ class SessionManager(context: Context) {
     }
 
     fun upsertRecommendationAndDetectNew(recommendationText: String, generatedAt: String): Boolean {
-        // Build stable signature from server timestamp and message.
-        val text = recommendationText.trim()
-        val signature = "$generatedAt|$text"
-        val previousSignature = getRecommendationSignature()
+        synchronized(SessionManager::class.java) {
+            // Build stable signature from server timestamp and message.
+            val text = recommendationText.trim()
+            val signature = "$generatedAt|$text"
+            val previousSignature = getRecommendationSignature()
+            val previousText = getLatestRecommendationText()
 
-        if (previousSignature.isNullOrBlank()) {
-            // First payload initializes cache without triggering unread state.
+            if (previousSignature.isNullOrBlank()) {
+                // First payload initializes cache. 
+                // Return true if history is empty so the user sees their first ever recommendation.
+                val historyEmpty = getRecommendationHistory().isEmpty()
+                setRecommendationSignature(signature)
+                setLatestRecommendation(text, generatedAt)
+                prependRecommendationHistory(text, generatedAt)
+                if (historyEmpty) {
+                    incrementUnreadRecommendationCount()
+                    return true
+                }
+                return false
+            }
+
+            // If the signature is identical, it's definitely not new.
+            if (signature == previousSignature) {
+                return false
+            }
+
+            // If the text is identical to the last one, even if the timestamp is different,
+            // we update the timestamp in our cache but don't treat it as a "new" unread event
+            // to avoid spamming the user with the same message.
+            if (text == previousText) {
+                setRecommendationSignature(signature)
+                setLatestRecommendation(text, generatedAt)
+                // We don't prepend to history or increment unread count if text is same.
+                return false
+            }
+
+            // New payload (different text) updates cache and increments unread counter.
             setRecommendationSignature(signature)
             setLatestRecommendation(text, generatedAt)
             prependRecommendationHistory(text, generatedAt)
-            return false
+            incrementUnreadRecommendationCount()
+            return true
         }
-
-        if (signature == previousSignature) {
-            // Same payload means no new recommendation.
-            return false
-        }
-
-        // New payload updates cache and increments unread counter.
-        setRecommendationSignature(signature)
-        setLatestRecommendation(text, generatedAt)
-        prependRecommendationHistory(text, generatedAt)
-        incrementUnreadRecommendationCount()
-        return true
     }
 
     fun getRecommendationHistory(): List<RecommendationHistoryEntry> {

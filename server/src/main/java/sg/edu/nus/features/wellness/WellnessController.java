@@ -26,7 +26,6 @@ import sg.edu.nus.features.wellness.dto.ExerciseLogResponse;
 import sg.edu.nus.features.wellness.dto.FoodLogResponse;
 import sg.edu.nus.features.wellness.dto.HourlyWellnessResponse;
 import sg.edu.nus.features.wellness.model.DailyWellnessSummary;
-import sg.edu.nus.features.wellness.dto.RecommendationResponse;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
@@ -110,13 +109,6 @@ public class WellnessController {
     public ResponseEntity<Void> resetToday(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         orchestratorService.resetToday(userPrincipal.getId());
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/recommendations")
-    public ResponseEntity<RecommendationResponse> getLatestRecommendation(
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        RecommendationResponse recommendation = orchestratorService.getLatestRecommendation(userPrincipal.getId());
-        return ResponseEntity.ok(recommendation);
     }
 
     // The Chart/Graph View (Date Range Summaries)

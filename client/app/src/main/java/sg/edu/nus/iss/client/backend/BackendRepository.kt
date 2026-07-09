@@ -37,4 +37,8 @@ class BackendRepository(
             false
         }
     }
+
+    suspend fun getRecommendations(): RecommendationPayload {
+        return backendApi.getRecommendations()
+    }
 }

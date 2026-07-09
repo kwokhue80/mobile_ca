@@ -35,10 +35,10 @@ class RecommendationHistoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize session-backed recommendation cache access.
+        // Initialize session-backed recommendation cache access
         sessionManager = SessionManager(requireContext())
 
-        // Opening history marks recommendation notifications as viewed.
+        // Opening history marks recommendation notifications as viewed
         sessionManager.clearUnreadRecommendationCount()
 
         binding.btnBack.setOnClickListener {
@@ -49,7 +49,7 @@ class RecommendationHistoryFragment : Fragment() {
         binding.rvRecommendationHistory.adapter = adapter
 
         adapter.onCancelClick = { entry ->
-            // Allow user to dismiss/cancel a recommendation from history.
+            // Allow user to dismiss/cancel a recommendation from history
             sessionManager.removeRecommendationFromHistory(entry.recommendation, entry.generatedAt)
             renderHistory()
         }
@@ -74,7 +74,7 @@ class RecommendationHistoryFragment : Fragment() {
         private val items = mutableListOf<SessionManager.RecommendationHistoryEntry>()
         var onCancelClick: ((SessionManager.RecommendationHistoryEntry) -> Unit)? = null
         private val sgtZone: ZoneId = ZoneId.of("Asia/Singapore")
-        private val outputFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a 'SGT'")
+        private val outputFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM yyyy, h:mm a")
 
         fun submitItems(newItems: List<SessionManager.RecommendationHistoryEntry>) {
             items.clear()
@@ -108,12 +108,24 @@ class RecommendationHistoryFragment : Fragment() {
 
             private fun formatToSgt(raw: String, sgtZone: ZoneId, outputFormatter: DateTimeFormatter): String {
                 if (raw.isBlank()) return "Time unavailable"
-                return runCatching {
-                    val parsed = OffsetDateTime.parse(raw)
-                    parsed.atZoneSameInstant(sgtZone).format(outputFormatter)
-                }.getOrElse {
-                    raw
-                }
+                
+                val spaceFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                
+                val zonedDateTime = runCatching { 
+                    OffsetDateTime.parse(raw).atZoneSameInstant(sgtZone) 
+                }.getOrNull() ?: runCatching {
+                    java.time.ZonedDateTime.parse(raw).withZoneSameInstant(sgtZone)
+                }.getOrNull() ?: runCatching {
+                    // If server is SGT, assume the time is already SGT if no offset is present
+                    java.time.LocalDateTime.parse(raw, spaceFormatter).atZone(sgtZone)
+                }.getOrNull() ?: runCatching {
+                    // Fallback for strings missing offset (assuming SGT from server)
+                    java.time.LocalDateTime.parse(raw.replace(" ", "T")).atZone(sgtZone)
+                }.getOrNull() ?: runCatching {
+                    java.time.LocalDateTime.parse(raw).atZone(sgtZone)
+                }.getOrNull()
+
+                return zonedDateTime?.format(outputFormatter)?.let { "$it SGT" } ?: raw
             }
         }
     }

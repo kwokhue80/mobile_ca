@@ -1,0 +1,18 @@
+# Copy this file to client/local.properties and update the values for your machine.
+
+# Android SDK path on your laptop
+sdk.dir=C\:/Users/yourname/AppData/Local/Android/Sdk
+
+# Optional: Android Studio bundled JBR / local JDK path
+org.gradle.java.home=C\:/Program Files/Android/Android Studio/jbr
+
+# Client-side OpenRouter fallback key
+OPENROUTER_API_KEY=
+
+# Spring Boot backend base URL
+# Emulator default:
+SPRING_BASE_URL=http://10.0.2.2:8000/
+
+# FastAPI wellness agent base URL
+# Emulator default:
+WELLNESS_AGENT_BASE_URL=http://10.0.2.2:8001/

@@ -12,6 +12,46 @@ MobileCA is a mobile wellness application built around three cooperating layers:
 
 The app supports user authentication, wellness logging, dashboard summaries, profile and goal management, recommendation history, and a chatbot that can read data, log data, and perform wellness-oriented web lookups.
 
+## Quick Start (Recommended)
+
+After cloning the repository:
+
+1. Install prerequisites:
+	Java 21, Python 3, Android Studio / Android SDK, and MySQL.
+2. Create local machine config:
+	- Copy `client/local.properties.example` to `client/local.properties`.
+	- `client/local.properties` should contain your own `sdk.dir` and optional overrides for:
+	  - `SPRING_BASE_URL`
+	  - `WELLNESS_AGENT_BASE_URL`
+	  - `OPENROUTER_API_KEY`
+	- Copy `server/mcp_server/.env.example` to `server/mcp_server/.env`.
+	- `server/mcp_server/.env` should define your own `OPENROUTER_API_KEY`.
+	- Spring backend environment should define `JWT_SECRET` and, if needed, `MYSQL_USERNAME` and `MYSQL_PASSWORD`.
+3. Start services:
+	- Spring Boot on port `8000`
+	- FastAPI bridge on port `8001`
+4. Launch the Android app from Android Studio or the VS Code tasks.
+
+Example `client/local.properties` additions:
+
+```properties
+sdk.dir=C\:/Users/yourname/AppData/Local/Android/Sdk
+SPRING_BASE_URL=http://10.0.2.2:8000/
+WELLNESS_AGENT_BASE_URL=http://10.0.2.2:8001/
+OPENROUTER_API_KEY=
+```
+
+For a physical Android device, replace `10.0.2.2` with your laptop's LAN IP and ensure the device can reach that host.
+
+Example `server/mcp_server/.env`:
+
+```dotenv
+OPENROUTER_API_KEY=
+LOG_LEVEL=INFO
+SPRING_BOOT_BASE_URL=http://localhost:8000
+```
+
+
 ## Architecture
 
 ```mermaid
@@ -226,6 +266,14 @@ Implemented under [server/src/main/java/sg/edu/nus/features](server/src/main/jav
 - `GET /api/tools`
 
 The FastAPI bridge runs on port `8001` and is separate from the Spring backend on port `8000`.
+
+### Team Setup Notes
+
+- VS Code tasks assume `python` is available on PATH rather than a machine-specific install path.
+- Android SDK/JDK paths must stay local to each machine in `client/local.properties`.
+- Client base URLs are now configurable through `client/local.properties` instead of being fixed in source code.
+- Spring defaults to `localhost:3306` for MySQL and FastAPI defaults to calling Spring at `http://localhost:8000` unless overridden by environment variables.
+- Commit only the `*.example` config files; keep real machine-specific and secret-bearing files local.
 
 ## Configuration
 

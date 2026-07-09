@@ -60,9 +60,6 @@ interface AuthApiService {
     @GET("api/wellness/food-logs")
     suspend fun getFoodLogs(@Query("days") days: Int = 180): Response<List<FoodLogResponse>>
 
-    @GET("api/wellness/recommendations")
-    suspend fun getLatestRecommendation(): Response<RecommendationResponse>
-
     // All-time / rolling aggregates used to evaluate the Badges grid.
     @GET("api/wellness/badge-progress")
     suspend fun getBadgeProgress(): Response<BadgeProgressResponse>
@@ -102,6 +99,7 @@ interface AuthApiService {
     suspend fun getHourlySummary(
         @Query("date") date: String  // Format: "yyyy-MM-dd"
     ): Response<List<HourlyWellnessResponse>>
+
 }
 
 data class LogoutResponse(val token: String?)

@@ -85,10 +85,22 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         val exerciseType = ExerciseType.fromBackendExerciseType(log.exerciseType)
         val displayType = exerciseType?.displayName
             ?: log.exerciseType.lowercase().replaceFirstChar { it.uppercase() }
+            
+        val raw = log.startTime ?: log.loggedAt
+        val sgtZone = java.time.ZoneId.of("Asia/Singapore")
+        
         val timestamp = runCatching {
-            LocalDateTime.parse(log.startTime ?: log.loggedAt)
+            // If the server sends an offset (like Z or +08:00), parse and convert to SGT
+            java.time.OffsetDateTime.parse(raw).atZoneSameInstant(sgtZone).toLocalDateTime()
         }.getOrElse {
-            runCatching { LocalDateTime.parse(log.loggedAt, recordDateFormatter) }.getOrDefault(LocalDateTime.now())
+            runCatching {
+                // If no offset, assume SGT as the server is in Singapore
+                LocalDateTime.parse(raw.replace(" ", "T")).atZone(sgtZone).toLocalDateTime()
+            }.getOrElse {
+                runCatching {
+                    LocalDateTime.parse(raw, recordDateFormatter).atZone(sgtZone).toLocalDateTime()
+                }.getOrDefault(LocalDateTime.now())
+            }
         }
 
         return ActivityRecord(
