@@ -86,6 +86,7 @@ class HomeFragment : Fragment() {
 
         // Route to dashboard on first load
         if (savedInstanceState == null) {
+            binding.bottomNavigation.selectedItemId = R.id.nav_main
             RouteManager.switchHomeTab(this, RouteManager.HomeTab.MAIN)
         }
         applySoftInputModeForSelectedTab()
@@ -163,8 +164,8 @@ class HomeFragment : Fragment() {
 
         val workManager = WorkManager.getInstance(requireContext().applicationContext)
 
-        // Run one fetch immediately so the user does not need to wait for the first periodic window.
-        // Use KEEP policy to prevent redundant fetches every time the HomeFragment is recreated.
+        // Force an immediate fetch on startup/tab visit if not already enqueued.
+        // We use KEEP to avoid spamming multiple identical workers.
         workManager.enqueueUniqueWork(
             RecommendationPollWorker.INIT_WORK_NAME,
             ExistingWorkPolicy.KEEP,
@@ -175,7 +176,7 @@ class HomeFragment : Fragment() {
         workManager
             .enqueueUniquePeriodicWork(
                 RecommendationPollWorker.WORK_NAME,
-                ExistingPeriodicWorkPolicy.UPDATE,
+                ExistingPeriodicWorkPolicy.KEEP,
                 periodicRequest
             )
     }
