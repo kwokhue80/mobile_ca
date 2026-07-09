@@ -1572,7 +1572,21 @@ async def _handle_logging_orchestration(request: ChatRequest, request_id: str) -
 # Execute workflow on ask agent
 async def ask_agent(request: ChatRequest, request_id: str) -> str:
     _cleanup_expired_drafts()
-
+    
+    if len(request.recentMessages) > 8:
+        request.recentMessages = request.recentMessages[-8:]  # Keep only recent messages
+        
+    # Remove old logging assistant messages
+    cleaned = []
+    for msg in request.recentMessages:
+        if not msg.isUser and any(phrase in msg.text.lower() for phrase in [
+            "how long was the exercise", "what type of exercise", "how much water", 
+            "rate your mood", "how long did you sleep"
+        ]):
+            continue  # Skip old logging prompts
+        cleaned.append(msg)
+    request.recentMessages = cleaned[-8:]
+    
     draft_key = _draft_key_from_current_token()
 
     # Allow users to explicitly switch logging categories (for example meal -> exercise)
@@ -1639,7 +1653,7 @@ async def personalized_recommendation_endpoint(authorization: str = Header(None)
             fetch_latest_recommendation=direct_get_latest_recommendation,
         )
 
-        logger.info("[%s] /api/recommendations/personalized completed successfully", request_id)
+        logger.info("[%s] /api/recommendations completed successfully", request_id)
         return payload
     except OpenAIAuthenticationError:
         logger.exception("[%s] OpenRouter authentication failed for recommendation endpoint", request_id)
@@ -1648,7 +1662,7 @@ async def personalized_recommendation_endpoint(authorization: str = Header(None)
             detail="OpenRouter authentication failed. Check OPENROUTER_API_KEY in server/mcp_server/.env",
         )
     except Exception as error:
-        logger.exception("[%s] /api/recommendations/personalized failed", request_id)
+        logger.exception("[%s] /api/recommendations failed", request_id)
         raise HTTPException(status_code=500, detail=f"[{request_id}] Recommendation generation failed: {str(error)}")
     finally:
         clear_current_token()

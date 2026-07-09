@@ -2,14 +2,9 @@ package sg.edu.nus.features.wellness;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import sg.edu.nus.features.wellness.dto.ActivityRecordDto;
@@ -17,10 +12,8 @@ import sg.edu.nus.features.wellness.dto.BadgeProgressResponse;
 import sg.edu.nus.features.wellness.dto.ExerciseLogResponse;
 import sg.edu.nus.features.wellness.dto.FoodLogResponse;
 import sg.edu.nus.features.wellness.dto.HourlyWellnessResponse;
-import sg.edu.nus.features.wellness.dto.RecommendationResponse;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,9 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import sg.edu.nus.features.user.account.User;
 import sg.edu.nus.features.user.account.UserService;
-import sg.edu.nus.features.user.goal.UserGoalRepository;
-import sg.edu.nus.features.user.goal.model.UserGoal;
-import sg.edu.nus.features.user.goal.model.enums.GoalType;
+
 import sg.edu.nus.features.user.profile.UserProfile;
 import sg.edu.nus.features.wellness.dto.WellnessRecordPayload;
 
@@ -63,7 +54,6 @@ public class WellnessOrchestratorService {
     
     private final DailyWellnessSummaryRepository summaryRepo;
     private final ActivityRecordRepository activityRepo;
-    private final UserGoalRepository userGoalRepo;
     private final UserService userService;
     
     private final SleepLogRepository sleepRepo;
@@ -531,152 +521,6 @@ public class WellnessOrchestratorService {
         foodRepo.deleteByUserIdAndLoggedAtBetween(userId, startOfDay, endOfDay);
         activityRepo.deleteByUserIdAndRecordedAtBetween(userId, startOfDay, endOfDay);
         summaryRepo.deleteByUserIdAndSummaryDate(userId, today);
-    }
-
-    // ---------------------- RECOMMENDATION LOGIC ---------------------- //
-    public RecommendationResponse getLatestRecommendation(UUID userId) {
-        Map<GoalType, BigDecimal> goalTargets = new HashMap<>();
-        for (UserGoal goal : userGoalRepo.findByUserId(userId)) {
-            goalTargets.put(goal.getId().getGoalType(), goal.getTargetValue());
-        }
-
-        DailyWellnessSummary latestSummary = summaryRepo
-            .findAllByUserIdOrderBySummaryDateDesc(userId)
-            .stream()
-            .findFirst()
-            .orElse(null);
-
-        String recommendation;
-        if (latestSummary == null) {
-            recommendation = "Start by logging an entry today so we can personalize your wellness tips!";
-        } else {
-
-            // Daily target values - no weight for now
-            BigDecimal hydrationTargetMl = getGoalTargetOrDefault(
-                goalTargets,
-                BigDecimal.valueOf(2000),
-                "HYDRATION",
-                "WATER_ML"
-            );
-            BigDecimal sleepTargetMinutes = goalTargets
-                .getOrDefault(GoalType.SLEEP, BigDecimal.valueOf(7))
-                .multiply(BigDecimal.valueOf(60)); // Conv to minutes to compare with actual minutes stored
-            BigDecimal caloriesTargetKcal = goalTargets.getOrDefault(GoalType.CALORIES, BigDecimal.valueOf(300));
-            BigDecimal exerciseTargetMinutes = goalTargets.getOrDefault(GoalType.EXERCISE, BigDecimal.valueOf(30));
-
-            // Actual values - removed distance
-            BigDecimal waterActualMl = BigDecimal
-                .valueOf(latestSummary.getTotalWaterMl() != null 
-                    ? latestSummary.getTotalWaterMl() : 0);
-            BigDecimal sleepActualMinutes = BigDecimal
-                .valueOf(latestSummary.getSleepMinutes() != null 
-                    ? latestSummary.getSleepMinutes() : 0);
-            BigDecimal caloriesActualKcal = BigDecimal
-                .valueOf(latestSummary.getTotalCaloriesBurned() != null 
-                    ? latestSummary.getTotalCaloriesBurned() : 0);
-            BigDecimal exerciseActualMinutes = BigDecimal
-                .valueOf(latestSummary.getTotalExerciseMinutes() != null 
-                    ? latestSummary.getTotalExerciseMinutes() : 0);
-
-            // Compile list of need score based on ratio of deficit by goal type
-            List<NeedScore> needs = List.of(
-                NeedScore.of("HYDRATION", hydrationTargetMl, waterActualMl,
-                    String.format(
-                        "Hydration is below target today (%d/%d ml). Add 2 to 3 glasses of water in the next few hours.",
-                        waterActualMl.intValue(),
-                        hydrationTargetMl.intValue()
-                    )),
-                NeedScore.of("SLEEP", sleepTargetMinutes, sleepActualMinutes,
-                    String.format(
-                        "Sleep is below target today (%d/%d minutes). Try winding down earlier for better recovery.",
-                        sleepActualMinutes.intValue(),
-                        sleepTargetMinutes.intValue()
-                    )),
-                NeedScore.of("CALORIES", caloriesTargetKcal, caloriesActualKcal,
-                    String.format(
-                        "Active calories are below target today (%d/%d kcal). Try logging a short walk or light session.",
-                        caloriesActualKcal.intValue(),
-                        caloriesTargetKcal.intValue()
-                    )),
-                NeedScore.of("EXERCISE", exerciseTargetMinutes, exerciseActualMinutes,
-                    String.format(
-                        "Movement is low today (%d/%d minutes). A 10 to 15 minute activity break can help.",
-                        exerciseActualMinutes.intValue(),
-                        exerciseTargetMinutes.intValue()
-                    ))
-            );
-
-            recommendation = needs.stream()
-                .filter(need -> need.deficitRatio.compareTo(BigDecimal.ZERO) > 0)
-                .max(Comparator.comparing(need -> need.deficitRatio))
-                .map(need -> need.message)
-                .orElse("Great consistency today. Keep your hydration, sleep, and activity patterns steady.");
-        }
-
-        // Generate recommendation timestamp in SGT and round to 3-hour buckets for poller cadence.
-        ZoneId sgtZone = ZoneId.of("Asia/Singapore");
-        ZonedDateTime nowSgt = ZonedDateTime.now(sgtZone);
-        int bucketHour = (nowSgt.getHour() / 3) * 3;
-        OffsetDateTime generatedAt = nowSgt
-            .withHour(bucketHour)
-            .withMinute(0)
-            .withSecond(0)
-            .withNano(0)
-            .toOffsetDateTime();
-
-        return new RecommendationResponse(recommendation, generatedAt);
-    }
-
-    private BigDecimal getGoalTargetOrDefault(
-        Map<GoalType, BigDecimal> goalTargets,
-        BigDecimal defaultValue,
-        String... aliases
-    ) {
-        for (String alias : aliases) {
-            GoalType goalType = resolveGoalTypeAlias(alias);
-            if (goalType == null) {
-                continue;
-            }
-
-            BigDecimal targetValue = goalTargets.get(goalType);
-            if (targetValue != null) {
-                return targetValue;
-            }
-        }
-
-        return defaultValue;
-    }
-
-    private GoalType resolveGoalTypeAlias(String alias) {
-        if (alias == null || alias.isBlank()) {
-            return null;
-        }
-
-        String normalized = alias.trim().toUpperCase();
-        if ("HYDRATION".equals(normalized)) {
-            return GoalType.WATER_ML;
-        }
-
-        try {
-            return GoalType.valueOf(normalized);
-        } catch (IllegalArgumentException error) {
-            return null;
-        }
-    }
-
-    // Need score based on ratio derived from deficit between actual and target values
-    private record NeedScore(String name, BigDecimal deficitRatio, String message) {
-        static NeedScore of(String name, BigDecimal target, BigDecimal actual, String message) {
-            if (target == null || target.compareTo(BigDecimal.ZERO) <= 0) {
-                return new NeedScore(name, BigDecimal.ZERO, message);
-            }
-
-            BigDecimal deficit = target.subtract(actual == null ? BigDecimal.ZERO : actual);
-            BigDecimal ratio = deficit.compareTo(BigDecimal.ZERO) > 0
-                ? deficit.divide(target, 4, RoundingMode.HALF_UP)
-                : BigDecimal.ZERO;
-            return new NeedScore(name, ratio, message);
-        }
     }
 
      // Fetch Date Range (Just the Summaries for charts/graphs)
