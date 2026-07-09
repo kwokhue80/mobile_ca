@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client.chathistory
 
+// Author: Soo Kwok Heng with Claude's assistance
 import io.objectbox.Box
 import io.objectbox.BoxStore
 import io.objectbox.query.QueryBuilder

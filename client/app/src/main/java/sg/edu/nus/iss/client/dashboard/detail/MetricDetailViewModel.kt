@@ -190,7 +190,13 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
                 sleepQualityScore = summary?.sleepQualityScore?.toDouble()
             )
         }
-
+        /**
+         * Author(s): Yang Mao Wei
+         * Contribution:
+         * - Added Food Intake chart data handling.
+         * - Generated Today bar for daily calorie intake.
+         * - Applied daily Food Intake goal to chart and progress calculation.
+         */
         if (metricType == MetricType.FOOD_INTAKE) {
             val summary = fetchRange(referenceDate, referenceDate)[referenceDate]
             val total = selectDailyValue(summary)

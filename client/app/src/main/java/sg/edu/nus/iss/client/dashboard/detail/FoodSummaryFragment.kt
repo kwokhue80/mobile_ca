@@ -72,7 +72,13 @@ class FoodSummaryFragment : Fragment() {
             }
         }
     }
-
+    /**
+     * Author(s): Yang Mao Wei
+     * Contribution:
+     * - Added Food Summary detail screen rendering.
+     * - Supported Day meal list and Week/Month calorie charts.
+     * - Displayed selected day's meals when tapping a chart bar.
+     */
     private fun render(state: FoodSummaryUiState) {
         updateTabStyles(state.timeRange)
 

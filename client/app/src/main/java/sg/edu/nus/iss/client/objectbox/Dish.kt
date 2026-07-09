@@ -5,6 +5,7 @@ import io.objectbox.annotation.HnswIndex
 import io.objectbox.annotation.Id
 import io.objectbox.annotation.VectorDistanceType
 
+// Author: Soo Kwok Heng
 @Entity
 data class Dish (
     @Id var id: Long = 0,

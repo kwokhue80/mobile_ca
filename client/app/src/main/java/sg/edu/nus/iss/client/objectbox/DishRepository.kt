@@ -1,7 +1,9 @@
 package sg.edu.nus.iss.client.objectbox
 
+// Author: Soo Kwok Heng
 import io.objectbox.Box
 import io.objectbox.BoxStore
+
 
 class DishRepository(boxStore: BoxStore) {
 

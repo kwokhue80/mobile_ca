@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client.chathistory
 
+// Author: Soo Kwok Heng
 object FeatureFlags {
 
     // Controls whether chat messages are saved to and loaded from

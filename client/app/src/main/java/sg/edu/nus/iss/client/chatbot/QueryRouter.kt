@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client.chatbot
 
+// Author: Soo Kwok Heng
 object QueryRouter {
 
     // Terms suggesting the question concerns food or nutrition

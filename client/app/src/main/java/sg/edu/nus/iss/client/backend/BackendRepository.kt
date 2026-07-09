@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client.backend
 
+// Authors: Amelia Wong, Soo Kwok Heng
 import org.json.JSONObject
 import retrofit2.HttpException
 import sg.edu.nus.iss.client.chatbot.ChatMessage

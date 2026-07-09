@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client.chathistory
 
+// Author: Soo Kwok Heng
 import io.objectbox.annotation.Entity
 import io.objectbox.annotation.HnswIndex
 import io.objectbox.annotation.Id
