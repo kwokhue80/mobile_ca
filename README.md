@@ -144,33 +144,30 @@ The chatbot is not a direct Android-to-LLM integration. It is a layered system d
 
 ```
 Request
-   │
-   ▼
-Is out of scope? ──Yes──► Return canned out-of-scope response (no LLM)
-   │ No
-   ▼
-Logging intent? ──Yes──► Try deterministic logging (terminal)
-   │ No / not fully handled
-   ▼
-Read tool match? ──Yes──► Try deterministic read
-   │ No / not fully handled
-   ▼
-Web search planned? ──Yes──► Try deterministic web search
-   │ No / not fully handled
-   ▼
-LLM fallback
+│
+▼
+Active logging draft? ──Yes──► Continue deterministic logging flow (terminal)
+│ No
+▼
+New logging intent detected? ──Yes──► Start deterministic logging flow (terminal)
+│ No
+▼
+LLM stage (LangChain agent + MCP tools)
+│
+├─ Reads wellness data (daily summary, exercise history, recommendations) via tools
+├─ Performs wellness/nutrition web search via a tool
+└─ Domain scope, tone, and length are enforced by the system prompt,
+not by a separate deterministic pre-check
 ```
 
 1. The user sends a message from the Android chat screen.
-2. The client gathers:
-	 recent messages, relevant past messages, and optional local dish-vector context.
+2. The client gathers: recent messages, relevant past messages (found via on-device semantic search over chat history), and optional local dish-vector context.
 3. If backend mode is enabled, the client sends the request to the FastAPI bridge at `http://10.0.2.2:8001/api/chat`.
 4. FastAPI stores the JWT token in request-local context so downstream Spring API calls remain user-scoped.
-5. FastAPI tries deterministic handlers first for:
-	 logging, backend reads, and wellness web-search routing.
-6. If deterministic logic does not fully resolve the request, LangChain invokes MCP tools.
+5. FastAPI checks, in order: (a) whether an active logging draft already exists for this user, and (b) if not, whether the message looks like a new logging intent. Either check routes the request into a deterministic, multi-turn logging state machine, and the LLM is never called for that turn.
+6. If neither check applies, the request goes to a LangChain agent (via OpenRouter), which decides on its own whether to call an MCP tool — reading wellness data, fetching a recommendation, or performing a web search — before composing an answer.
 7. MCP tools call Spring Boot APIs on `http://localhost:8000` using the forwarded JWT.
-8. The bridge formats the result and returns a single answer string to Android.
+8. The bridge applies output safeguards (avoiding echoed replies and correcting false refusals when a tool call actually succeeded) and returns a single answer string to Android.
 
 ### Client-Side Fallback
 
@@ -201,8 +198,9 @@ The MCP tool server is [server/mcp_server/mcp_server_wellness.py](server/mcp_ser
 - meal and exercise enum normalization
 - logging payload construction
 - daily summary retrieval
-- activity history retrieval
-- recommendation retrieval
+- exercise history retrieval
+- latest recommendation retrieval
+- personalized recommendation generation, combining user goals, daily summary, and a profile-guided web search fallback when no goals are set
 - wellness-oriented web search
 
 The tool server is launched over stdio by the FastAPI layer through `MultiServerMCPClient`, not via a separate network API.
@@ -214,7 +212,7 @@ The chatbot can currently:
 - Log wellness data into the backend database
 	food, hydration, weight, mood, sleep, exercise
 - Query wellness data from the backend database
-	daily summary, exercise/activity history, latest recommendations
+	daily summary, exercise history, latest recommendation, personalized recommendation
 - Perform wellness and nutrition web search
 	calorie lookups, nutrition facts, general wellness information
 - Combine estimation and logging
@@ -264,6 +262,7 @@ Implemented under [server/src/main/java/sg/edu/nus/features](server/src/main/jav
 
 - `POST /api/chat`
 - `GET /api/tools`
+- `GET /api/recommendations`
 
 The FastAPI bridge runs on port `8001` and is separate from the Spring backend on port `8000`.
 
