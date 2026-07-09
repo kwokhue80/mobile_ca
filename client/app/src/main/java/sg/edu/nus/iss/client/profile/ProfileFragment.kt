@@ -50,7 +50,7 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        sessionManager = SessionManager(requireContext())
+        sessionManager = SessionManager.getInstance(requireContext())
         authApiService = RetrofitClient.getApiService(requireContext())
         biometricHelper = BiometricHelper(this)
 

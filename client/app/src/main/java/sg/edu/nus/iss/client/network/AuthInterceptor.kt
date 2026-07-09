@@ -15,7 +15,11 @@ class AuthInterceptor(private val sessionManager: SessionManager) : Interceptor 
         val request = requestBuilder.build()
         val response = chain.proceed(request)
 
-        if (response.code == 401) {
+        // If JWT expired, clear session
+        // Otherwise, store in session
+        if (response.isSuccessful) {
+            sessionManager.touchSession()
+        } else if (response.code == 401) {
             sessionManager.clearSession()
         }
 

@@ -9,6 +9,10 @@
         android:id="@+id/action_global_activityDetailFragment"
         app:destination="@id/activityDetailFragment" />
 
+    <action
+        android:id="@+id/action_global_recommendationHistoryFragment"
+        app:destination="@id/recommendationHistoryFragment" />
+
     <fragment
         android:id="@+id/loginFragment"
         android:name="sg.edu.nus.iss.client.auth.LoginFragment"
@@ -71,9 +75,6 @@
         <action
             android:id="@+id/action_homeFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
-        <action
-            android:id="@+id/action_homeFragment_to_recommendationHistoryFragment"
-            app:destination="@id/recommendationHistoryFragment" />
     </fragment>
 
     <fragment

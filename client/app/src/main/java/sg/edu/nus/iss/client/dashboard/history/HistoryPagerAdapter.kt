@@ -37,11 +37,18 @@ class HistoryPagerAdapter(
     private var jumpSeq: Int = 0
 
     fun submitList(newRecords: List<ActivityRecord>) {
+        val oldItemCount = itemCount
         records = newRecords
-        // ViewPager2 doesn't rebind the currently-displayed page on notifyDataSetChanged()
-        // when itemCount is unchanged (a known RecyclerView/ViewPager2 limitation) - see
-        // ActivityRecordPagerAdapter's identical fix - so use a targeted notify instead.
-        notifyItemRangeChanged(0, itemCount)
+        val newItemCount = itemCount
+
+        if (oldItemCount != newItemCount) {
+            notifyDataSetChanged()
+        } else {
+            // ViewPager2 doesn't rebind the currently-displayed page on notifyDataSetChanged()
+            // when itemCount is unchanged (a known RecyclerView/ViewPager2 limitation) - see
+            // ActivityRecordPagerAdapter's identical fix - so use a targeted notify instead.
+            notifyItemRangeChanged(0, newItemCount)
+        }
     }
 
     fun setCurrentPage(page: Int) {

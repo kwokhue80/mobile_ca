@@ -146,7 +146,7 @@ object RouteManager {
 
     // To recommendation history
     fun toRecommendationHistory(host: Fragment) {
-        host.findNavController().navigate(R.id.action_homeFragment_to_recommendationHistoryFragment)
+        host.findNavController().navigate(R.id.action_global_recommendationHistoryFragment)
     }
 
     // To edit profile
