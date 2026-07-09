@@ -1,6 +1,7 @@
 
 package sg.edu.nus.iss.rag
 
+// Author: Soo Kwok Heng
 import io.objectbox.annotation.Entity
 import io.objectbox.annotation.HnswIndex
 import io.objectbox.annotation.Id

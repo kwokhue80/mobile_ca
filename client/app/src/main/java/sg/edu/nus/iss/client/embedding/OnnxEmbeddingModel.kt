@@ -1,6 +1,8 @@
 package sg.edu.nus.iss.client.embedding
 
 // Note: This file was generated entirely by Claude by Soo Kwok Heng
+// Reason for AI use: This code requires knowledge about how the embedding
+// model works exactly
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession

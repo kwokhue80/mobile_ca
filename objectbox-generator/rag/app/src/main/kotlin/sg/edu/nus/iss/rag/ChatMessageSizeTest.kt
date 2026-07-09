@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.rag
 
+// AUthor: Soo Kwok Heng with significant guidance from Claude
 import dev.langchain4j.model.embedding.onnx.allminilml6v2q.AllMiniLmL6V2QuantizedEmbeddingModel
 
 // A separate copy of the embedding model, kept isolated from RAGApplication
