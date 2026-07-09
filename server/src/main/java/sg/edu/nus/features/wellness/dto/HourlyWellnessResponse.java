@@ -1,3 +1,4 @@
+// Author: HuaYuan Xie
 package sg.edu.nus.features.wellness.dto;
 
 import java.math.BigDecimal;

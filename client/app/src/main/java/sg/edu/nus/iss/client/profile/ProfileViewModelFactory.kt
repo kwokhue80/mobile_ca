@@ -1,3 +1,4 @@
+// Author: HuaYuan Xie
 package sg.edu.nus.iss.client.profile
 
 import androidx.lifecycle.ViewModel

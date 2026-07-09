@@ -1,3 +1,4 @@
+// Author: HuaYuan Xie
 package sg.edu.nus.iss.client.dashboard.goals.model
 
 import androidx.annotation.DrawableRes

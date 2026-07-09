@@ -1,3 +1,4 @@
+// Author: HuaYuan Xie
 package sg.edu.nus.iss.client.dashboard.history.model
 
 import sg.edu.nus.iss.client.dashboard.model.ActivityRecord
