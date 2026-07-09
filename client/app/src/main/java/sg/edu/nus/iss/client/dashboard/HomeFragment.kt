@@ -15,6 +15,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
@@ -23,7 +26,9 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.R
+import sg.edu.nus.iss.client.RagApplication
 import sg.edu.nus.iss.client.databinding.FragmentHomeBinding
 import sg.edu.nus.iss.client.navigation.RouteManager
 import sg.edu.nus.iss.client.util.SessionManager
@@ -54,7 +59,7 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Initialize dependencies used by notification polling and badge rendering.
-        sessionManager = SessionManager(requireContext())
+        sessionManager = (requireActivity().application as RagApplication).sessionManager
         ensureNotificationPermission()
         scheduleBackgroundRecommendationPolling()
 
@@ -92,7 +97,13 @@ class HomeFragment : Fragment() {
         }
         applySoftInputModeForSelectedTab()
 
-        renderNotificationBadge(sessionManager.getUnreadRecommendationCount())
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                sessionManager.unreadCountFlow.collect { count ->
+                    renderNotificationBadge(count)
+                }
+            }
+        }
 
         binding.btnNotifications.setOnClickListener {
             // Open recommendation history screen from the notifications icon.
@@ -129,8 +140,6 @@ class HomeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         applySoftInputModeForSelectedTab()
-        // Refresh badge when returning from background or after notification tap.
-        renderNotificationBadge(sessionManager.getUnreadRecommendationCount())
     }
 
     private fun applySoftInputModeForSelectedTab(selectedItemId: Int = binding.bottomNavigation.selectedItemId) {

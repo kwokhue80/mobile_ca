@@ -7,20 +7,39 @@ import android.util.Base64
 import androidx.core.content.edit
 import org.json.JSONArray
 import org.json.JSONObject
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
-class SessionManager(context: Context) {
+class SessionManager private constructor(context: Context) {
     data class RecommendationHistoryEntry(
         val recommendation: String,
         val generatedAt: String
     )
 
     private val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+
+    private val _unreadCountFlow = MutableSharedFlow<Int>(replay = 1)
+    val unreadCountFlow = _unreadCountFlow.asSharedFlow()
+
+    init {
+        // Initialize flow with current value
+        _unreadCountFlow.tryEmit(getUnreadRecommendationCount())
+    }
+
     companion object {
+        @Volatile
+        private var INSTANCE: SessionManager? = null
+
+        fun getInstance(context: Context): SessionManager {
+            return INSTANCE ?: synchronized(this) {
+                INSTANCE ?: SessionManager(context.applicationContext).also { INSTANCE = it }
+            }
+        }
         private const val KEY_STORE_PROVIDER = "AndroidKeyStore"
         private const val CIPHER_TRANSFORMATION = "AES/GCM/NoPadding"
 
@@ -40,7 +59,9 @@ class SessionManager(context: Context) {
         private const val PREF_LATEST_RECOMMENDATION_TIME = "latest_recommendation_time"
         private const val PREF_RECOMMENDATION_HISTORY = "recommendation_history"
         private const val PREF_LAST_RECOMMENDATION_FETCH_TIME = "last_recommendation_fetch_time"
+        private const val PREF_LOGIN_TIME = "login_time"
         private const val MAX_RECOMMENDATION_HISTORY = 30
+        private const val SESSION_TIMEOUT_HOURS = 24L // Same as JWT
 
         @Volatile
         private var inMemoryToken: String? = null
@@ -121,6 +142,7 @@ class SessionManager(context: Context) {
             sharedPreferences.edit {
                 putString(PREF_ENCRYPTED_TOKEN, Base64.encodeToString(encryptedData, Base64.DEFAULT))
                 putString(PREF_IV, Base64.encodeToString(cipher.iv, Base64.DEFAULT))
+                putLong(PREF_LOGIN_TIME, System.currentTimeMillis())
                 remove(PREF_STANDARD_TOKEN)
                 remove(PREF_STANDARD_IV)
             }
@@ -133,8 +155,34 @@ class SessionManager(context: Context) {
             sharedPreferences.edit {
                 putString(PREF_STANDARD_TOKEN, Base64.encodeToString(encryptedData, Base64.DEFAULT))
                 putString(PREF_STANDARD_IV, Base64.encodeToString(standardCipher.iv, Base64.DEFAULT))
+                putLong(PREF_LOGIN_TIME, System.currentTimeMillis())
                 remove(PREF_ENCRYPTED_TOKEN)
                 remove(PREF_IV)
+            }
+        }
+    }
+
+    fun isSessionValid(): Boolean {
+        // Recovery check: if we have a token but it's too old, clear it
+        val loginTime = sharedPreferences.getLong(PREF_LOGIN_TIME, 0L)
+        if (loginTime == 0L) return false
+
+        val currentTime = System.currentTimeMillis()
+        val elapsedMillis = currentTime - loginTime
+        val timeoutMillis = SESSION_TIMEOUT_HOURS * 60 * 60 * 1000
+
+        val isValid = elapsedMillis < timeoutMillis
+        if (!isValid) {
+            clearSession()
+        }
+        return isValid
+    }
+
+    fun touchSession() {
+        // Extends the session validity during active use
+        if (sharedPreferences.contains(PREF_LOGIN_TIME)) {
+            sharedPreferences.edit {
+                putLong(PREF_LOGIN_TIME, System.currentTimeMillis())
             }
         }
     }
@@ -192,6 +240,7 @@ class SessionManager(context: Context) {
             remove(PREF_LATEST_RECOMMENDATION_TIME)
             remove(PREF_RECOMMENDATION_HISTORY)
             remove(PREF_LAST_RECOMMENDATION_FETCH_TIME)
+            remove(PREF_LOGIN_TIME)
         }
     }
 
@@ -225,9 +274,11 @@ class SessionManager(context: Context) {
     fun incrementUnreadRecommendationCount() {
         // Atomically bump unread counter by one.
         val currentCount = getUnreadRecommendationCount()
+        val nextCount = currentCount + 1
         sharedPreferences.edit {
-            putInt(PREF_RECOMMENDATION_UNREAD_COUNT, currentCount + 1)
+            putInt(PREF_RECOMMENDATION_UNREAD_COUNT, nextCount)
         }
+        _unreadCountFlow.tryEmit(nextCount)
     }
 
     fun clearUnreadRecommendationCount() {
@@ -235,6 +286,7 @@ class SessionManager(context: Context) {
         sharedPreferences.edit {
             putInt(PREF_RECOMMENDATION_UNREAD_COUNT, 0)
         }
+        _unreadCountFlow.tryEmit(0)
     }
 
     fun getLatestRecommendationText(): String? {
@@ -282,13 +334,12 @@ class SessionManager(context: Context) {
                 return false
             }
 
-            // If the text is identical to the last one, even if the timestamp is different,
-            // we update the timestamp in our cache but don't treat it as a "new" unread event
-            // to avoid spamming the user with the same message.
+            // If the text is identical to the last one, we update the timestamp in our cache
+            // but don't treat it as a "new" unread event to avoid spamming the user with the same message
             if (text == previousText) {
                 setRecommendationSignature(signature)
                 setLatestRecommendation(text, generatedAt)
-                // We don't prepend to history or increment unread count if text is same.
+                // Don't increment even if unread
                 return false
             }
 

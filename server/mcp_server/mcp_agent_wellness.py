@@ -334,8 +334,26 @@ def _extract_final_answer(result: dict, called_tools: list[str], request_id: str
     return "I could not generate a response just now. Please try again."
 
 
+async def _llm_classify_logging_vs_question(text: str) -> bool:
+    """LLM fallback for ambiguous cases only. Returns True if it's logging."""
+    llm = _create_llm_model()
+    prompt = (
+        "Classify this user message as exactly one word: LOG or QUESTION.\n"
+        "LOG = user is reporting something they personally did/eat/drank (e.g. 'I ate chicken rice', 'I ran for 30 minutes')\n"
+        "QUESTION = user is asking for information, advice, or general question (e.g. 'is chicken rice healthy', 'benefits of running')\n\n"
+        f"Message: \"{text}\"\n"
+        "Answer:"
+    )
+    try:
+        result = await llm.ainvoke(prompt)
+        answer = result.content.strip().upper()
+        return answer.startswith("LOG")
+    except Exception:
+        # Fallback to conservative behavior
+        return False
+
 # Regex detecting user intent to log entry - relaxed
-def _looks_like_logging_intent(text: str) -> bool:
+async def _looks_like_logging_intent(text: str) -> bool:
     lowered = text.lower().strip()
     if not lowered:
         return False
@@ -362,32 +380,15 @@ def _looks_like_logging_intent(text: str) -> bool:
     if natural_pattern.search(text):
         return True
 
-    # 3. Exercise + duration (require stronger context)
-    exercise_keywords = r"\b(workout|exercise|training|ran|run|walked|jogged|cycled|swam|lifted|strength|hiit|yoga|pilates|gym)\b"
-    time_units = r"\b(\d+)\s*(?:minute|minutes|min|hour|hours|hr|hrs)\b"
+    # 3. Ambiguous cases → use LLM classifier
+    has_exercise_time = bool(re.search(r"\b(workout|exercise|training|ran|run|walked|jogged|cycled|swam)\b", lowered)) and bool(re.search(r"\b(\d+)\s*(?:minute|minutes|min|hour|hours)\b", lowered))
+    has_wellness_unit = any(kw in lowered for kw in ["water", "weight", "mood", "sleep", "meal", "food", "calories"]) and any(unit in lowered for unit in ["ml", "kg", "/10", "kcal", "calories"])
 
-    has_exercise = bool(re.search(exercise_keywords, lowered))
-    has_time = bool(re.search(time_units, lowered))
+    if has_exercise_time or has_wellness_unit:
+        return await _llm_classify_logging_vs_question(text)
 
-    # Only trigger if it looks like the user did the activity (not just asking about it)
-    if has_exercise and has_time and re.search(r"\b(i|me|my|today|this morning|this afternoon)\b", lowered):
-        return True
-
-    # 4. Short direct logging with units (require logging verb or "my")
-    wellness_keywords = ["water", "hydration", "weight", "mood", "sleep", "meal", "food", "calories", "kcal"]
-    numeric_units = ["ml", "liter", "kg", "/10", "minute", "hour", "kcal", "calories"]
-
-    if any(kw in lowered for kw in wellness_keywords):
-        if any(unit in lowered for unit in numeric_units):
-            if re.search(r"\b(log|record|track|add|my|was|had|drank|slept|ate)\b", lowered):
-                return True
-
-    # 5. "log my ..." patterns
-    if re.search(r"\blog my\b", lowered):
-        return True
-
-    # 6. Entry-style phrases
-    if re.search(r"\b(food|meal|exercise|workout|hydration|water|sleep|mood|weight)\s+entry\b", lowered):
+    # 4. "log my ..." and entry phrases
+    if re.search(r"\blog my\b", lowered) or re.search(r"\b(food|meal|exercise|workout|hydration|water|sleep|mood|weight)\s+entry\b", lowered):
         return True
 
     return False
@@ -1466,24 +1467,28 @@ async def _handle_logging_orchestration(request: ChatRequest, request_id: str) -
     if any(phrase in lowered_query for phrase in cancel_phrases):
         DRAFT_STORE.delete(draft_key)
         return "No problem, I won't log that for now."
-    
-    # === Escape hatch for unrelated questions ===
-    clearly_off_topic = (
-        "?" in request.query
-        or bool(re.search(r"\b(how|what|why|when|where|who|can you|could you|should i|tell me|benefits of|politics|news|stock|crypto)\b", lowered_query))
-    ) and not any(word in lowered_query for word in [
-        "water", "hydration", "weight", "mood", "sleep", "exercise", "workout", 
-        "meal", "food", "ate", "had", "drank", "ran", "walked", "cycled", "calories"
-    ])
 
-    if clearly_off_topic:
+    # === STRONGER ESCAPE HATCH FOR TOPIC CHANGE ===
+    is_question = "?" in request.query or bool(re.search(r"\b(how|what|why|when|where|who|can you|could you|should i|tell me|benefits of|good for|best for)\b", lowered_query))
+
+    is_continuing_log = any(word in lowered_query for word in [
+        "water", "hydration", "weight", "mood", "sleep", "ate", "had", "drank", "calories", "log", "record"
+    ]) or bool(re.search(r"\b(i|me|my)\s+(ate|had|drank|ran|walked|cycled|swam)", lowered_query))
+
+    if is_question and not is_continuing_log:
         draft = DRAFT_STORE.get(draft_key)
         if draft and draft.missing_field:
+            # User can force exit
+            if any(phrase in lowered_query for phrase in ["switch topic", "change topic", "cancel log", "never mind", "different topic", "stop logging"]):
+                DRAFT_STORE.delete(draft_key)
+                return "No problem, I've cancelled the log. What would you like to talk about?"
+
             return (
                 f"You're in the middle of logging a {draft.missing_field.replace('_', ' ')}. "
-                "Would you like to finish that first, or ask something else wellness-related?"
+                "Would you like to finish that first, or ask something else?"
             )
 
+    # === Normal logging flow continues ===
     draft = DRAFT_STORE.get(draft_key) or LoggingDraft()
 
     # If a meal calorie estimate was offered, let the user confirm or override it.
@@ -1635,7 +1640,7 @@ async def ask_agent(request: ChatRequest, request_id: str) -> str:
     if _has_active_logging_draft():
         return await _handle_logging_orchestration(request, request_id)
 
-    if _looks_like_logging_intent(request.query):
+    if await _looks_like_logging_intent(request.query):
         return await _handle_logging_orchestration(request, request_id)
 
     # Everything else goes to the LLM

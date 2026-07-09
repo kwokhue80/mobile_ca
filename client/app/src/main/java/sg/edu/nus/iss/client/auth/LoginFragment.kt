@@ -48,9 +48,24 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        sessionManager = SessionManager(requireContext())
+        sessionManager = SessionManager.getInstance(requireContext())
         biometricHelper = BiometricHelper(this)
         authApiService = RetrofitClient.getApiService(requireContext())
+
+        // Check for persistent session on startup
+        if (sessionManager.isSessionValid()) {
+            if (sessionManager.isBiometricEnabled()) {
+                // If biometrics enabled, try that immediately
+                checkBiometricSupportAndAuthenticate()
+            } else {
+                // Standard session: attempt to recover token from disk
+                val token = runCatching { sessionManager.getDecryptedTokenFromMemory() }.getOrNull()
+                if (token != null) {
+                    navigateToMainActivity()
+                    return
+                }
+            }
+        }
 
         val factory = LoginViewModelFactory(authApiService)
         viewModel = ViewModelProvider(this, factory)[LoginViewModel::class.java]
@@ -137,9 +152,6 @@ class LoginFragment : Fragment() {
                     }
                 }
             }
-        }
-        if (sessionManager.isBiometricEnabled()) {
-            checkBiometricSupportAndAuthenticate()
         }
     }
 
