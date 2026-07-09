@@ -1,4 +1,4 @@
-// Author: HuaYuan Xie
+// Author: HuaYuan Xie, Amelia Wong
 package sg.edu.nus.iss.client.dashboard
 
 import android.view.LayoutInflater
@@ -30,8 +30,6 @@ class ActivityRecordPagerAdapter(
         if (oldItemCount != newItemCount) {
             notifyDataSetChanged()
         } else {
-            // ViewPager2 doesn't rebind the currently-displayed page on notifyDataSetChanged()
-            // when itemCount is unchanged (a known RecyclerView/ViewPager2 limitation), so the
             // "Activity Tracked" list could go stale after an add/delete without a real page
             // navigation. notifyItemRangeChanged() forces the visible page to rebind.
             notifyItemRangeChanged(0, newItemCount)

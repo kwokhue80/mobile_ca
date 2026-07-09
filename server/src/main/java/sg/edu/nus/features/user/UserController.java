@@ -1,3 +1,4 @@
+// AUTHOR: Amelia Wong
 package sg.edu.nus.features.user;
 
 import java.util.Comparator;
@@ -29,10 +30,6 @@ import sg.edu.nus.features.user.profile.dto.UserProfileResponse;
 import sg.edu.nus.features.user.profile.dto.UserProfileUpdateRequest;
 import sg.edu.nus.security.UserPrincipal;
 
-/*
-*   AUTHOR: Amelia
-*   PURPOSE: User controller for client to access API on user profile changes/logout
-*/
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor

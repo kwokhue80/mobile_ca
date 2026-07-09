@@ -1,4 +1,4 @@
-// Author: HuaYuan Xie
+// Author: HuaYuan Xie, Amelia Wong
 package sg.edu.nus.iss.client.dashboard.activity
 
 import android.app.TimePickerDialog

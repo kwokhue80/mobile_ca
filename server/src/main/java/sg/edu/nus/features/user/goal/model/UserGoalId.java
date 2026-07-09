@@ -1,3 +1,4 @@
+// AUTHOR: Amelia
 package sg.edu.nus.features.user.goal.model;
 
 import java.io.Serializable;

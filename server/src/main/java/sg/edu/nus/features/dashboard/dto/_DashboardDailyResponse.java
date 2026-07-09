@@ -18,7 +18,7 @@ import sg.edu.nus.features.wellness.model.ActivityRecord;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DashboardDailyResponse {
+public class _DashboardDailyResponse {
 
     // The Aggreated Wellness Summary for the Day
     private DailyWellnessSummary dailyWellnessSummary;

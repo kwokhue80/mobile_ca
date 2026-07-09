@@ -1,3 +1,6 @@
+// ======================================================================== //
+//  AUTHORS: Khai, Amelia
+// ======================================================================== //
 package sg.edu.nus.iss.client.auth
 
 import android.graphics.Color
@@ -94,9 +97,9 @@ class LoginFragment : Fragment() {
                            }
             override fun updateDrawState(ds: TextPaint) {
                 super.updateDrawState(ds)
-                ds.color = Color.parseColor("#00E5FF") // Keeps your custom cyan color
+                ds.color = Color.parseColor("#00E5FF") // Keeps custom cyan color
                 ds.isFakeBoldText = true              // Keeps it bold
-                ds.isUnderlineText = false            // Set to true if you want a classic underline link look!
+                ds.isUnderlineText = false            
             }
         }
         spannableString.setSpan(

@@ -1,4 +1,4 @@
-// Author: HuaYuan Xie
+// Author: HuaYuan Xie, Amelia Wong, Khairulanwar
 package sg.edu.nus.iss.client.profile
 
 import android.os.Bundle

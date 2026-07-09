@@ -11,7 +11,7 @@ import sg.edu.nus.features.wellness.model.ActivityRecord;
 import sg.edu.nus.features.wellness.model.DailyWellnessSummary;
 import sg.edu.nus.features.wellness.repository.ActivityRecordRepository;
 import sg.edu.nus.features.wellness.repository.DailyWellnessSummaryRepository;
-import sg.edu.nus.features.dashboard.dto.DashboardDailyResponse;
+import sg.edu.nus.features.dashboard.dto._DashboardDailyResponse;
 
 /*
 *   AUTHOR: HuaYuan Xie / Khairulanwar
@@ -20,13 +20,13 @@ import sg.edu.nus.features.dashboard.dto.DashboardDailyResponse;
 
 @Service
 @RequiredArgsConstructor
-public class DashboardService {
+public class _DashboardService {
 
     private final DailyWellnessSummaryRepository summaryRepo;
     private final ActivityRecordRepository activityRepo;
 
     // 1. Fetch a Single Day's Wellness Summary and Activity Records for the Dashboard
-    public DashboardDailyResponse getDailyDashboard(User user, LocalDate date) {
+    public _DashboardDailyResponse getDailyDashboard(User user, LocalDate date) {
         
         // Fetch the summary, or return an empty/default one if the user hasn't logged anything today
         DailyWellnessSummary summary = summaryRepo.findByUserIdAndSummaryDate(user.getId(), date)
@@ -47,7 +47,7 @@ public class DashboardService {
             user.getId(), startOfDay, endOfDay
         );
 
-        return DashboardDailyResponse.builder()
+        return _DashboardDailyResponse.builder()
             .dailyWellnessSummary(summary)
             .activityRecords(activities)
             .build();

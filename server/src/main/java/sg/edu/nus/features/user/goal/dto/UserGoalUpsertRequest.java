@@ -2,6 +2,10 @@ package sg.edu.nus.features.user.goal.dto;
 
 import java.math.BigDecimal;
 
+/*
+*   AUTHOR: Amelia
+*   PURPOSE: Patch dto
+*/
 public class UserGoalUpsertRequest {
 
     private BigDecimal targetValue;

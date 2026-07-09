@@ -18,7 +18,7 @@ import sg.edu.nus.security.TokenBlacklistService;
 
 /*
 *   AUTHOR: Amelia
-*   PURPOSE: Auth controller for client to access API on user registration/login
+*   PURPOSE: Auth service for login/registratoion
 */
 @Service
 @RequiredArgsConstructor

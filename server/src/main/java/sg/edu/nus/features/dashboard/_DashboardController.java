@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import sg.edu.nus.features.user.account.User;
 import sg.edu.nus.features.user.account.UserRepository;
 import sg.edu.nus.security.UserPrincipal;
-import sg.edu.nus.features.dashboard.dto.DashboardDailyResponse;
+import sg.edu.nus.features.dashboard.dto._DashboardDailyResponse;
 import sg.edu.nus.features.wellness.model.DailyWellnessSummary;
 
 /*
@@ -28,14 +28,14 @@ import sg.edu.nus.features.wellness.model.DailyWellnessSummary;
 @RestController
 @RequestMapping("/api/dashboard")
 @RequiredArgsConstructor
-public class DashboardController {
+public class _DashboardController {
 
-    private final DashboardService dashboardService;
+    private final _DashboardService dashboardService;
     private final UserRepository userRepository;
 
     // Endpoint 1: The Main Dashboard View (Summary + Feed)
     @GetMapping("/daily")
-    public ResponseEntity<DashboardDailyResponse> getDailyDashboard(
+    public ResponseEntity<_DashboardDailyResponse> getDailyDashboard(
             @RequestParam 
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @AuthenticationPrincipal UserPrincipal principal) {
@@ -45,7 +45,7 @@ public class DashboardController {
         User user = userRepository.findByEmailAddress(principal.getUsername())
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        DashboardDailyResponse response = dashboardService.getDailyDashboard(user, date);
+        _DashboardDailyResponse response = dashboardService.getDailyDashboard(user, date);
         return ResponseEntity.ok(response);
     }
 

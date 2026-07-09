@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import sg.edu.nus.features.chat.model.ChatRecommendation;
 
+// Author: Amelia
+
 public interface ChatRecommendationRepository extends JpaRepository<ChatRecommendation, Long> {
     
 }
