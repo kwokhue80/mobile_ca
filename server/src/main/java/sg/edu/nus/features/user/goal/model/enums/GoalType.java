@@ -13,6 +13,7 @@ public enum GoalType {
     FOOD_INTAKE("kcal per day"),
     SLEEP("hours per day"),
     WATER_ML("ml per day"),
+    HYDRATION("ml per day"),
     EXERCISE("days per week"),
     WEIGHT("kg");
 
