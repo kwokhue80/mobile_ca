@@ -17,7 +17,7 @@
         {
             "label": "Start FastAPI Chatbot Bridge",
             "type": "shell",
-            "command": "C:/Python314/python.exe",
+            "command": "python",
             "args": [
                 "-m",
                 "uvicorn",
@@ -90,7 +90,7 @@
         {
             "label": "Install Chatbot Test Dependencies",
             "type": "shell",
-            "command": "C:/Python314/python.exe",
+            "command": "python",
             "args": [
                 "-m",
                 "pip",
@@ -108,7 +108,7 @@
         {
             "label": "Run Chatbot API Tests",
             "type": "shell",
-            "command": "C:/Python314/python.exe",
+            "command": "python",
             "args": [
                 "-m",
                 "pytest",

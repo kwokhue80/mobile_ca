@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: mobileca-mysql
+    environment:
+      MYSQL_DATABASE: wellness_db
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -proot || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  fastapi-bridge:
+    build:
+      context: ./server/mcp_server
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      LOG_LEVEL: INFO
+      SPRING_BOOT_BASE_URL: http://spring-backend:8000
+    volumes:
+      - ./server/mcp_server:/app
+    command: uvicorn mcp_agent_wellness:app --host 0.0.0.0 --port 8001 --reload
+
+  spring-backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      JWT_SECRET: ${JWT_SECRET}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: root
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/wellness_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Singapore
+      WELLNESS_AGENT_BASE_URL: http://fastapi-bridge:8001
+    depends_on:
+      mysql:
+        condition: service_healthy
+      fastapi-bridge:
+        condition: service_started
+
+volumes:
+  mysql_data:

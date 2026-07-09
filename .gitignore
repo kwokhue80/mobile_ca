@@ -16,3 +16,4 @@
 
 # Local secrets
 server/mcp_server/.env
+.env

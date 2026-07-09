@@ -102,6 +102,7 @@ interface AuthApiService {
     suspend fun getHourlySummary(
         @Query("date") date: String  // Format: "yyyy-MM-dd"
     ): Response<List<HourlyWellnessResponse>>
+
 }
 
 data class LogoutResponse(val token: String?)
