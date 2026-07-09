@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client.backend
 
+import com.google.gson.annotations.SerializedName
 import sg.edu.nus.iss.client.chatbot.ChatMessage
 
 data class ChatRequest(
@@ -10,4 +11,14 @@ data class ChatRequest(
 
 data class ChatResponse(
     val answer: String
+)
+
+data class RecommendationPayload(
+    val type: String,
+    val title: String,
+    val message: String,
+    val category: String,
+    val priority: String,
+    val actionable: Boolean,
+    @SerializedName("generated_at") val generatedAt: String,
 )

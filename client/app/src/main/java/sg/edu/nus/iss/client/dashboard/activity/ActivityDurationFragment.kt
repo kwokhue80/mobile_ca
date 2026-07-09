@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import android.widget.Toast
+import android.widget.EditText
 import kotlinx.coroutines.launch
 import sg.edu.nus.iss.client.R
 import sg.edu.nus.iss.client.dashboard.DashboardViewModel
@@ -114,13 +115,36 @@ class ActivityDurationFragment : Fragment() {
         binding.btnSave.setOnClickListener {
             val distanceText = binding.rowDistance.etValue.text.toString().trim()
             val caloriesText = binding.rowCalories.etValue.text.toString().trim()
+            val distance = distanceText.toDoubleOrNull()
+            val calories = caloriesText.toDoubleOrNull()
 
             if (distanceText.isEmpty()) {
-                binding.rowDistance.etValue.error = "Required"
+                showInputError(binding.rowDistance.etValue, "Distance is required")
                 return@setOnClickListener
             }
+
+            if (distance == null) {
+                showInputError(binding.rowDistance.etValue, "Distance must be a valid number")
+                return@setOnClickListener
+            }
+
+            if (distance < 0.0) {
+                showInputError(binding.rowDistance.etValue, "Distance cannot be negative")
+                return@setOnClickListener
+            }
+
             if (caloriesText.isEmpty()) {
-                binding.rowCalories.etValue.error = "Required"
+                showInputError(binding.rowCalories.etValue, "Calories is required")
+                return@setOnClickListener
+            }
+
+            if (calories == null) {
+                showInputError(binding.rowCalories.etValue, "Calories must be a valid number")
+                return@setOnClickListener
+            }
+
+            if (calories < 0.0) {
+                showInputError(binding.rowCalories.etValue, "Calories cannot be negative")
                 return@setOnClickListener
             }
 
@@ -136,8 +160,8 @@ class ActivityDurationFragment : Fragment() {
                 recordDate = endDateTime.format(recordDateFormatter),
                 exerciseType = exerciseType.backendExerciseType,
                 exerciseDurationMinutes = viewModel.durationMinutes.value,
-                exerciseDistanceKm = distanceText.toDouble(),
-                exerciseCaloriesBurnedKcal = caloriesText.toDouble().toInt(),
+                exerciseDistanceKm = distance,
+                exerciseCaloriesBurnedKcal = calories.toInt(),
                 exerciseStartTime = startDateTime.format(recordDateFormatter),
                 exerciseEndTime = endDateTime.format(recordDateFormatter)
             )
@@ -150,12 +174,17 @@ class ActivityDurationFragment : Fragment() {
                         dashboardViewModel.refreshToday()
                         RouteManager.backTo(this@ActivityDurationFragment, R.id.chooseExerciseFragment, true)
                     } else {
+                        val errorBody = response.errorBody()?.string().orEmpty()
                         binding.btnSave.isEnabled = true
-                        Toast.makeText(requireContext(), "Save failed: ${response.code()}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            "Save failed: ${response.code()} ${errorBody.take(160)}",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 } catch (e: Exception) {
                     binding.btnSave.isEnabled = true
-                    Toast.makeText(requireContext(), "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Save failed: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -236,6 +265,11 @@ class ActivityDurationFragment : Fragment() {
             initial.minute,
             false
         ).show()
+    }
+
+    private fun showInputError(input: EditText, message: String) {
+        input.error = message
+        input.requestFocus()
     }
 
     override fun onDestroyView() {

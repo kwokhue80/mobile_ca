@@ -4,7 +4,7 @@
     <string name="credential_emailAddress">Email Address</string>
     <string name="credential_password">Password</string>
     <string name="credential_confirmPassword">Confirm Password</string>
-    <string name="credential_loginButton">Proceed to My Wellness</string>
+    <string name="credential_loginButton">Login</string>
     <string name="credential_registerTitle">Create Account</string>
     <string name="credential_registerPrompt">New here? Create your account</string>
     <string name="credential_registerButton">Register</string>
@@ -36,6 +36,10 @@
     <string name="biometric_login_failed">Please Login with Password First</string>
     <string name="add_item_title_preview">Add Item</string>
     <string name="close">Close</string>
+    <string name="send_message">Send Message</string>
+    <string name="ask_your_wellness_assistant">Ask your wellness assistant...</string>
+    <string name="clear">Clear</string>
+    <string name="welcome_to_nova_health">Welcome to Nova Health</string>
     <string-array name="gender_options">
         <item>Male</item>
         <item>Female</item>

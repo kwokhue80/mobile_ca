@@ -25,6 +25,8 @@ import kotlin.math.roundToInt
 private fun MetricType.toActivityGoalTypeOrNull(): ActivityGoalType? = when (this) {
     MetricType.DISTANCE -> ActivityGoalType.DISTANCE
     MetricType.CALORIES -> ActivityGoalType.CALORIES
+    // Food intake has no user-set goal (removed from Set Goals); its detail
+    // screen falls back to MetricType.FOOD_INTAKE.defaultGoal.
     MetricType.FOOD_INTAKE -> null
     MetricType.SLEEP -> ActivityGoalType.SLEEP
     MetricType.HYDRATION -> ActivityGoalType.HYDRATION
@@ -119,17 +121,18 @@ class MetricDetailFragment : Fragment() {
     // date range is currently being viewed.
     private fun renderSleepQuality(quality: Double?) {
         binding.tvSleepQuality.text = if (quality != null) {
-            "${sleepQualityEmoji(quality)} Sleep quality: ${"%.1f".format(quality)}/5 (1=poor, 5=excellent)"
+            "${sleepQualityEmoji(quality)} Sleep quality: ${"%.1f".format(quality)}/10 (1=poor, 10=excellent)"
         } else {
             "Sleep quality: no data yet"
         }
     }
 
-    private fun sleepQualityEmoji(quality: Double): String = when (quality.roundToInt().coerceIn(1, 5)) {
-        1 -> "😞"
-        2 -> "😕"
-        3 -> "😐"
-        4 -> "🙂"
+    // Quality is rated 1 (poor) .. 10 (excellent); two rating points per emoji bucket.
+    private fun sleepQualityEmoji(quality: Double): String = when (quality.roundToInt().coerceIn(1, 10)) {
+        1, 2 -> "😞"
+        3, 4 -> "😕"
+        5, 6 -> "😐"
+        7, 8 -> "🙂"
         else -> "😄"
     }
 
@@ -148,10 +151,8 @@ class MetricDetailFragment : Fragment() {
 
         val isWeight = metricType == MetricType.WEIGHT
         val isSleepDay = metricType == MetricType.SLEEP && state.timeRange == TimeRange.DAY
-        // Food Intake has no hourly breakdown (see MetricDetailViewModel.selectHourlyValue),
-        // so its Day view is a single total value with no chart, same as Sleep's Day view.
         val isFoodIntakeDay = metricType == MetricType.FOOD_INTAKE && state.timeRange == TimeRange.DAY
-        val isSingleValueDay = isSleepDay || isFoodIntakeDay
+        val isSingleValueDay = isSleepDay
 
         val selectedBar = state.selectedBarIndex?.let { state.bars.getOrNull(it) }
         if (selectedBar != null) {
@@ -173,7 +174,8 @@ class MetricDetailFragment : Fragment() {
             binding.tvSummaryDefaultValue.text = if (isSleepDay) {
                 "You slept ${metricType.formatValue(state.totalValue)}${metricType.unit} today."
             } else if (isFoodIntakeDay) {
-                "You consumed ${metricType.formatValue(state.totalValue)} ${metricType.unit} today."
+                val percent = progressPercent(state.totalValue, state.goalValue)
+                "${metricType.formatValue(state.totalValue)} of ${metricType.formatValue(state.goalValue)} ${metricType.unit} ($percent%)"
             } else if (isWeight) {
                 val avgSuffix = if (state.timeRange == TimeRange.DAY) "" else "(avg)"
                 "${metricType.formatValue(currentWeight)}${metricType.unit}$avgSuffix"
@@ -215,7 +217,7 @@ class MetricDetailFragment : Fragment() {
         }
 
         if (isWeightDay || isSingleValueDay) {
-            // No chart for Weight's/Sleep's/Food Intake's Day view; the text summary above is enough.
+            // No chart for Weight's/Sleep's Day view; the text summary above is enough.
         } else if (isWeight) {
             MetricLineChartConfigurator.configure(
                 chart = binding.chartMetricLine,
@@ -233,7 +235,7 @@ class MetricDetailFragment : Fragment() {
                 chart = binding.chartMetric,
                 overlay = binding.chartSelectionOverlay,
                 bars = state.bars,
-                showGoalLine = state.timeRange != TimeRange.DAY,
+                showGoalLine = state.timeRange != TimeRange.DAY || isFoodIntakeDay,
                 chartGoalValue = state.chartGoalValue,
                 baseColor = metricType.chartColor,
                 goalMetColor = metricType.chartGoalMetColor,
@@ -251,6 +253,11 @@ class MetricDetailFragment : Fragment() {
         bmi < 35.0 -> "Obese"
         bmi < 40.0 -> "Severely Obese"
         else -> "Morbidly Obese"
+    }
+
+    private fun progressPercent(total: Double, goal: Double): Int {
+        if (goal <= 0.0) return 0
+        return ((total / goal) * 100).roundToInt().coerceAtLeast(0)
     }
 
     private fun updateTabStyles(activeRange: TimeRange) {

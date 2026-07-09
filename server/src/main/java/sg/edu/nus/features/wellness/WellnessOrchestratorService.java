@@ -15,6 +15,7 @@ import java.util.UUID;
 import sg.edu.nus.features.wellness.dto.ActivityRecordDto;
 import sg.edu.nus.features.wellness.dto.BadgeProgressResponse;
 import sg.edu.nus.features.wellness.dto.ExerciseLogResponse;
+import sg.edu.nus.features.wellness.dto.FoodLogResponse;
 import sg.edu.nus.features.wellness.dto.HourlyWellnessResponse;
 import sg.edu.nus.features.wellness.dto.RecommendationResponse;
 
@@ -359,6 +360,26 @@ public class WellnessOrchestratorService {
             .toList();
     }
 
+    // Returns structured meal entries (meal type, food name, calories) over a given
+    // number of past days. Backs the Food Summary detail screen's Day meal list and
+    // the per-day breakdown shown under its Week/Month charts.
+    public List<FoodLogResponse> getFoodLogs(UUID userId, int numberOfDays) {
+        LocalDateTime endTime = LocalDateTime.now();
+        LocalDateTime startTime = endTime.minusDays(numberOfDays);
+
+        return foodRepo.findAllByUserIdAndLoggedAtBetweenOrderByLoggedAtDesc(
+                userId, startTime, endTime
+        ).stream()
+            .map(log -> FoodLogResponse.builder()
+                .id(log.getId())
+                .mealType(log.getMealType() != null ? log.getMealType().toString() : "OTHER")
+                .foodName(log.getFoodName())
+                .caloriesKcal(log.getCaloriesKcal())
+                .loggedAt(log.getLoggedAt())
+                .build())
+            .toList();
+    }
+
     // Deletes a single exercise session (Home "Activity Tracked" list's delete button)
     // and reverses its contribution to that day's aggregated summary (distance,
     // calories burned, exercise minutes), plus the matching activity-feed entry.
@@ -504,6 +525,10 @@ public class WellnessOrchestratorService {
         weightRepo.deleteByUserIdAndLoggedAtBetween(userId, startOfDay, endOfDay);
         moodRepo.deleteByUserIdAndLoggedAtBetween(userId, startOfDay, endOfDay);
         exerciseRepo.deleteByUserIdAndLoggedAtBetween(userId, startOfDay, endOfDay);
+        // Food logs must reset alongside the summary, or the Food Summary card
+        // (summary.totalCaloriesIntake, wiped below) reads 0 while the detail
+        // screen (raw food_logs) still lists today's meals.
+        foodRepo.deleteByUserIdAndLoggedAtBetween(userId, startOfDay, endOfDay);
         activityRepo.deleteByUserIdAndRecordedAtBetween(userId, startOfDay, endOfDay);
         summaryRepo.deleteByUserIdAndSummaryDate(userId, today);
     }
@@ -527,7 +552,12 @@ public class WellnessOrchestratorService {
         } else {
 
             // Daily target values - no weight for now
-            BigDecimal hydrationTargetMl = goalTargets.getOrDefault(GoalType.HYDRATION, BigDecimal.valueOf(2000));
+            BigDecimal hydrationTargetMl = getGoalTargetOrDefault(
+                goalTargets,
+                BigDecimal.valueOf(2000),
+                "HYDRATION",
+                "WATER_ML"
+            );
             BigDecimal sleepTargetMinutes = goalTargets
                 .getOrDefault(GoalType.SLEEP, BigDecimal.valueOf(7))
                 .multiply(BigDecimal.valueOf(60)); // Conv to minutes to compare with actual minutes stored
@@ -597,6 +627,43 @@ public class WellnessOrchestratorService {
         return new RecommendationResponse(recommendation, generatedAt);
     }
 
+    private BigDecimal getGoalTargetOrDefault(
+        Map<GoalType, BigDecimal> goalTargets,
+        BigDecimal defaultValue,
+        String... aliases
+    ) {
+        for (String alias : aliases) {
+            GoalType goalType = resolveGoalTypeAlias(alias);
+            if (goalType == null) {
+                continue;
+            }
+
+            BigDecimal targetValue = goalTargets.get(goalType);
+            if (targetValue != null) {
+                return targetValue;
+            }
+        }
+
+        return defaultValue;
+    }
+
+    private GoalType resolveGoalTypeAlias(String alias) {
+        if (alias == null || alias.isBlank()) {
+            return null;
+        }
+
+        String normalized = alias.trim().toUpperCase();
+        if ("HYDRATION".equals(normalized)) {
+            return GoalType.WATER_ML;
+        }
+
+        try {
+            return GoalType.valueOf(normalized);
+        } catch (IllegalArgumentException error) {
+            return null;
+        }
+    }
+
     // Need score based on ratio derived from deficit between actual and target values
     private record NeedScore(String name, BigDecimal deficitRatio, String message) {
         static NeedScore of(String name, BigDecimal target, BigDecimal actual, String message) {
@@ -610,5 +677,12 @@ public class WellnessOrchestratorService {
                 : BigDecimal.ZERO;
             return new NeedScore(name, ratio, message);
         }
+    }
+
+     // Fetch Date Range (Just the Summaries for charts/graphs)
+    public List<DailyWellnessSummary> getSummaryRange(User user, LocalDate startDate, LocalDate endDate) {
+        return summaryRepo.findByUserIdAndSummaryDateBetweenOrderBySummaryDateAsc(
+            user.getId(), startDate, endDate
+        );
     }
 }

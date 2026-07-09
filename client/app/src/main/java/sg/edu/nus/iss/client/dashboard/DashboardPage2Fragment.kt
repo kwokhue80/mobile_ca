@@ -12,7 +12,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import sg.edu.nus.iss.client.dashboard.detail.model.MetricType
 import sg.edu.nus.iss.client.dashboard.detail.ExerciseDaysViewModel
 import sg.edu.nus.iss.client.dashboard.detail.MentalHealthDetailViewModel
 import sg.edu.nus.iss.client.dashboard.goals.UserGoalsViewModel
@@ -44,7 +43,7 @@ class DashboardPage2Fragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.cardExerciseDays.setOnClickListener { RouteManager.toExerciseDaysDetail(this) }
         binding.cardMentalHealth.setOnClickListener { RouteManager.toMentalHealthDetail(this) }
-        binding.cardFoodIntake.setOnClickListener { RouteManager.toMetricDetail(this, MetricType.FOOD_INTAKE) }
+        binding.cardFoodSummary.setOnClickListener { RouteManager.toFoodSummary(this) }
 
         val userGoalsViewModel = ViewModelProvider(requireActivity())[UserGoalsViewModel::class.java]
         val dashboardViewModel = ViewModelProvider(requireActivity())[DashboardViewModel::class.java]
@@ -78,9 +77,7 @@ class DashboardPage2Fragment : Fragment() {
                     } ?: "--"
 
                     val calories = summary?.totalCaloriesIntake ?: 0
-                    binding.tvFoodIntake.text = "$calories kcal"
-                    binding.progressFoodIntake.progress =
-                        calories.coerceIn(0, binding.progressFoodIntake.max)
+                    binding.tvFoodSummary.text = "${"%,d".format(calories)} kcal"
                 }
             }
         }

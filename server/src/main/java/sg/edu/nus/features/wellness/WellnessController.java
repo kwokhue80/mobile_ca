@@ -19,11 +19,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import sg.edu.nus.security.UserPrincipal;
 import sg.edu.nus.features.wellness.dto.WellnessRecordPayload;
+import sg.edu.nus.features.user.account.User;
+import sg.edu.nus.features.user.account.UserService;
 import sg.edu.nus.features.wellness.dto.BadgeProgressResponse;
 import sg.edu.nus.features.wellness.dto.ExerciseLogResponse;
+import sg.edu.nus.features.wellness.dto.FoodLogResponse;
 import sg.edu.nus.features.wellness.dto.HourlyWellnessResponse;
 import sg.edu.nus.features.wellness.model.DailyWellnessSummary;
-import sg.edu.nus.features.wellness.model.ExerciseLog;
 import sg.edu.nus.features.wellness.dto.RecommendationResponse;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class WellnessController {
 
     private final WellnessOrchestratorService orchestratorService;
+    private final UserService userService;
 
     @PostMapping("/records")
     public ResponseEntity<Void> saveRecord(
@@ -56,9 +59,19 @@ public class WellnessController {
 
     @GetMapping("/exercise-logs")
     public ResponseEntity<List<ExerciseLogResponse>> getExerciseLogs(
-            @RequestParam(defaultValue = "30") int days,
+            @RequestParam(defaultValue = "180") int days,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         List<ExerciseLogResponse> logs = orchestratorService.getExerciseLogs(userPrincipal.getId(), days);
+        return ResponseEntity.ok(logs);
+    }
+
+    // Structured meal entries (meal type, food name, calories) for the Food Summary
+    // detail screen's Day meal list and Week/Month per-day breakdowns.
+    @GetMapping("/food-logs")
+    public ResponseEntity<List<FoodLogResponse>> getFoodLogs(
+            @RequestParam(defaultValue = "180") int days,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<FoodLogResponse> logs = orchestratorService.getFoodLogs(userPrincipal.getId(), days);
         return ResponseEntity.ok(logs);
     }
 
@@ -106,12 +119,16 @@ public class WellnessController {
         return ResponseEntity.ok(recommendation);
     }
 
-    // @GetMapping("/activity")
-    // public ResponseEntity<List<ActivityRecordDto>> getActivityHistory(
-    //     @RequestParam(defaultValue = "7") int days,
-    //     @AuthenticationPrincipal UserPrincipal userPrincipal) {
-    //     List<ActivityRecordDto> history = orchestratorService.getActivityHistory(userPrincipal.getId(), days);
-    //     return ResponseEntity.ok(history);
-    // }
+    // The Chart/Graph View (Date Range Summaries)
+    @GetMapping("/range")
+    public ResponseEntity<List<DailyWellnessSummary>> getDashboardRange(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        log.info("Fetching dashboard range for user: {} from date: {} to date: {}", principal.getUsername(), startDate, endDate);
+        User user = userService.getByEmail(principal.getUsername());
+        List<DailyWellnessSummary> response = orchestratorService.getSummaryRange(user, startDate, endDate);
+        return ResponseEntity.ok(response);
+    }
 
 }

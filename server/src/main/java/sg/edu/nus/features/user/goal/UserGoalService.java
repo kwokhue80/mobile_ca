@@ -114,7 +114,7 @@ public class UserGoalService {
             case "WATER_ML", "HYDRATION" -> "ml per day";
             case "SLEEP_MINUTES" -> "minutes per day";
             case "SLEEP" -> "hours per day";
-            case "CALORIES_BURNED", "CALORIES" -> "kcal per day";
+            case "CALORIES_BURNED", "CALORIES", "FOOD_INTAKE" -> "kcal per day";
             case "EXERCISE_DAYS" -> "days per week";
             case "WEIGHT" -> "kg";
             case "STEPS" -> "steps per day";

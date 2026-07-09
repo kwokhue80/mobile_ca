@@ -15,4 +15,8 @@ interface BackendApi {
 
     @GET("api/tools")
     suspend fun getAvailableTools(): List<String>
+
+    // For personalised recommendation notifs
+    @GET("api/recommendations")
+    suspend fun getRecommendations(): RecommendationPayload
 }

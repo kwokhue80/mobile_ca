@@ -34,8 +34,6 @@ class RagApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-
-
         copyPrebuiltDatabaseIfNeeded()
 
         boxStore = MyObjectBox.builder()
@@ -56,10 +54,9 @@ class RagApplication : Application() {
         val sessionManager = SessionManager(applicationContext)
         val backendHttpClient = OkHttpClient.Builder()
             // Adds Authorization header from SessionManager to every backend call,
-            // including chat calls to FastAPI and any future protected endpoints
             .addInterceptor(AuthInterceptor(sessionManager))
             // Chat responses can involve tool calls and web search, so give bridge calls
-            // more time before failing over to local fallback.
+            // more time before failing over to local fallback
             .connectTimeout(20, TimeUnit.SECONDS)
             .readTimeout(75, TimeUnit.SECONDS)
             .writeTimeout(75, TimeUnit.SECONDS)

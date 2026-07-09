@@ -124,6 +124,11 @@ object RouteManager {
         host.findNavController().navigate(R.id.action_homeFragment_to_mentalHealthDetailFragment)
     }
 
+    // To food summary detail
+    fun toFoodSummary(host: Fragment) {
+        host.findNavController().navigate(R.id.action_homeFragment_to_foodSummaryFragment)
+    }
+
     // To badges
     fun toBadges(host: Fragment) {
         host.findNavController().navigate(R.id.action_homeFragment_to_badgesFragment)

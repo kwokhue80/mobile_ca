@@ -248,6 +248,7 @@ class SessionManager(context: Context) {
         val text = recommendationText.trim()
         val signature = "$generatedAt|$text"
         val previousSignature = getRecommendationSignature()
+        val previousText = getLatestRecommendationText()
 
         if (previousSignature.isNullOrBlank()) {
             // First payload initializes cache without triggering unread state.
@@ -257,12 +258,22 @@ class SessionManager(context: Context) {
             return false
         }
 
+        // If the signature is identical, it's definitely not new.
         if (signature == previousSignature) {
-            // Same payload means no new recommendation.
             return false
         }
 
-        // New payload updates cache and increments unread counter.
+        // If the text is identical to the last one, even if the timestamp is different,
+        // we update the timestamp in our cache but don't treat it as a "new" unread event
+        // to avoid spamming the user with the same message.
+        if (text == previousText) {
+            setRecommendationSignature(signature)
+            setLatestRecommendation(text, generatedAt)
+            // We don't prepend to history or increment unread count if text is same.
+            return false
+        }
+
+        // New payload (different text) updates cache and increments unread counter.
         setRecommendationSignature(signature)
         setLatestRecommendation(text, generatedAt)
         prependRecommendationHistory(text, generatedAt)

@@ -14,8 +14,15 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import sg.edu.nus.iss.client.MainActivity
 import sg.edu.nus.iss.client.R
-import sg.edu.nus.iss.client.network.RetrofitClient
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import sg.edu.nus.iss.client.backend.BackendApi
+import sg.edu.nus.iss.client.backend.BackendConfig
+import sg.edu.nus.iss.client.backend.BackendRepository
+import sg.edu.nus.iss.client.network.AuthInterceptor
 import sg.edu.nus.iss.client.util.SessionManager
+import java.util.concurrent.TimeUnit
 
 class RecommendationPollWorker(
     appContext: Context,
@@ -24,38 +31,59 @@ class RecommendationPollWorker(
 
     companion object {
         const val WORK_NAME = "recommendation-poll-worker"
+        const val INIT_WORK_NAME = "recommendation-initial-worker"
         const val CHANNEL_ID = "wellness_recommendations"
+        const val KEY_FORCE_NOTIFY_ON_FIRST_FETCH = "force_notify_on_first_fetch"
     }
 
     override suspend fun doWork(): Result {
         // Use app-context dependencies because worker may run when UI is not active.
         val sessionManager = SessionManager(applicationContext)
-        val authApiService = RetrofitClient.getApiService(applicationContext)
+        val backendRepository = buildBackendRepository(sessionManager)
+        val forceNotifyOnFirstFetch = inputData.getBoolean(KEY_FORCE_NOTIFY_ON_FIRST_FETCH, false)
+        val hadExistingSignature = !sessionManager.getRecommendationSignature().isNullOrBlank()
 
-        // Retry only when network/API call itself fails.
-        val response = runCatching { authApiService.getLatestRecommendation() }.getOrNull()
+        // Retry only when network/API call itself fails
+        val payload = runCatching { backendRepository.getRecommendations() }.getOrNull()
             ?: return Result.retry()
 
-        if (!response.isSuccessful) {
-            // Non-2xx responses are treated as handled to avoid aggressive retries.
-            return Result.success()
-        }
-
-        val payload = response.body() ?: return Result.success()
-        // Shared signature logic prevents duplicate notifications.
+        // Shared signature logic prevent duplicate notifications
         val isNewRecommendation = sessionManager.upsertRecommendationAndDetectNew(
-            recommendationText = payload.recommendation,
+            recommendationText = payload.message,
             generatedAt = payload.generatedAt
         )
 
-        if (isNewRecommendation) {
+        val shouldNotifyInitial = forceNotifyOnFirstFetch && !hadExistingSignature
+
+        if (isNewRecommendation || shouldNotifyInitial) {
+            if (shouldNotifyInitial && !isNewRecommendation) {
+                sessionManager.incrementUnreadRecommendationCount()
+            }
             showSystemNotification(
-                recommendation = payload.recommendation,
+                recommendation = payload.message,
                 unreadCount = sessionManager.getUnreadRecommendationCount()
             )
         }
 
         return Result.success()
+    }
+
+    private fun buildBackendRepository(sessionManager: SessionManager): BackendRepository {
+        val client = OkHttpClient.Builder()
+            .addInterceptor(AuthInterceptor(sessionManager))
+            .connectTimeout(20, TimeUnit.SECONDS)
+            .readTimeout(75, TimeUnit.SECONDS)
+            .writeTimeout(75, TimeUnit.SECONDS)
+            .build()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BackendConfig.BASE_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val backendApi = retrofit.create(BackendApi::class.java)
+        return BackendRepository(backendApi)
     }
 
     private fun showSystemNotification(recommendation: String, unreadCount: Int) {
@@ -85,7 +113,7 @@ class RecommendationPollWorker(
             .setNumber(unreadCount)
             .build()
 
-        // Notification posting requires runtime permission on Android 13+.
+        // Notification posting requires runtime permission on Android 13+
         val hasPermission = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
                 ContextCompat.checkSelfPermission(
                     applicationContext,
@@ -100,7 +128,7 @@ class RecommendationPollWorker(
     }
 
     private fun createNotificationChannel() {
-        // Channels are required only on Android 8.0+.
+        // Channels are required only on Android 8.0+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
 
         val channel = NotificationChannel(

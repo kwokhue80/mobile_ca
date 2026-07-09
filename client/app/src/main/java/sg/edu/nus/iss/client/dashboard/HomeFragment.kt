@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -14,8 +15,11 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.work.Constraints
+import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import sg.edu.nus.iss.client.R
@@ -30,10 +34,11 @@ class HomeFragment : Fragment() {
     private lateinit var sessionManager: SessionManager
     // Requests runtime notification permission on Android 13+.
     private val requestNotificationPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (!granted && isAdded) {
-                Toast.makeText(requireContext(), "Enable notifications to receive recommendation alerts", Toast.LENGTH_LONG).show()
-            }
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            // granted ->
+            // if (!granted && isAdded) {
+            //    Toast.makeText(requireContext(), "Enable notifications to receive recommendation alerts", Toast.LENGTH_LONG).show()
+            // }
         }
 
     override fun onCreateView(
@@ -57,6 +62,25 @@ class HomeFragment : Fragment() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             binding.appBarLayout.setPadding(0, systemBars.top, 0, 0)
             binding.bottomNavigation.setPadding(0, 0, 0, systemBars.bottom)
+
+            // The bottom nav belongs to the screen edge, not the keyboard: on devices
+            // where the window resizes for the IME (adjustResize pre-edge-to-edge) it
+            // would otherwise float directly above the keyboard while typing in Chat,
+            // so hide it whenever the IME is up for non-chat tabs.
+            val imeVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
+            val isChatTab = binding.bottomNavigation.selectedItemId == R.id.nav_chat
+            val shouldHideBottomNav = imeVisible && !isChatTab
+            binding.bottomNavigation.visibility = if (shouldHideBottomNav) View.GONE else View.VISIBLE
+
+            // On edge-to-edge devices (API 30+) the window does NOT resize for the IME,
+            // which would leave the Chat input hidden behind the keyboard - pad the
+            // content by the keyboard's overlap instead. On devices where the window
+            // already resized, the reported IME inset is 0, so this pads nothing and
+            // there's no double shift.
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            binding.homeContentContainer.setPadding(
+                0, 0, 0, (ime.bottom - systemBars.bottom).coerceAtLeast(0)
+            )
             insets
         }
 
@@ -64,6 +88,7 @@ class HomeFragment : Fragment() {
         if (savedInstanceState == null) {
             RouteManager.switchHomeTab(this, RouteManager.HomeTab.MAIN)
         }
+        applySoftInputModeForSelectedTab()
 
         renderNotificationBadge(sessionManager.getUnreadRecommendationCount())
 
@@ -79,10 +104,12 @@ class HomeFragment : Fragment() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_main -> {
+                    applySoftInputModeForSelectedTab(R.id.nav_main)
                     RouteManager.switchHomeTab(this, RouteManager.HomeTab.MAIN)
                     true
                 }
                 R.id.nav_chat -> {
+                    applySoftInputModeForSelectedTab(R.id.nav_chat)
                     RouteManager.switchHomeTab(this, RouteManager.HomeTab.CHAT)
                     true
                 }
@@ -99,8 +126,19 @@ class HomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        applySoftInputModeForSelectedTab()
         // Refresh badge when returning from background or after notification tap.
         renderNotificationBadge(sessionManager.getUnreadRecommendationCount())
+    }
+
+    private fun applySoftInputModeForSelectedTab(selectedItemId: Int = binding.bottomNavigation.selectedItemId) {
+        // Keep bottom nav pinned on Chat; preserve resize behavior elsewhere.
+        val mode = if (selectedItemId == R.id.nav_chat) {
+            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
+        } else {
+            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+        }
+        requireActivity().window.setSoftInputMode(mode)
     }
 
     private fun scheduleBackgroundRecommendationPolling() {
@@ -109,13 +147,32 @@ class HomeFragment : Fragment() {
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
+        val initialRequest = OneTimeWorkRequestBuilder<RecommendationPollWorker>()
+            .setConstraints(constraints)
+            .setInputData(
+                Data.Builder()
+                    .putBoolean(RecommendationPollWorker.KEY_FORCE_NOTIFY_ON_FIRST_FETCH, true)
+                    .build()
+            )
+            .build()
+
         // Poll every 3 hours so recommendations are periodic and not tied to each new log entry.
         val periodicRequest = PeriodicWorkRequestBuilder<RecommendationPollWorker>(3, TimeUnit.HOURS)
             .setConstraints(constraints)
             .build()
 
+        val workManager = WorkManager.getInstance(requireContext().applicationContext)
+
+        // Run one fetch immediately so the user does not need to wait for the first periodic window.
+        // Use KEEP policy to prevent redundant fetches every time the HomeFragment is recreated.
+        workManager.enqueueUniqueWork(
+            RecommendationPollWorker.INIT_WORK_NAME,
+            ExistingWorkPolicy.KEEP,
+            initialRequest
+        )
+
         // Keep a single unique periodic worker across app launches.
-        WorkManager.getInstance(requireContext().applicationContext)
+        workManager
             .enqueueUniquePeriodicWork(
                 RecommendationPollWorker.WORK_NAME,
                 ExistingPeriodicWorkPolicy.UPDATE,
@@ -151,6 +208,7 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         _binding = null
     }
 }

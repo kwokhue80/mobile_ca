@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client.chatbot
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -39,11 +40,22 @@ class ChatFragment : Fragment() {
         layoutManager.stackFromEnd = true
         binding.recyclerViewChat.layoutManager = layoutManager
 
-        // redraws any messages already in the notebook previously
+        // redraws any messages already in the chat window previously
         adapter.notifyDataSetChanged()
         if (viewModel.messages.isNotEmpty()) {
             binding.recyclerViewChat.scrollToPosition(viewModel.messages.size - 1)
         }
+
+        binding.swipeRefreshChat.setOnRefreshListener {
+            runHealthCheck()
+        }
+
+        binding.btnClearChat.setOnClickListener {
+            viewModel.clearChatHistory()
+            adapter.notifyDataSetChanged()
+        }
+
+        runHealthCheck()
 
         binding.btnSend.setOnClickListener {
             val userText = binding.editTextMessage.text.toString().trim()
@@ -69,6 +81,32 @@ class ChatFragment : Fragment() {
                 )
             }
         }
+    }
+
+    private fun runHealthCheck() {
+        _binding?.let { currentBinding ->
+            currentBinding.swipeRefreshChat.isRefreshing = true
+            // currentBinding.tvChatStatus.text = "Checking connection..."
+            currentBinding.viewChatStatus.background?.setTint(Color.parseColor("#9E9E9E"))
+        }
+
+        viewModel.checkChatHealth(
+            onResult = { isHealthy, statusMessage ->
+                _binding?.let { currentBinding ->
+                    currentBinding.swipeRefreshChat.isRefreshing = false
+                    // currentBinding.tvChatStatus.text = statusMessage
+                    val color = if (isHealthy) Color.parseColor("#4CAF50") else Color.parseColor("#F44336")
+                    currentBinding.viewChatStatus.background?.setTint(color)
+                }
+            },
+            onError = {
+                _binding?.let { currentBinding ->
+                    currentBinding.swipeRefreshChat.isRefreshing = false
+                    // currentBinding.tvChatStatus.text = "Connection failed"
+                    currentBinding.viewChatStatus.background?.setTint(Color.parseColor("#F44336"))
+                }
+            }
+        )
     }
 
     override fun onDestroyView() {

@@ -123,11 +123,8 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
         }
     }
 
-    // Distance/Calories/Hydration select from the hourly buckets; Sleep/Weight/Food
-    // Intake select from a single day's aggregated summary (all real backend data).
-    // Food Intake has no hourly breakdown (meals aren't bucketed by hour server-side),
-    // so it's never routed through this selector - see buildDayState()'s single-value
-    // branch - but the case is still needed for this "when" to stay exhaustive.
+    // Distance/Calories/Hydration select from the hourly buckets. Sleep/Weight/Food
+    // Intake use the daily summary because the backend has no hourly food buckets.
     private fun selectHourlyValue(entry: HourlyWellnessResponse?): Double = when (metricType) {
         MetricType.DISTANCE -> entry?.distanceKm ?: 0.0
         MetricType.CALORIES -> entry?.caloriesBurnedKcal?.toDouble() ?: 0.0
@@ -176,7 +173,7 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
         val periodLabel = if (referenceDate == today) "Today" else formatDayLabel(referenceDate)
         val canNext = referenceDate.isBefore(today)
 
-        if (metricType == MetricType.SLEEP || metricType == MetricType.WEIGHT || metricType == MetricType.FOOD_INTAKE) {
+        if (metricType == MetricType.SLEEP || metricType == MetricType.WEIGHT) {
             val summary = fetchRange(referenceDate, referenceDate)[referenceDate]
             val total = selectDailyValue(summary)
             return MetricDetailUiState(
@@ -190,6 +187,31 @@ class MetricDetailViewModel(application: Application, private val metricType: Me
                 summaryRows = emptyList(),
                 canGoNext = canNext,
                 sleepQualityScore = summary?.sleepQualityScore?.toDouble()
+            )
+        }
+
+        if (metricType == MetricType.FOOD_INTAKE) {
+            val summary = fetchRange(referenceDate, referenceDate)[referenceDate]
+            val total = selectDailyValue(summary)
+            val bars = listOf(
+                MetricBar(
+                    axisLabel = "Today",
+                    value = total,
+                    rangeLabel = formatDayLabel(referenceDate),
+                    meetsGoal = total >= goal
+                )
+            )
+            return MetricDetailUiState(
+                timeRange = TimeRange.DAY,
+                periodLabel = periodLabel,
+                totalValue = total,
+                goalValue = goal,
+                chartGoalValue = goal,
+                subtitle = buildGoalSubtitle(total, goal),
+                bars = bars,
+                selectedBarIndex = null,
+                summaryRows = emptyList(),
+                canGoNext = canNext
             )
         }
 
