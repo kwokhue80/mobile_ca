@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client
 
+// Author: Soo Kwok Heng with significant guidance from Claude
 import sg.edu.nus.iss.client.objectbox.DishRepository
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry

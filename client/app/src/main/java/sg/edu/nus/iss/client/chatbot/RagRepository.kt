@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client.chatbot
 
+// Authors: Amelia Wong, Soo Kwok Heng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import sg.edu.nus.iss.client.backend.BackendConfig

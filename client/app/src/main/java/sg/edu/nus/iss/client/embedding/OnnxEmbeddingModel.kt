@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client.embedding
 
+// Note: This file was generated entirely by Claude by Soo Kwok Heng
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession

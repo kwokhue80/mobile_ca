@@ -1,6 +1,6 @@
 package sg.edu.nus.iss.client.chatbot
 
-
+// Author: Yeo Chai Lee
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

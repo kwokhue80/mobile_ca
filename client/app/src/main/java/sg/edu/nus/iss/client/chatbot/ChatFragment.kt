@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client.chatbot
 
+// Author: Amelia Wong, Yeo Chai Lee, Soo Kwok Heng
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
