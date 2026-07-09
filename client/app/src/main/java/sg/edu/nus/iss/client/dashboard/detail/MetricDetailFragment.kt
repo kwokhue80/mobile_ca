@@ -151,6 +151,13 @@ class MetricDetailFragment : Fragment() {
 
         val isWeight = metricType == MetricType.WEIGHT
         val isSleepDay = metricType == MetricType.SLEEP && state.timeRange == TimeRange.DAY
+        /**
+         * Author(s): Yang Mao Wei
+         * Contribution:
+         * - Added Food Intake detail display logic.
+         * - Used default Food Intake goal when Set Goals does not include Food Intake.
+         * - Displayed Food Intake day progress and percentage.
+         */
         val isFoodIntakeDay = metricType == MetricType.FOOD_INTAKE && state.timeRange == TimeRange.DAY
         val isSingleValueDay = isSleepDay
 

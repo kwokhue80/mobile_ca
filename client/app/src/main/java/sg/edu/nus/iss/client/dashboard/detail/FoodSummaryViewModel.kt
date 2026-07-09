@@ -156,7 +156,13 @@ class FoodSummaryViewModel(application: Application) : AndroidViewModel(applicat
             else -> buildDayState()
         }
     }
-
+    /**
+     * Author(s): Yang Mao Wei
+     * Contribution:
+     * - Added Food Summary data handling.
+     * - Loaded food logs from backend.
+     * - Generated Day meal list and Week/Month daily calorie bars.
+     */
     private fun buildDayState(): FoodSummaryUiState {
         val meals = logsByDate[referenceDate].orEmpty()
         return FoodSummaryUiState(

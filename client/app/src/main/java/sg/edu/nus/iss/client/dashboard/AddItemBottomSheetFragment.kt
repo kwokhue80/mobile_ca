@@ -1,3 +1,11 @@
+/**
+ * Author(s): Yang Mao Wei
+ * Contribution:
+ * - Updated Add Item dynamic form handling for manual wellness logging.
+ * - Supported form input handling for Food, Activity, and Mood records.
+ * - Added input validation, WellnessRecord payload creation, and save flow integration.
+ * - Connected manual item submission to the wellness record API.
+ */
 package sg.edu.nus.iss.client.dashboard
 
 import android.app.DatePickerDialog

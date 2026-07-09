@@ -53,7 +53,12 @@ interface AuthApiService {
     // that day's distance/calories/exercise-minutes totals.
     @DELETE("api/wellness/exercise-logs/{id}")
     suspend fun deleteExerciseLog(@Path("id") id: Long): Response<Void>
-
+    /**
+     * Author(s): Yang Mao Wei
+     * Contribution:
+     * - Added API call for fetching food logs.
+     * - Added FoodLogResponse model for Food Summary screen.
+     */
     // Fetch up to `days` days of logged meals (meal type, food name, calories).
     // Backs the Food Summary detail screen's Day meal list and the per-day
     // breakdown shown when tapping a Week/Month chart bar.

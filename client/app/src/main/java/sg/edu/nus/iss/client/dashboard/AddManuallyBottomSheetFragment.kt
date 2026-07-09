@@ -1,5 +1,11 @@
 package sg.edu.nus.iss.client.dashboard
-
+/**
+ * Author(s): Yang Mao Wei
+ * Contribution:
+ * - Updated Add Manually bottom sheet item selection logic.
+ * - Supported manual logging entry points for Food, Activity, and Mood.
+ * - Connected selected item type to AddItemBottomSheetFragment.
+ */
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View

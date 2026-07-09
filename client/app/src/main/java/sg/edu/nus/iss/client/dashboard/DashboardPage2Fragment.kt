@@ -68,7 +68,12 @@ class DashboardPage2Fragment : Fragment() {
                 }
             }
         }
-
+        /**
+         * Author(s): Yang Mao Wei
+         * Contribution:
+         * - Linked Food Summary card to the Food Summary detail page.
+         * - Displayed today's calorie intake on the dashboard card.
+         */
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 dashboardViewModel.todaySummary.collect { summary ->

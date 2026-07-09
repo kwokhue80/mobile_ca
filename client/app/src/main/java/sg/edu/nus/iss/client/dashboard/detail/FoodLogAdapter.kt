@@ -23,7 +23,12 @@ class FoodLogAdapter : ListAdapter<FoodEntry, FoodLogAdapter.FoodViewHolder>(Dif
 
     class FoodViewHolder(private val binding: ItemFoodLogBinding) :
         RecyclerView.ViewHolder(binding.root) {
-
+        /**
+         * Author(s):  Yang Mao Wei
+         * Contribution:
+         * - Added adapter for rendering food log rows.
+         * - Displayed meal type, food name, and calories.
+         */
         fun bind(entry: FoodEntry) {
             binding.tvMealType.text = entry.mealType
             binding.tvFoodName.text = entry.foodName

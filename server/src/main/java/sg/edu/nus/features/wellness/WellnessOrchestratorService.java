@@ -349,7 +349,12 @@ public class WellnessOrchestratorService {
                 .build())
             .toList();
     }
-
+    /**
+     * Author(s): Yang Mao Wei
+     * Contribution:
+     * - Added service logic for returning structured food logs.
+     * - Mapped FoodLog entity into FoodLogResponse for frontend display.
+     */
     // Returns structured meal entries (meal type, food name, calories) over a given
     // number of past days. Backs the Food Summary detail screen's Day meal list and
     // the per-day breakdown shown under its Week/Month charts.

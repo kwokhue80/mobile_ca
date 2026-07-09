@@ -31,6 +31,12 @@ enum class MetricType(
         chartGoalMetColorHex = "#A6E2DD",
         decimalPlaces = 0
     ),
+    /**
+     * Author(s): Yang Mao Wei
+     * Contribution:
+     * - Added Food Intake metric type.
+     * - Defined default calorie goal and chart display settings.
+     */
     FOOD_INTAKE(
         displayName = "Food Intake",
         unit = "kcal",
