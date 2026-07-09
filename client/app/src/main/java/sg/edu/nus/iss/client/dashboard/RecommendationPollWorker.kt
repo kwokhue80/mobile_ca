@@ -47,6 +47,8 @@ class RecommendationPollWorker(
         val payload = runCatching { backendRepository.getRecommendations() }.getOrNull()
             ?: return Result.retry()
 
+        sessionManager.updateLastRecommendationFetchTime()
+
         // Shared signature logic prevent duplicate notifications
         val isNewRecommendation = sessionManager.upsertRecommendationAndDetectNew(
             recommendationText = payload.message,

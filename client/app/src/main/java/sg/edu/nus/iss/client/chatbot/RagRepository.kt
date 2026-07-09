@@ -20,7 +20,7 @@ class RagRepository(
     private val backendRepository: BackendRepository
 ) {
     private val wellnessLoggingIntentRegex = Regex(
-        pattern = """\\b(log|record|track|add|save|update)\\b.*\\b(food|meal|breakfast|lunch|dinner|snack|calories|kcal|water|hydration|weight|mood|sleep|exercise|workout|run|walking|cycling)\\b|\\b(i\\s*(ate|had|drank|slept|ran|walked|worked out))\\b|\\bmy\\s*(weight|mood|sleep|water)\\b""",
+        pattern = """\b(log|record|track|add|save|update)\b.*\b(food|meal|breakfast|lunch|dinner|snack|calories|kcal|water|hydration|weight|mood|sleep|exercise|workout|run|walking|cycling)\b|\b(i\s*(ate|had|drank|slept|ran|walked|worked out))\b|\bmy\s*(weight|mood|sleep|water)\b""",
         option = RegexOption.IGNORE_CASE
     )
 

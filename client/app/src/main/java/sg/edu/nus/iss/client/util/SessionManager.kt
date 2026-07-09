@@ -39,6 +39,7 @@ class SessionManager(context: Context) {
         private const val PREF_LATEST_RECOMMENDATION_TEXT = "latest_recommendation_text"
         private const val PREF_LATEST_RECOMMENDATION_TIME = "latest_recommendation_time"
         private const val PREF_RECOMMENDATION_HISTORY = "recommendation_history"
+        private const val PREF_LAST_RECOMMENDATION_FETCH_TIME = "last_recommendation_fetch_time"
         private const val MAX_RECOMMENDATION_HISTORY = 30
 
         @Volatile
@@ -190,6 +191,17 @@ class SessionManager(context: Context) {
             remove(PREF_LATEST_RECOMMENDATION_TEXT)
             remove(PREF_LATEST_RECOMMENDATION_TIME)
             remove(PREF_RECOMMENDATION_HISTORY)
+            remove(PREF_LAST_RECOMMENDATION_FETCH_TIME)
+        }
+    }
+
+    fun getLastRecommendationFetchTime(): Long {
+        return sharedPreferences.getLong(PREF_LAST_RECOMMENDATION_FETCH_TIME, 0L)
+    }
+
+    fun updateLastRecommendationFetchTime() {
+        sharedPreferences.edit {
+            putLong(PREF_LAST_RECOMMENDATION_FETCH_TIME, System.currentTimeMillis())
         }
     }
 
