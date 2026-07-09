@@ -6,6 +6,7 @@
  * - Added input validation, WellnessRecord payload creation, and save flow integration.
  * - Connected manual item submission to the wellness record API.
  */
+// Author: HuaYuan Xie
 package sg.edu.nus.iss.client.dashboard
 
 import android.app.DatePickerDialog

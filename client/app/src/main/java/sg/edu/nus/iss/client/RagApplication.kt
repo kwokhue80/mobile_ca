@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client
 
+// Author: Soo Kwok Heng with significant guidance from Claude
 import android.app.Application
 import android.util.Log
 import io.objectbox.BoxStore

@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client.backend
 
+// Authors: Amelia Wong, Soo Kwok Heng
 import com.google.gson.annotations.SerializedName
 import sg.edu.nus.iss.client.chatbot.ChatMessage
 

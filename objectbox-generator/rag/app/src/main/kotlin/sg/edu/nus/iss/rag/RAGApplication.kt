@@ -1,7 +1,7 @@
 
 package sg.edu.nus.iss.rag
 
-
+// Author: Soo Kwok Heng with significant guidance from Claude
 import dev.langchain4j.model.embedding.onnx.allminilml6v2q.AllMiniLmL6V2QuantizedEmbeddingModel
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body

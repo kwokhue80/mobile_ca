@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client.chatbot
 
+// Authors: Amelia Wong, Soo Kwok Heng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import sg.edu.nus.iss.client.backend.BackendConfig
@@ -20,7 +21,7 @@ class RagRepository(
     private val backendRepository: BackendRepository
 ) {
     private val wellnessLoggingIntentRegex = Regex(
-        pattern = """\\b(log|record|track|add|save|update)\\b.*\\b(food|meal|breakfast|lunch|dinner|snack|calories|kcal|water|hydration|weight|mood|sleep|exercise|workout|run|walking|cycling)\\b|\\b(i\\s*(ate|had|drank|slept|ran|walked|worked out))\\b|\\bmy\\s*(weight|mood|sleep|water)\\b""",
+        pattern = """\b(log|record|track|add|save|update)\b.*\b(food|meal|breakfast|lunch|dinner|snack|calories|kcal|water|hydration|weight|mood|sleep|exercise|workout|run|walking|cycling)\b|\b(i\s*(ate|had|drank|slept|ran|walked|worked out))\b|\bmy\s*(weight|mood|sleep|water)\b""",
         option = RegexOption.IGNORE_CASE
     )
 

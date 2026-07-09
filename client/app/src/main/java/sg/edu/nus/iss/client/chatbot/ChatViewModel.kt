@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.client.chatbot
 
+// Authors: Amelia Wong, Soo Kwok Heng
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch

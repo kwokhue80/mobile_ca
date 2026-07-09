@@ -2,6 +2,7 @@ package sg.edu.nus.iss.rag
 
 import dev.langchain4j.model.embedding.onnx.allminilml6v2q.AllMiniLmL6V2QuantizedEmbeddingModel
 
+// Author: Soo Kwok Heng with significant guidance from Claude
 private val testEmbeddingModel = AllMiniLmL6V2QuantizedEmbeddingModel()
 private fun embed(text: String): FloatArray {
     return testEmbeddingModel.embed(text).content().vector()

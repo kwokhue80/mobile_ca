@@ -1,3 +1,4 @@
+// Author: HuaYuan Xie
 package sg.edu.nus.iss.client.dashboard.badges
 
 import android.os.Bundle
