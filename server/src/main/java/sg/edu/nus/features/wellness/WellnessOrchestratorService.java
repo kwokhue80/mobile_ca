@@ -47,6 +47,11 @@ import sg.edu.nus.features.wellness.repository.MoodLogRepository;
 import sg.edu.nus.features.wellness.repository.SleepLogRepository;
 import sg.edu.nus.features.wellness.repository.WeightLogRepository;
 
+/*
+*   AUTHOR: Maowei Yang / Khairulanwar
+*   PURPOSE: Service layer for orchestrating wellness-related operations, handling the business logic for processing various wellness records and updating the corresponding summaries.
+*/
+
 @Slf4j
 @Service
 @RequiredArgsConstructor

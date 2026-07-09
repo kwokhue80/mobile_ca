@@ -1,4 +1,3 @@
-// Author: HuaYuan Xie
 package sg.edu.nus.features.dashboard;
 
 import java.time.LocalDate;
@@ -19,6 +18,11 @@ import sg.edu.nus.features.user.account.UserRepository;
 import sg.edu.nus.security.UserPrincipal;
 import sg.edu.nus.features.dashboard.dto.DashboardDailyResponse;
 import sg.edu.nus.features.wellness.model.DailyWellnessSummary;
+
+/*
+*   AUTHOR: HuaYuan Xie / Khairulanwar
+*   PURPOSE: Controller for the Dashboard feature, providing endpoints to fetch daily wellness summaries and activity records, as well as date range summaries for charting purposes.
+*/
 
 @Slf4j
 @RestController

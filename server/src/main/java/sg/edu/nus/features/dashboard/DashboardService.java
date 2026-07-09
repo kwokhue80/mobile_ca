@@ -1,4 +1,3 @@
-// Author: HuaYuan Xie
 package sg.edu.nus.features.dashboard;
 
 import java.time.LocalDate;
@@ -13,6 +12,11 @@ import sg.edu.nus.features.wellness.model.DailyWellnessSummary;
 import sg.edu.nus.features.wellness.repository.ActivityRecordRepository;
 import sg.edu.nus.features.wellness.repository.DailyWellnessSummaryRepository;
 import sg.edu.nus.features.dashboard.dto.DashboardDailyResponse;
+
+/*
+*   AUTHOR: HuaYuan Xie / Khairulanwar
+*   PURPOSE: Service layer for the Dashboard feature, handling the business logic for fetching daily wellness summaries and activity records, as well as date range summaries for charting purposes.
+*/
 
 @Service
 @RequiredArgsConstructor
