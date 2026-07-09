@@ -1,6 +1,7 @@
 package sg.edu.nus.iss.client
 
 // Author: Soo Kwok Heng with significant guidance from Claude
+// Author: Amelia for incorporating local vs backend chatbot routing
 import android.app.Application
 import android.util.Log
 import io.objectbox.BoxStore

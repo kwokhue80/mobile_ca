@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import sg.edu.nus.features.chat.model.ChatSession;
 
+// Author: Amelia
+
 public interface ChatSessionRepository extends JpaRepository<ChatSession, Long> {
 
 	List<ChatSession> findAllByUserIdOrderByCreatedAtDesc(UUID userId);

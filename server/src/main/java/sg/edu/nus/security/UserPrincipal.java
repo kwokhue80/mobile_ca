@@ -1,3 +1,4 @@
+// AUTHORS: Amelia Wong, Khairulanwar
 package sg.edu.nus.security;
 
 import org.springframework.security.core.GrantedAuthority;

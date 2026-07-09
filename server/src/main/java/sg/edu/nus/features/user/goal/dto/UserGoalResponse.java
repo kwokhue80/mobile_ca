@@ -5,6 +5,10 @@ import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/*
+*   AUTHOR: Amelia
+*   PURPOSE: Pass goal repsonse
+*/
 @Getter
 @AllArgsConstructor
 public class UserGoalResponse {

@@ -29,7 +29,7 @@ import sg.edu.nus.features.wellness.model.DailyWellnessSummary;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /*
-*   AUTHOR: Maowei Yang / Khairulanwar
+*   AUTHOR: Maowei Yang / Khairulanwar / Amelia Wong / Huayuan Xie
 *   PURPOSE: Controller for the Wellness feature, providing endpoints to save wellness records and fetch daily wellness summaries.
 */
 

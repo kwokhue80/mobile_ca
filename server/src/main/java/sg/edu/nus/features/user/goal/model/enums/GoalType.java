@@ -3,7 +3,7 @@ package sg.edu.nus.features.user.goal.model.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-// Synced with frontend goals
+// AUTHOR: Amelia
 @Getter
 @RequiredArgsConstructor
 public enum GoalType {

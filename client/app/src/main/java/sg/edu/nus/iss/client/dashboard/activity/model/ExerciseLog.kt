@@ -1,3 +1,4 @@
+// Author
 package sg.edu.nus.iss.client.dashboard.activity.model
 
 import java.time.LocalDateTime

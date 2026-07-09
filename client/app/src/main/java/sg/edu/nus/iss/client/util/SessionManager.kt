@@ -1,3 +1,4 @@
+// Authors: Khairulanwar, Amelia Wong
 package sg.edu.nus.iss.client.util
 
 import android.content.Context

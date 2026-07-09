@@ -1,3 +1,4 @@
+// Author: Amelia Wong
 package sg.edu.nus.iss.client.dashboard
 
 import android.view.LayoutInflater

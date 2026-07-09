@@ -1,5 +1,4 @@
 // Author: HuaYuan Xie
-package sg.edu.nus.iss.client.dashboard
 /**
  * Author(s): Yang Mao Wei
  * Contribution:
@@ -7,6 +6,8 @@ package sg.edu.nus.iss.client.dashboard
  * - Supported manual logging entry points for Food, Activity, and Mood.
  * - Connected selected item type to AddItemBottomSheetFragment.
  */
+package sg.edu.nus.iss.client.dashboard
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
