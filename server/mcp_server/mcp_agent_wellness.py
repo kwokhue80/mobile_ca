@@ -354,56 +354,38 @@ async def _llm_classify_logging_vs_question(text: str) -> bool:
 
 # Regex detecting user intent to log entry - relaxed
 async def _looks_like_logging_intent(text: str) -> bool:
-    lowered = text.lower().strip()
-    if not lowered:
+    """Improved logging intent detection."""
+    if not text or not text.strip():
         return False
     
-    # === Question guard (early exit for most general queries) ===
-    # Early exit for obvious questions
-    if "?" in text or bool(re.search(r"\b(how|what|why|when|where|who|can you|could you|should i|tell me|benefits of)\b", lowered)):
-        if not any(word in lowered for word in ["log", "record", "track", "add", "save", "my"]):
+    lowered = text.lower().strip()
+
+    # === Very strong explicit logging signals ===
+    explicit_log_patterns = [
+        r"\b(log|record|track|add|save|create|enter)\b.*\b(entry|meal|food|exercise|water|weight|mood|sleep)\b",
+        r"\blog an? entry\b",
+        r"\bi (?:ate|had|drank|slept|ran|walked|worked out)\b",
+    ]
+    for pattern in explicit_log_patterns:
+        if re.search(pattern, lowered):
+            return True
+
+    # === Question guard (only skip if clearly a question) ===
+    if "?" in text or bool(re.search(r"\b(how|what|why|when|where|who|benefits?|is|are)\b", lowered)):
+        if not any(word in lowered for word in ["log", "record", "track", "add my", "save my"]):
             return False
 
-    # 1. Explicit logging commands (strongest signal)
-    explicit_pattern = re.compile(
-        r"\b(log|record|track|add|save|update|log my|please log|want to log)\b.*\b(water|hydration|weight|mood|sleep|exercise|workout|food|meal|calories|kcal)\b",
-        re.IGNORECASE,
-    )
-    if explicit_pattern.search(text):
-        return True
-
-    # 2. Natural first-person logging statements
-    natural_pattern = re.compile(
-        r"\b(i\s+(?:ate|had|drank|slept|ran|walked|jogged|cycled|swam|worked out|trained|did|went for|just finished))\b",
-        re.IGNORECASE,
-    )
-    if natural_pattern.search(text):
-        return True
-
-    # 3. Ambiguous cases → use LLM classifier
-    has_exercise_time = bool(re.search(r"\b(workout|exercise|training|ran|run|walked|jogged|cycled|swam)\b", lowered)) and bool(re.search(r"\b(\d+)\s*(?:minute|minutes|min|hour|hours)\b", lowered))
-    has_wellness_unit = any(kw in lowered for kw in ["water", "weight", "mood", "sleep", "meal", "food", "calories"]) and any(unit in lowered for unit in ["ml", "kg", "/10", "kcal", "calories"])
-
-    if has_exercise_time or has_wellness_unit:
-        return await _llm_classify_logging_vs_question(text)
-
-    # 4. "log my ..." and entry phrases
-    if re.search(r"\blog my\b", lowered) or re.search(r"\b(food|meal|exercise|workout|hydration|water|sleep|mood|weight)\s+entry\b", lowered):
-        return True
-
-    return False
-
-
-def _looks_like_llm_logging_redirect(answer: str) -> bool:
-    lowered = answer.lower()
-    markers = [
-        "continue through the",
-        "logging flow",
-        "do not attempt to log",
-        "want to log",
-        "keep your wellness data accurate",
+    # === Natural logging phrases ===
+    natural_patterns = [
+        r"\b(i|my)\s+(ate|had|drank|consumed|ate an?|had an?)\b",
+        r"\b(apple|banana|chicken|rice|water|run|walk|sleep|weight|mood)\b.*\b(log|record|track)\b",
     ]
-    return sum(1 for marker in markers if marker in lowered) >= 2
+    for pattern in natural_patterns:
+        if re.search(pattern, lowered):
+            return True
+
+    # Fallback to LLM classifier only for ambiguous cases
+    return await _llm_classify_logging_vs_question(text)
 
 
 # Converts messy text into json
@@ -1640,10 +1622,50 @@ async def ask_agent(request: ChatRequest, request_id: str) -> str:
     if _has_active_logging_draft():
         return await _handle_logging_orchestration(request, request_id)
 
-    if await _looks_like_logging_intent(request.query):
+    looks_like_log = await _looks_like_logging_intent(request.query)
+    parsed_log = _parse_wellness_log_request(request.query)
+
+    lowered = request.query.lower().strip()
+
+    is_obvious_question = (
+        "?" in request.query
+        or bool(
+            re.match(
+                r"^(what|why|how|when|where|who|is|are|can|could|"
+                r"should|would|do|does|did)\b",
+                lowered,
+            )
+        )
+    )
+
+    has_explicit_log_signal = bool(
+        re.search(
+            r"\b(log|record|track|add|save|update)\b",
+            lowered,
+        )
+    )
+
+    has_first_person_action = bool(
+        re.search(
+            r"\bi\s+(ate|had|drank|slept|ran|walked|jogged|"
+            r"cycled|swam|worked out|exercised)\b",
+            lowered,
+        )
+    )
+
+    if (
+        looks_like_log
+        or (
+            parsed_log is not None
+            and (
+                not is_obvious_question
+                or has_explicit_log_signal
+                or has_first_person_action
+            )
+        )
+    ):
         return await _handle_logging_orchestration(request, request_id)
 
-    # Everything else goes to the LLM
     state = WorkflowState(request=request, request_id=request_id)
     return await _run_llm_stage(state)
 
